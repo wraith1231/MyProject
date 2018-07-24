@@ -9,8 +9,9 @@ GameModel::GameModel(wstring materialFile, wstring meshFile)
 	model->ReadMesh(meshFile);
 
 	shader = new Shader(Shaders + L"999_BoneAnimation.hlsl", "VS_Bone");
-	shader2 = new Shader(Shaders + L"999_BoneAnimation.hlsl", "VS_Normal", "PS_Normal");
-	shader3 = new Shader(Shaders + L"999_BoneAnimation.hlsl", "VS_Depth", "PS_Depth");
+	shader2 = new Shader(Shaders + L"999_BoneAnimation.hlsl", "VS_ND", "PS_ND");
+	shader3 = NULL;
+	//shader3 = new Shader(Shaders + L"999_BoneAnimation.hlsl", "VS_Depth", "PS_Depth");
 	for (Material* material : model->Materials())
 		material->SetShader(shader);
 
@@ -131,21 +132,21 @@ void GameModel::PreRender2()
 {
 	if (Visible() == false) return;
 
-	for (Material* material : model->Materials())
-		material->SetShader(shader3);
-
-	boneBuffer->SetBones(&boneTransforms[0], boneTransforms.size());
-	boneBuffer->SetVSBuffer(2);
-
-	for (ModelMesh* mesh : model->Meshes())
-	{
-		int index = mesh->ParentBoneIndex();
-
-		renderBuffer->Data.BoneNumber = index;
-		renderBuffer->SetVSBuffer(3);
-
-		mesh->Render();
-	}
+	//for (Material* material : model->Materials())
+	//	material->SetShader(shader3);
+	//
+	//boneBuffer->SetBones(&boneTransforms[0], boneTransforms.size());
+	//boneBuffer->SetVSBuffer(2);
+	//
+	//for (ModelMesh* mesh : model->Meshes())
+	//{
+	//	int index = mesh->ParentBoneIndex();
+	//
+	//	renderBuffer->Data.BoneNumber = index;
+	//	renderBuffer->SetVSBuffer(3);
+	//
+	//	mesh->Render();
+	//}
 }
 
 void GameModel::ImGuiRender()

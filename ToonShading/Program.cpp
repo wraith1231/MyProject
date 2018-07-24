@@ -10,6 +10,7 @@
 #include "./Executes/DrawTerrain.h"
 #include "./Executes/ExeGui.h"
 #include "./Executes/ToonShading.h"
+#include "./Executes/ToonShading2.h"
 
 Program::Program()
 {
@@ -24,21 +25,22 @@ Program::Program()
 	values->Viewport = new Viewport(desc.Width, desc.Height);
 	values->GuiSettings = new GuiSettings();
 	values->GlobalLight = new LightBuffer();
-	
-	executes.push_back(new ToonShading(values));
+
+	//executes.push_back(new ToonShading(values));
+	executes.push_back(new ToonShading2(values));
 	executes.push_back(new ExportMesh(values));
 	executes.push_back(new ExportAnimation(values));
 
 	//values->jsonRoot = new Json::Value();
 	//Json::ReadData(values->jsonRoot);
 
-	//values->MainCamera = new FreeCam(100);
-	//values->MainCamera->SetPosition(0.0f, 0.0f, -5.0f);
-	//values->MainCamera->SetRotationDegree(0.0f, 0.0f);
+	values->MainCamera = new FreeCam(100);
+	values->MainCamera->SetPosition(0.0f, 0.0f, -5.0f);
+	values->MainCamera->SetRotationDegree(0.0f, 0.0f);
 
 	DrawModel* model = new DrawModel(values);
 	
-	values->MainCamera = new ThirdPerson(model->GetCharPos());
+	//values->MainCamera = new ThirdPerson(model->GetCharPos());
 	executes.push_back(model);
 	//executes.push_back(terrain);
 	//executes.push_back(new DrawModel(values));
@@ -78,9 +80,9 @@ void Program::PreRender()
 	for (Execute* exe : executes)
 		exe->PreRender();
 
-	SetGlobalBuffers();
-	for (Execute* exe : executes)
-		exe->PreRender2();
+	//SetGlobalBuffers();
+	//for (Execute* exe : executes)
+	//	exe->PreRender2();
 
 	
 }

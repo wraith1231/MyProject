@@ -219,6 +219,9 @@
     <ClInclude Include="Executes\ToonShading.h">
       <Filter>Executes</Filter>
     </ClInclude>
+    <ClInclude Include="Executes\ToonShading2.h">
+      <Filter>Executes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Executes">
@@ -436,6 +439,9 @@
       <Filter>Units</Filter>
     </ClCompile>
     <ClCompile Include="Executes\ToonShading.cpp">
+      <Filter>Executes</Filter>
+    </ClCompile>
+    <ClCompile Include="Executes\ToonShading2.cpp">
       <Filter>Executes</Filter>
     </ClCompile>
   </ItemGroup>

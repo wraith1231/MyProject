@@ -30,6 +30,13 @@ struct PixelDepthInput
     float depth : DEPTH0;
 };
 
+struct PixelNDInput
+{
+    float4 position : SV_POSITION;
+    float3 normal : NORMAL0;
+    float depth : DEPTH0;
+};
+
 PixelInput VS_Bone(VertexTextureNormal input)
 {
     PixelInput output;
@@ -72,6 +79,23 @@ PixelDepthInput VS_Depth(VertexTextureNormal input)
     return output;
 }
 
+PixelNDInput VS_ND(VertexTextureNormal input)
+{
+    PixelNDInput output;
+    
+    output.position = mul(input.position, _bones[_boneNumber]);
+    output.position = mul(output.position, _view);
+    output.position = mul(output.position, _projection);
+
+    output.depth = 1.0f - output.position.z / output.position.w;
+
+    output.normal = mul(input.normal, (float3x3) _bones[_boneNumber]);
+    output.normal = normalize(output.normal);
+
+    return output;
+
+}
+
 float4 PS(PixelInput input) : SV_TARGET
 {
     float4 color = _diffuseMap.Sample(_diffuseSampler, input.uv);
@@ -89,4 +113,10 @@ float4 PS_Normal(PixelNormalInput input) : SV_TARGET
 float4 PS_Depth(PixelDepthInput input) : SV_TARGET
 {
     return float4(input.depth, input.depth, input.depth, 1);
+}
+
+float4 PS_ND(PixelNDInput input) : SV_TARGET
+{
+    return float4(input.normal, input.depth);
+
 }

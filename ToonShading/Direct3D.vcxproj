@@ -34,6 +34,7 @@
     <ClInclude Include="Executes\ExportAnimation.h" />
     <ClInclude Include="Executes\ExportMesh.h" />
     <ClInclude Include="Executes\GuiSettings.h" />
+    <ClInclude Include="Executes\ToonShading2.h" />
     <ClInclude Include="Fbx\BoneWeights.h" />
     <ClInclude Include="Fbx\Exporter.h" />
     <ClInclude Include="Fbx\Type.h" />
@@ -107,6 +108,7 @@
     <ClCompile Include="Executes\ExeGui.cpp" />
     <ClCompile Include="Executes\ExportAnimation.cpp" />
     <ClCompile Include="Executes\ExportMesh.cpp" />
+    <ClCompile Include="Executes\ToonShading2.cpp" />
     <ClCompile Include="Fbx\Exporter.cpp" />
     <ClCompile Include="Fbx\Utility.cpp" />
     <ClCompile Include="Fbx\XmlToAnim.cpp" />

@@ -82,7 +82,7 @@ float4 PS(PixelInput input) : SV_TARGET
     //return float4(1, 1, 1, 1);
    
     //Depth Silhouette
-    poi = 0.00000008f;
+    poi = 0.00000006f;
     float pa = (_valueFar) / (_valueFar - _valueNear);
     float pb = (-_valueNear) / (_valueFar - _valueNear);
 

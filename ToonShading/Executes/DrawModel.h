@@ -14,6 +14,7 @@ public:
 	void PreRender2();
 	void Render();
 	void PostRender();
+	void PostRender2();
 	void ImGuiRender();
 
 	void ResizeScreen() {}

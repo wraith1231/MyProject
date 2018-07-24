@@ -91,15 +91,18 @@ void Program::Render()
 {
 	for (Execute* exe : executes)
 		exe->Render();
+
 }
 
 void Program::PostRender()
 {
-	D3D::Get()->SetRenderTarget();
-	
 	for (Execute* exe : executes)
 		exe->PostRender();
 
+	D3D::Get()->SetRenderTarget();
+	
+	for (Execute* exe : executes)
+		exe->PostRender2();
 
 	for (Execute* exe : executes)
 		exe->ImGuiRender();

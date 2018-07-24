@@ -13,6 +13,7 @@ public:
 	void Render();
 	void PostRender();
 	void PreRender2();
+	void PostRender2();
 	void ImGuiRender();
 
 	void ResizeScreen() {}

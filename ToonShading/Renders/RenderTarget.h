@@ -27,7 +27,6 @@ public:
 	void Set();
 
 	void Create(UINT width = 0, UINT height = 0);
-
 private:
 	void Delete();
 

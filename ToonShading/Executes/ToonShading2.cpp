@@ -90,6 +90,10 @@ void ToonShading2::PostRender()
 	model->Render();
 }
 
+void ToonShading2::PostRender2()
+{
+}
+
 void ToonShading2::ImGuiRender()
 {
 }

@@ -35,22 +35,30 @@ public:
 	void PreRender2();
 	void Render();
 	void PostRender();
+	void PostRender2();
 	void ImGuiRender();
 
 	void ResizeScreen();
 
 private:
 	class Model* model;
+	class Model* model2;
 	D3DXMATRIX view;
 
 	RenderTarget* normalRT;
 	RenderTarget* depthRT;
 	RenderTarget* realRT;
+	RenderTarget* AART;
+
 	Orthographic* projection;
 
 	WorldBuffer* worldBuffer;
 
 	Shader* shader;
+	Shader* shaderaa;
+
 	Buffer* buffer;
+
+	float xplus, yplus, zplus;
 
 };

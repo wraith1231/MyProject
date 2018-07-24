@@ -103,6 +103,10 @@ void DrawModel::PostRender()
 
 }
 
+void DrawModel::PostRender2()
+{
+}
+
 void DrawModel::ImGuiRender()
 {
 }

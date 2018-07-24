@@ -46,6 +46,10 @@ void ExeGui::PreRender2()
 {
 }
 
+void ExeGui::PostRender2()
+{
+}
+
 void ExeGui::ImGuiRender()
 {
 	if (ImGui::BeginMainMenuBar())

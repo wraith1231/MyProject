@@ -34,6 +34,7 @@ public:
 	virtual void PreRender2() = 0;
 	virtual void Render() = 0;
 	virtual void PostRender() = 0;
+	virtual void PostRender2() = 0;
 	virtual void ImGuiRender() = 0;
 
 	virtual void ResizeScreen() = 0;

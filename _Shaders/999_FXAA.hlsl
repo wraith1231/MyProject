@@ -44,7 +44,7 @@ float4 PS(PixelInput input) : SV_TARGET
 {
     float4 c = float4(0, 0, 0, 1);
     float2 rcpFrame = float2(1.0f / _valueWidth, 1.0f / _valueHeight);
-    //float4 color = RenderTarget.Sample(RenderTargetSampler, input.uv);
+    float4 color = RenderTarget.Sample(RenderTargetSampler, input.uv);
 
 
 

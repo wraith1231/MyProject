@@ -79,7 +79,6 @@ float4 PS(PixelInput input) : SV_TARGET
     if (abs(len - len1) > poi)
         return float4(0, 0, 0, 1);
     
-    //return float4(1, 1, 1, 1);
    
     //Depth Silhouette
     poi = 0.00000006f;
@@ -99,21 +98,7 @@ float4 PS(PixelInput input) : SV_TARGET
     depth1 = pb / (depthColor4.r - pa);
     if (abs(depth - depth1) > poi)
         return float4(0, 0, 0, 1);
-
-    //len = dot(depthColor, depthColor);
-    //len1 = dot(depthColor, depthColor1);
-    //if (abs(len - len1) > poi)
-    //    return float4(0, 0, 0, 1);
-    //len1 = dot(depthColor, depthColor2);
-    //if (abs(len - len1) > poi)
-    //    return float4(0, 0, 0, 1);
-    //len1 = dot(depthColor, depthColor3);
-    //if (abs(len - len1) > poi)
-    //    return float4(0, 0, 0, 1);
-    //len1 = dot(depthColor, depthColor4);
-    //if (abs(len - len1) > poi)
-    //    return float4(0, 0, 0, 1);
-
+    
     //return float4(1, 1, 1, 1);
 
     float4 realColor = RealRT.Sample(RealRTSampler, input.uv);

@@ -50,12 +50,11 @@ PixelInput VS(VertexTextureNormal input)
 float4 PS(PixelInput input) : SV_TARGET
 {
     float2 rcpFrame = float2(1.0f / _valueWidth, 1.0f / _valueHeight);
-    float4 color = RenderTarget.Sample(RenderTargetSampler, input.uv);
+    float4 color = RenderTarget.Sample(RenderTargetSampler, input.zw);
 
     FxaaTex te;
     te.smpl = RenderTargetSampler;
     te.tex = RenderTarget;
-
     return FxaaPixelShader(input.uv, float4(0, 0, 0, 0),
     te, te, te, rcpFrame,
     float4(0, 0, 0, 0), float4(0, 0, 0, 0), float4(0, 0, 0, 0),

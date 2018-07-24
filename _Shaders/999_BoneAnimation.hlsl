@@ -60,6 +60,7 @@ PixelNormalInput VS_Normal(VertexTextureNormal input)
     output.position = mul(output.position, _view);
     output.position = mul(output.position, _projection);
 
+    //output.normal = input.normal;
     output.normal = mul(input.normal, (float3x3) _bones[_boneNumber]);
     output.normal = normalize(output.normal);
 

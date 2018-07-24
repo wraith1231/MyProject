@@ -1,4 +1,5 @@
 #include "000_Header.hlsl"
+#include "FXAA.hlsl"
 
 cbuffer VS_Value : register(b2)
 {
@@ -40,12 +41,25 @@ PixelInput VS(VertexTextureNormal input)
     return output;
 }
 
+//struct FxaaTex
+//{
+//    SamplerState smpl;
+//    Texture2D tex;
+//};
+
 float4 PS(PixelInput input) : SV_TARGET
 {
-    float4 c = float4(0, 0, 0, 1);
     float2 rcpFrame = float2(1.0f / _valueWidth, 1.0f / _valueHeight);
     float4 color = RenderTarget.Sample(RenderTargetSampler, input.uv);
 
+    FxaaTex te;
+    te.smpl = RenderTargetSampler;
+    te.tex = RenderTarget;
+
+    return FxaaPixelShader(input.uv, float4(0, 0, 0, 0),
+    te, te, te, rcpFrame,
+    float4(0, 0, 0, 0), float4(0, 0, 0, 0), float4(0, 0, 0, 0),
+    0.75f, 0.166f, 0.0833f, 0.0f, 0.0f, 0.0f, float4(0, 0, 0, 0));
 
 
     return color;

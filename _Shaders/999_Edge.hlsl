@@ -38,7 +38,6 @@ float4 PS(PixelInput input) : SV_TARGET
 {
     float4 normalColor = NormalRT.Sample(NormalRTSampler, input.uv);
     float4 depthColor = DepthRT.Sample(DepthRTSampler, input.uv);
-
     float2 uv = input.uv;
     uv.y -= 1.0f / _valueHeight;
     float4 normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
@@ -61,9 +60,8 @@ float4 PS(PixelInput input) : SV_TARGET
     
     float len, len1;
 
-
     //Normal Silhouette
-    float poi = 0.015f;
+    float poi = 0.1f;
 
     len = dot(normalColor, normalColor);
     len1 = dot(normalColor, normalColor1);
@@ -79,6 +77,7 @@ float4 PS(PixelInput input) : SV_TARGET
     if (abs(len - len1) > poi)
         return float4(0, 0, 0, 1);
     
+    //return normalColor;
    
     //Depth Silhouette
     poi = 0.00000006f;
@@ -99,6 +98,7 @@ float4 PS(PixelInput input) : SV_TARGET
     if (abs(depth - depth1) > poi)
         return float4(0, 0, 0, 1);
     
+    //return float4(depth, depth, depth, 1);
     //return float4(1, 1, 1, 1);
 
     float4 realColor = RealRT.Sample(RealRTSampler, input.uv);

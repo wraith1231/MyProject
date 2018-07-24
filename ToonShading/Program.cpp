@@ -26,8 +26,8 @@ Program::Program()
 	values->GuiSettings = new GuiSettings();
 	values->GlobalLight = new LightBuffer();
 
-	//executes.push_back(new ToonShading(values));
-	executes.push_back(new ToonShading2(values));
+	executes.push_back(new ToonShading(values));
+	//executes.push_back(new ToonShading2(values));
 	executes.push_back(new ExportMesh(values));
 	executes.push_back(new ExportAnimation(values));
 
@@ -81,8 +81,8 @@ void Program::PreRender()
 		exe->PreRender();
 
 	//SetGlobalBuffers();
-	//for (Execute* exe : executes)
-	//	exe->PreRender2();
+	for (Execute* exe : executes)
+		exe->PreRender2();
 
 	
 }

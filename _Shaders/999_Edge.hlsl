@@ -2,10 +2,10 @@
 
 cbuffer PS_Value : register(b2)
 {
-    uint _valueCount;
     float _valueWidth;
     float _valueHeight;
-    float _valuePadding;
+    float _valueNear;
+    float _valueFar;
 }
 
 Texture2D NormalRT : register(t5);
@@ -59,49 +59,63 @@ float4 PS(PixelInput input) : SV_TARGET
     float4 normalColor4 = NormalRT.Sample(NormalRTSampler, uv);
     float4 depthColor4 = DepthRT.Sample(DepthRTSampler, uv);
     
-    float len1, len2, len3, len4;
+    float len, len1;
+
 
     //Normal Silhouette
-    float poi = 0.1f;
-    len1 = length(normalColor - normalColor1);
-    if (len1 >= poi)
-        return float4(0, 0, 0, 1);
-    len2 = length(normalColor - normalColor2);
-    if (len2 >= poi)
-        return float4(0, 0, 0, 1);
-    len3 = length(normalColor - normalColor3);
-    if (len3 >= poi)
-        return float4(0, 0, 0, 1);
-    len4 = length(normalColor - normalColor4);
-    if (len4 >= poi)
-        return float4(0, 0, 0, 1);
+    float poi = 0.015f;
 
-    //Depth Silhouette
-    poi = 0.001f;
-    len1 = length(depthColor - depthColor1);
-    if (len1 >= poi)
+    len = dot(normalColor, normalColor);
+    len1 = dot(normalColor, normalColor1);
+    if (abs(len - len1) > poi)
         return float4(0, 0, 0, 1);
-    len2 = length(depthColor - depthColor2);
-    if (len2 >= poi)
+    len1 = dot(normalColor, normalColor2);
+    if (abs(len - len1) > poi)
         return float4(0, 0, 0, 1);
-    len3 = length(depthColor - depthColor3);
-    if (len3 >= poi)
+    len1 = dot(normalColor, normalColor3);
+    if (abs(len - len1) > poi)
         return float4(0, 0, 0, 1);
-    len4 = length(depthColor - depthColor4);
-    if (len4 >= poi)
+    len1 = dot(normalColor, normalColor4);
+    if (abs(len - len1) > poi)
         return float4(0, 0, 0, 1);
-    //if (depthColor.r != depthColor1.r)
-    //    return float4(0, 0, 0, 1);
-    //if (depthColor.r != depthColor2.r)
-    //    return float4(0, 0, 0, 1);
-    //if (depthColor.r != depthColor3.r)
-    //    return float4(0, 0, 0, 1);
-    //if (depthColor.r != depthColor4.r)
-    //    return float4(0, 0, 0, 1);
-    
-    //return depthColor;
     
     //return float4(1, 1, 1, 1);
+   
+    //Depth Silhouette
+    poi = 0.00000008f;
+    float pa = (_valueFar) / (_valueFar - _valueNear);
+    float pb = (-_valueNear) / (_valueFar - _valueNear);
+
+    float depth = pb / (depthColor.r - pa);
+    float depth1 = pb / (depthColor1.r - pa);
+    if (abs(depth - depth1) > poi)
+        return float4(0, 0, 0, 1);
+    depth1 = pb / (depthColor2.r - pa);
+    if (abs(depth - depth1) > poi)
+        return float4(0, 0, 0, 1);
+    depth1 = pb / (depthColor3.r - pa);
+    if (abs(depth - depth1) > poi)
+        return float4(0, 0, 0, 1);
+    depth1 = pb / (depthColor4.r - pa);
+    if (abs(depth - depth1) > poi)
+        return float4(0, 0, 0, 1);
+
+    //len = dot(depthColor, depthColor);
+    //len1 = dot(depthColor, depthColor1);
+    //if (abs(len - len1) > poi)
+    //    return float4(0, 0, 0, 1);
+    //len1 = dot(depthColor, depthColor2);
+    //if (abs(len - len1) > poi)
+    //    return float4(0, 0, 0, 1);
+    //len1 = dot(depthColor, depthColor3);
+    //if (abs(len - len1) > poi)
+    //    return float4(0, 0, 0, 1);
+    //len1 = dot(depthColor, depthColor4);
+    //if (abs(len - len1) > poi)
+    //    return float4(0, 0, 0, 1);
+
+    //return float4(1, 1, 1, 1);
+
     float4 realColor = RealRT.Sample(RealRTSampler, input.uv);
 
     return realColor;

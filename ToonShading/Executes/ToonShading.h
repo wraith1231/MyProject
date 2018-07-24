@@ -10,17 +10,18 @@ public:
 	public:
 		Buffer() : ShaderBuffer(&Data, sizeof(Struct))
 		{
-			Data.Count = 0;
 			Data.Width = 0.0f;
 			Data.Height = 0.0f;
+			Data.Near = 0.0f;
+			Data.Far = 0.0f;
 		}
 
 		struct Struct
 		{
-			UINT Count;
 			float Width;
 			float Height;
-			float Padding;
+			float Near;
+			float Far;
 		}Data;
 	};
 

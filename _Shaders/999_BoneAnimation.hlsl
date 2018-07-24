@@ -75,7 +75,7 @@ PixelDepthInput VS_Depth(VertexTextureNormal input)
     output.position = mul(output.position, _projection);
 
     output.depth = 1.0f - output.position.z / output.position.w;
-
+    
     return output;
 }
 

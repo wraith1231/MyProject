@@ -30,6 +30,8 @@ ToonShading::ToonShading(ExecuteValues* values)
 	}
 	
 	buffer = new Buffer;
+	buffer->Data.Near = values->Perspective->GetNearZ();
+	buffer->Data.Far = values->Perspective->GetFarZ();
 }
 
 ToonShading::~ToonShading()

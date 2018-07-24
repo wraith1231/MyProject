@@ -10,6 +10,10 @@ public:
 	void Set(float width, float height, float fov = (float)D3DX_PI * 0.25f, float zn = 0.1f, float zf = 1000.0f);
 
 	float GetFov() { return fov; }
+
+	float GetNearZ() { return zn; }
+	float GetFarZ() { return zf; }
+
 private:
 	float width, height;
 	float fov;

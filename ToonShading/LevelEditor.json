@@ -1,0 +1,12 @@
+{
+   "Environment" : {
+      "Sky" : {
+         "Horizon Height" : 0.030000001192092896
+      }
+   },
+   "Global Light" : {
+      "Color" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "Direction" : [ -1.0, -1.0, 1.0 ],
+      "Overcast" : 1.0
+   }
+}

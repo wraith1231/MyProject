@@ -1,0 +1,41 @@
+{
+   "Default_Material" : {
+      "Ambient" : [ 0.5, 0.5, 0.5, 1.0 ],
+      "Diffuse" : [ 0.5, 0.5, 0.5, 1.0 ],
+      "DiffuseFile" : [ "" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "Default_Material" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 0.0,
+      "Specular" : [ 0.0, 0.0, 0.0, 0.0 ],
+      "SpecularFile" : [ "" ]
+   },
+   "Soldier_body1" : {
+      "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 0.80000001192092896 ],
+      "DiffuseFile" : [ "Soldier_Body_diffuse.png" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "Soldier_body1" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 6.311790943145752,
+      "Specular" : [ 0.5, 0.5, 0.5, 1.0 ],
+      "SpecularFile" : [ "Soldier_Body_specular.png" ]
+   },
+   "Soldier_head6" : {
+      "Ambient" : [ 0.23576714098453522, 0.23576714098453522, 0.23576714098453522, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 0.80000001192092896 ],
+      "DiffuseFile" : [ "Soldier_head_diffuse.png" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "Soldier_head6" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 6.311790943145752,
+      "Specular" : [ 0.5, 0.5, 0.5, 1.0 ],
+      "SpecularFile" : [ "Soldier_head_specular.png" ]
+   }
+}

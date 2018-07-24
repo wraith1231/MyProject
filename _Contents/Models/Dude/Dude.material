@@ -1,0 +1,67 @@
+{
+   "character_anim:eyeBallM" : {
+      "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "DiffuseFile" : [ "upBodyC.tga" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "character_anim:eyeBallM" ],
+      "NormalFile" : [ "upbodyN.tga" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 65.986000061035156,
+      "Specular" : [ 0.5, 0.5, 0.5, 1.0 ],
+      "SpecularFile" : [ "upBodyS.tga" ]
+   },
+   "character_anim:headM" : {
+      "Ambient" : [ 0.049580000340938568, 0.049580000340938568, 0.049580000340938568, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "DiffuseFile" : [ "head.tga" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "character_anim:headM" ],
+      "NormalFile" : [ "headN.tga" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 1.2457308769226074,
+      "Specular" : [ 0.5, 0.5, 0.5, 1.0 ],
+      "SpecularFile" : [ "headS.tga" ]
+   },
+   "character_anim:jacketM" : {
+      "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "DiffuseFile" : [ "jacket.tga" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "character_anim:jacketM" ],
+      "NormalFile" : [ "jacketN.tga" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 1.2457308769226074,
+      "Specular" : [ 0.5, 0.5, 0.5, 1.0 ],
+      "SpecularFile" : [ "jacketS.tga" ]
+   },
+   "character_anim:pantsM" : {
+      "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 0.80000001192092896 ],
+      "DiffuseFile" : [ "pants.tga" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "character_anim:pantsM" ],
+      "NormalFile" : [ "pantsN.tga" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 1.2457308769226074,
+      "Specular" : [ 0.5, 0.5, 0.5, 1.0 ],
+      "SpecularFile" : [ "pantsS.tga" ]
+   },
+   "character_anim:upBodyM" : {
+      "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "DiffuseFile" : [ "upBodyC.tga" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "character_anim:upBodyM" ],
+      "NormalFile" : [ "upbodyN.tga" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 1.193719744682312,
+      "Specular" : [ 0.5, 0.5, 0.5, 1.0 ],
+      "SpecularFile" : [ "upBodyS.tga" ]
+   }
+}

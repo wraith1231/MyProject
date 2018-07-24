@@ -1,0 +1,28 @@
+{
+   "engine_phong" : {
+      "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 0.80000001192092896 ],
+      "DiffuseFile" : [ "engine_diff_tex.tga" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "engine_phong" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 20.0,
+      "Specular" : [ 0.25222200155258179, 0.38100001215934753, 0.3341677188873291, 1.0 ],
+      "SpecularFile" : [ "" ]
+   },
+   "turret_phong" : {
+      "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 0.80000001192092896 ],
+      "DiffuseFile" : [ "turret_alt_diff_tex.tga" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "turret_phong" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 20.0,
+      "Specular" : [ 0.25222200155258179, 0.38100001215934753, 0.3341677188873291, 1.0 ],
+      "SpecularFile" : [ "" ]
+   }
+}

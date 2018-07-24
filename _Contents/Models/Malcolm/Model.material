@@ -1,0 +1,80 @@
+{
+   "Bodymat" : {
+      "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "DiffuseFile" : [ "Malcom_Body_Diffuse.png" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "Bodymat" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 20.0,
+      "Specular" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "SpecularFile" : [ "Malcom_Body_Specular.png" ]
+   },
+   "Bottommat" : {
+      "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "DiffuseFile" : [ "Malcom_Bottom_Diffuse.png" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "Bottommat" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 20.0,
+      "Specular" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "SpecularFile" : [ "Malcom_Bottom_Specular.png" ]
+   },
+   "Hairmat" : {
+      "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "DiffuseFile" : [ "Malcom_Hair_Diffuse.png" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "Hairmat" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 20.0,
+      "Specular" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "SpecularFile" : [ "Malcom_Hair_Specular.png" ]
+   },
+   "Hatmat" : {
+      "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "DiffuseFile" : [ "Malcom_Hat_Diffuse.png" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "Hatmat" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 20.0,
+      "Specular" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "SpecularFile" : [ "Malcom_Hat_Specular.png" ]
+   },
+   "Shoesmat" : {
+      "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "DiffuseFile" : [ "Malcom_Shoes_Diffuse.png" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "Shoesmat" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 20.0,
+      "Specular" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "SpecularFile" : [ "Malcom_Shoes_Specular.png" ]
+   },
+   "Topmat" : {
+      "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "DiffuseFile" : [ "Malcom_Top_Diffuse.png" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "Topmat" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 20.0,
+      "Specular" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "SpecularFile" : [ "Malcom_Top_Specular.png" ]
+   }
+}

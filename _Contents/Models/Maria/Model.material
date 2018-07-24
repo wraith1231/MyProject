@@ -1,0 +1,15 @@
+{
+   "MariaMat" : {
+      "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "DiffuseFile" : [ "maria_diffuse.png" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "MariaMat" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 20.0,
+      "Specular" : [ 0.5, 0.5, 0.5, 1.0 ],
+      "SpecularFile" : [ "maria_specular.png" ]
+   }
+}

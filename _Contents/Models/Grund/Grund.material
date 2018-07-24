@@ -1,0 +1,28 @@
+{
+   "Add" : {
+      "Ambient" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "DiffuseFile" : [ "Grund_New_Add_1.dds" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "Add" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 1.6245048046112061,
+      "Specular" : [ 0.5, 0.5, 0.5, 1.0 ],
+      "SpecularFile" : [ "" ]
+   },
+   "orig_01___Default" : {
+      "Ambient" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "DiffuseFile" : [ "Texture_Grund_Gray.dds" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "orig_01___Default" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 1.6245048046112061,
+      "Specular" : [ 0.5, 0.5, 0.5, 1.0 ],
+      "SpecularFile" : [ "" ]
+   }
+}

@@ -37,6 +37,8 @@ struct PixelNDInput
     float depth : DEPTH0;
 };
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//기본 VS, PS
 PixelInput VS_Bone(VertexTextureNormal input)
 {
     PixelInput output;
@@ -52,6 +54,18 @@ PixelInput VS_Bone(VertexTextureNormal input)
     return output;
 }
 
+float4 PS(PixelInput input) : SV_TARGET
+{
+    float4 color = _diffuseMap.Sample(_diffuseSampler, input.uv);
+    //toon shading에 맞게 diffuse 컬러를 끊어놓았다
+    //이 함수에서 그림자 구하고 바로 끊어버림
+    color = GetDiffuseColor(color, _direction, input.normal);
+
+    return color;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//Normal Map VS, PS
 PixelNormalInput VS_Normal(VertexTextureNormal input)
 {
     PixelNormalInput output;
@@ -67,6 +81,18 @@ PixelNormalInput VS_Normal(VertexTextureNormal input)
     return output;
 }
 
+
+float4 PS_Normal(PixelNormalInput input) : SV_TARGET
+{
+    float3 normal = input.normal;
+
+    normal = abs(normal);
+
+    return float4(normal, 1);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//Depth VS, PS
 PixelDepthInput VS_Depth(VertexTextureNormal input)
 {
     PixelDepthInput output;
@@ -80,6 +106,14 @@ PixelDepthInput VS_Depth(VertexTextureNormal input)
     return output;
 }
 
+
+float4 PS_Depth(PixelDepthInput input) : SV_TARGET
+{
+    return float4(input.depth.x, input.depth.y, 1, 1);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//두개 혼용인데 이거 안쓰는게 좋다
 PixelNDInput VS_ND(VertexTextureNormal input)
 {
     PixelNDInput output;
@@ -95,29 +129,6 @@ PixelNDInput VS_ND(VertexTextureNormal input)
 
     return output;
 
-}
-
-float4 PS(PixelInput input) : SV_TARGET
-{
-    float4 color = _diffuseMap.Sample(_diffuseSampler, input.uv);
-    
-    color = GetDiffuseColor(color, _direction, input.normal);
-
-    return color;
-}
-
-float4 PS_Normal(PixelNormalInput input) : SV_TARGET
-{
-    float3 normal = input.normal;
-
-    normal = abs(normal);
-
-    return float4(normal, 1);
-}
-
-float4 PS_Depth(PixelDepthInput input) : SV_TARGET
-{
-    return float4(input.depth.x, input.depth.y, 1, 1);
 }
 
 float4 PS_ND(PixelNDInput input) : SV_TARGET

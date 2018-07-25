@@ -14,6 +14,9 @@ public:
 
 	//이건 아마 clip쪽에 뺄듯
 	void Update();
+
+	void PreRender();
+	void PreRender2();
 	void Render();
 
 	Mode GetMode() { return mode; }
@@ -40,6 +43,8 @@ private:
 
 private:
 	Shader* shader;
+	Shader* shader2;
+	Shader* shader3;
 
 	Model* model;
 	class ModelAnimClip* currentClip;

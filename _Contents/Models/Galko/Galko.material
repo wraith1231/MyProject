@@ -1,0 +1,67 @@
+{
+   "phong1" : {
+      "Ambient" : [ 0.5, 0.5, 0.5, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "DiffuseFile" : [ "1_phong1SG.tga" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "phong1" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 2.0,
+      "Specular" : [ 0.065033949911594391, 0.065033949911594391, 0.065033949911594391, 1.0 ],
+      "SpecularFile" : [ "" ]
+   },
+   "phong2" : {
+      "Ambient" : [ 0.5, 0.5, 0.5, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "DiffuseFile" : [ "1_phong2SG.tga" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "phong2" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 2.0,
+      "Specular" : [ 0.081300072371959686, 0.081300072371959686, 0.081300072371959686, 1.0 ],
+      "SpecularFile" : [ "" ]
+   },
+   "phong3" : {
+      "Ambient" : [ 0.5, 0.5, 0.5, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "DiffuseFile" : [ "1_phong3SG.tga" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "phong3" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 2.0,
+      "Specular" : [ 0.056916151195764542, 0.056916151195764542, 0.056916151195764542, 1.0 ],
+      "SpecularFile" : [ "" ]
+   },
+   "phong4" : {
+      "Ambient" : [ 0.5, 0.5, 0.5, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "DiffuseFile" : [ "1_phong4SG.tga" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "phong4" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 15.0,
+      "Specular" : [ 0.097566187381744385, 0.097566187381744385, 0.097566187381744385, 1.0 ],
+      "SpecularFile" : [ "" ]
+   },
+   "phong5" : {
+      "Ambient" : [ 0.5, 0.5, 0.5, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 0.80000001192092896 ],
+      "DiffuseFile" : [ "1_phong5SG.tga" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "phong5" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 15.0,
+      "Specular" : [ 0.016266116872429848, 0.016266116872429848, 0.016266116872429848, 1.0 ],
+      "SpecularFile" : [ "" ]
+   }
+}

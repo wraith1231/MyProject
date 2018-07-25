@@ -102,25 +102,26 @@ float GameAnimationModel::PlayTime(wstring boneName)
 
 void GameAnimationModel::Update()
 {
-	//clip이 없으면 play 안시킴
-	if (clips.size() < 1) return;
-	
 	CalcPosition();
 
-	for (UINT i = 0; i < model->BoneCount(); i++)
+	//clip이 없으면 play 안시킴
+	if (clips.size() > 0)
 	{
-		//blender는 해당 bone의 블렌더가 없을 수 있음
-		//없어도 null은 아님
-		AnimationBlender* blender = blenders[i];
-		if (blender->Exist() == true)
+		for (UINT i = 0; i < model->BoneCount(); i++)
 		{
-			float time = Time::Delta();
+			//blender는 해당 bone의 블렌더가 없을 수 있음
+			//없어도 null은 아님
+			AnimationBlender* blender = blenders[i];
+			if (blender->Exist() == true)
+			{
+				float time = Time::Delta();
 
-			D3DXMATRIX mat = blender->GetKeyframeMatrix(time);
+				D3DXMATRIX mat = blender->GetKeyframeMatrix(time);
 
-			model->Bone(i)->Transform(mat);
-		}
-	}//for(i<model->bonecount)
+				model->Bone(i)->Transform(mat);
+			}
+		}//for(i<model->bonecount)
+	}
 
 	D3DXMATRIX transformed = Transformed();
 

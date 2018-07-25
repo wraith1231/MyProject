@@ -63,6 +63,36 @@ void Model::Update()
 	*/
 }
 
+void Model::PreRender()
+{
+	vector<D3DXMATRIX> transforms;
+	CopyAbsoluteBoneTo(transforms);
+
+	for (ModelMesh* mesh : meshes)
+	{
+		int index = mesh->ParentBoneIndex();
+		D3DXMATRIX transform = transforms[index];
+
+		mesh->SetWorld(transform);
+		mesh->Render();
+	}
+}
+
+void Model::PreRender2()
+{
+	vector<D3DXMATRIX> transforms;
+	CopyAbsoluteBoneTo(transforms);
+
+	for (ModelMesh* mesh : meshes)
+	{
+		int index = mesh->ParentBoneIndex();
+		D3DXMATRIX transform = transforms[index];
+
+		mesh->SetWorld(transform);
+		mesh->Render();
+	}
+}
+
 void Model::Render()
 {
 	vector<D3DXMATRIX> transforms;

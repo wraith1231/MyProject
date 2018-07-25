@@ -16,6 +16,8 @@ ModelAnimPlayer::ModelAnimPlayer(Model * model, wstring animName)
 	, animName(animName)
 {
 	shader = new Shader(Shaders + L"999_Animation.hlsl");
+	shader2 = new Shader(Shaders + L"999_Animation.hlsl", "VS_Normal", "PS_Normal");
+	shader3 = new Shader(Shaders + L"999_Animation.hlsl", "VS_Depth", "PS_Depth");
 	//shader = new Shader(Shaders + L"999_Mesh.hlsl");
 	
 	vector<Material*>& materials = model->Materials();
@@ -36,6 +38,8 @@ ModelAnimPlayer::ModelAnimPlayer(Model * model, wstring animName)
 ModelAnimPlayer::~ModelAnimPlayer()
 {
 	SAFE_DELETE(shader);
+	SAFE_DELETE(shader2);
+	SAFE_DELETE(shader3);
 }
 
 void ModelAnimPlayer::Update()
@@ -67,10 +71,35 @@ void ModelAnimPlayer::Update()
 
 }
 
+void ModelAnimPlayer::PreRender()
+{
+	model->Buffer()->SetVSBuffer(2);
+
+	vector<Material*>& materials = model->Materials();
+	for (Material* material : materials)
+		material->SetShader(shader2);
+	for (ModelMesh* mesh : model->Meshes())
+		mesh->Render();
+}
+
+void ModelAnimPlayer::PreRender2()
+{
+	model->Buffer()->SetVSBuffer(2);
+
+	vector<Material*>& materials = model->Materials();
+	for (Material* material : materials)
+		material->SetShader(shader3);
+	for (ModelMesh* mesh : model->Meshes())
+		mesh->Render();
+}
+
 void ModelAnimPlayer::Render()
 {
 	model->Buffer()->SetVSBuffer(2);
 
+	vector<Material*>& materials = model->Materials();
+	for (Material* material : materials)
+		material->SetShader(shader);
 	for (ModelMesh* mesh : model->Meshes())
 		mesh->Render();
 }

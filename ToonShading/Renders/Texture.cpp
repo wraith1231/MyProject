@@ -184,7 +184,7 @@ void Textures::Load(Texture * texture, D3DX11_IMAGE_LOAD_INFO * loadInfo)
 
 	TexMetadata metaData;
 	wstring ext = Path::GetExtension(texture->file);
-	if (ext == L"tga")
+	if (ext == L"tga" || ext == L"TGA")
 	{
 		hr = GetMetadataFromTGAFile(texture->file.c_str(), metaData);
 		assert(SUCCEEDED(hr));
@@ -243,7 +243,7 @@ void Textures::Load(Texture * texture, D3DX11_IMAGE_LOAD_INFO * loadInfo)
 	else
 	{
 		ScratchImage image;
-		if (ext == L"tga")
+		if (ext == L"tga" || ext == L"TGA")
 		{
 			hr = LoadFromTGAFile(texture->file.c_str(), &metaData, image);
 			assert(SUCCEEDED(hr));

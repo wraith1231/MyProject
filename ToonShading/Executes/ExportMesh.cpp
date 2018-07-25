@@ -8,9 +8,23 @@ ExportMesh::ExportMesh(ExecuteValues* values)
 {
 	Fbx::Exporter* exporter = NULL;
 
-	//exporter = new Fbx::Exporter(Assets + L"Meshes/Quad.fbx");
-	//exporter->ExportMaterial(Models + L"Mesh/", L"Quad");
-	//exporter->ExportMesh(Models + L"Mesh/", L"Quad");
+	//exporter = new Fbx::Exporter(Assets + L"Sapphi/Sapphiart_model.fbx");
+	//exporter->ExportMaterial(Models + L"Sapphi/", L"Sapphi");
+	//exporter->ExportMesh(Models + L"Sapphi/", L"Sapphi");
+	//SAFE_DELETE(exporter);
+	//
+	//exporter = new Fbx::Exporter(Assets + L"Sapphi/Sapphiart@idle.fbx");
+	//exporter->ExportAnimation(Models + L"Sapphi/", L"Idle");
+	//SAFE_DELETE(exporter);
+	//exporter = new Fbx::Exporter(Assets + L"Bonney/jewelry A.fbx");
+	//exporter->ExportMaterial(Models + L"Bonney/", L"Bonney");
+	//exporter->ExportMesh(Models + L"Bonney/", L"Bonney");
+	//exporter->ExportAnimation(Models + L"Bonney/", L"Bonney");
+	//SAFE_DELETE(exporter);
+	//
+	//exporter = new Fbx::Exporter(Assets + L"Galko/GalkoPOSE.fbx");
+	//
+	//exporter->ExportAnimation(Models + L"Galko/", L"GalkoPOSE");
 	//SAFE_DELETE(exporter);
 
 	////sky

@@ -46,6 +46,8 @@ public:
 	~Model();
 
 	void Update();
+	void PreRender();
+	void PreRender2();
 	void Render();
 
 	void GizmoRender();
@@ -124,6 +126,8 @@ private:
 
 	class ModelCapsule* capsule;
 	//vector<class ModelAnimation*> animes;
+	Shader* shader2;
+	Shader* shader3;
 };
 
 class Models

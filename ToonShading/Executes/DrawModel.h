@@ -28,6 +28,10 @@ private:
 	void CreateEnemy();
 
 private:
+	class GameAnimationModel* model;
+	class Model* pModel;
+	class ModelAnimPlayer* aPlayer;
+
 	class GameAnimationModel* grund;
 	class GamePlayer* player;
 	class GameEnemy* enemy;

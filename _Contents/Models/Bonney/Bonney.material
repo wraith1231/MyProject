@@ -1,0 +1,15 @@
+{
+   "5_Cha-0900-body_0.1_16_16" : {
+      "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 0.5 ],
+      "DiffuseFile" : [ "diff.png" ],
+      "Emissive" : [ 0.5, 0.5, 0.5, 1.0 ],
+      "EmissiveFile" : [ "diff.png" ],
+      "Name" : [ "5_Cha-0900-body_0.1_16_16" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 9.6078433990478516,
+      "Specular" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "SpecularFile" : [ "" ]
+   }
+}

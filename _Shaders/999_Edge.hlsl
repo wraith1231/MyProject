@@ -44,11 +44,11 @@ float4 PS(PixelInput input) : SV_TARGET
     //normal 비교를 위한 값
     //너무 크면 어지간히 normal값이 확 바뀌지 않는 이상 외곽선 안그려짐
     //너무 작으면 원같은 경우는 사실상 까맣게만 그려짐
-    float nor = (3.141592 / 180) * 1;
+    float nor = (3.141592 / 180) * 5;
     //depth 비교를 위한 값
     //너무 크면 깊이가 거리에 따라서 어느정도는 차이가 없다고 보고 외곽선 안그리는 경우 발생
     //너무 작으면 그냥 다 깊이 차이난다고 보고 외곽선을 덕지덕지 그림
-    float dep = 3.0f;
+    float dep = 2.0f;
 
     float nordot, depth, ndot, de;  //nordot-현재 픽셀 dot값, depth-현재 픽셀 depth값, ndot-비교 픽셀 dot값, de-비교 픽셀 depth값 
     bool bd = true;

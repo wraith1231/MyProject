@@ -36,115 +36,87 @@ PixelInput VS(VertexTextureNormal input)
 
 float4 PS(PixelInput input) : SV_TARGET
 {
+    //연산 순서는 노멀~뎁스순으로 갑시다
+    //노멀은 dot 값 비교 - 1도단위(pi / 180) 비교로
+    //깊이는 적당한 값으로...
+
+    //혼란을 막기 위해 미리 정의
+    float nor = (3.141592 / 180) * 1;
+    float dep = 0.0003f;
+
+    float nordot, depth, ndot, de;  //nordot-현재 픽셀 dot값, depth-현재 픽셀 depth값, ndot-비교 픽셀 dot값, de-비교 픽셀 depth값 
+    bool bd = true;
+    float hei = 1.0f / _valueHeight;
+    float wid = 1.0f / _valueWidth;
+    float fn = _valueFar / _valueNear;
+
     float4 normalColor = NormalRT.Sample(NormalRTSampler, input.uv);
     float4 depthColor = DepthRT.Sample(DepthRTSampler, input.uv);
+    float4 realColor = RealRT.Sample(RealRTSampler, input.uv);
+    
+    depthColor.rg *= fn;
+    if(depthColor.r >= 1.00f  || depthColor.r <= 0.00f)
+        bd = false;
+    
+    nordot = dot(normalColor, normalColor);
+    depth = depthColor.r / depthColor.g;
+
+    //윗픽셀
     float2 uv = input.uv;
-    uv.y -= 1.0f / _valueHeight;
+    uv.y -= hei;
     float4 normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
     float4 depthColor1 = DepthRT.Sample(DepthRTSampler, uv);
-
-    uv.y += 1.0f / _valueHeight;
-    uv.x -= 1.0f / _valueWidth;
-    float4 normalColor2 = NormalRT.Sample(NormalRTSampler, uv);
-    float4 depthColor2 = DepthRT.Sample(DepthRTSampler, uv);
-
-    uv.x += 1.0f / _valueWidth;
-    uv.x += 1.0f / _valueWidth;
-    float4 normalColor3 = NormalRT.Sample(NormalRTSampler, uv);
-    float4 depthColor3 = DepthRT.Sample(DepthRTSampler, uv);
-
-    uv.x -= 1.0f / _valueWidth;
-    uv.y += 1.0f / _valueHeight;
-    float4 normalColor4 = NormalRT.Sample(NormalRTSampler, uv);
-    float4 depthColor4 = DepthRT.Sample(DepthRTSampler, uv);
+    depthColor1.rg *= fn;
     
-    float len, len1;
-
-    //Normal Silhouette
-    float poi = 0.1f;
-
-    len = dot(normalColor, normalColor);
-    len1 = dot(normalColor, normalColor1);
-    if (abs(len - len1) > poi)
+    ndot = dot(normalColor, normalColor1);
+    de = depthColor1.r / depthColor1.g;
+    if (abs(nordot - ndot) > nor)
         return float4(0, 0, 0, 1);
-    len1 = dot(normalColor, normalColor2);
-    if (abs(len - len1) > poi)
-        return float4(0, 0, 0, 1);
-    len1 = dot(normalColor, normalColor3);
-    if (abs(len - len1) > poi)
-        return float4(0, 0, 0, 1);
-    len1 = dot(normalColor, normalColor4);
-    if (abs(len - len1) > poi)
+    if (abs(depth - de) > dep)//  && bd == true)
         return float4(0, 0, 0, 1);
     
-    //return normalColor;
-   
-    //Depth Silhouette
-    poi = 0.00000006f;
-    float pa = (_valueFar) / (_valueFar - _valueNear);
-    float pb = (-_valueNear) / (_valueFar - _valueNear);
-
-    float depth = pb / (depthColor.r - pa);
-    float depth1 = pb / (depthColor1.r - pa);
-    if (abs(depth - depth1) > poi)
+    //왼쪽 픽셀
+    uv.y += hei;
+    uv.x -= wid;
+    normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
+    depthColor1 = DepthRT.Sample(DepthRTSampler, uv);
+    depthColor1.rg *= fn;
+    
+    ndot = dot(normalColor, normalColor1);
+    de = depthColor1.r / depthColor1.g;
+    if (abs(nordot - ndot) > nor)
         return float4(0, 0, 0, 1);
-    depth1 = pb / (depthColor2.r - pa);
-    if (abs(depth - depth1) > poi)
-        return float4(0, 0, 0, 1);
-    depth1 = pb / (depthColor3.r - pa);
-    if (abs(depth - depth1) > poi)
-        return float4(0, 0, 0, 1);
-    depth1 = pb / (depthColor4.r - pa);
-    if (abs(depth - depth1) > poi)
+    if (abs(depth - de) > dep)//  && bd == true)
         return float4(0, 0, 0, 1);
     
-    //return float4(depth, depth, depth, 1);
+    //오른쪽 픽셀
+    uv.x += wid;
+    uv.x += wid;
+    normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
+    depthColor1 = DepthRT.Sample(DepthRTSampler, uv);
+    depthColor1.rg *= fn;
+    
+    ndot = dot(normalColor, normalColor1);
+    de = depthColor1.r / depthColor1.g;
+    if (abs(nordot - ndot) > nor)
+        return float4(0, 0, 0, 1);
+    if (abs(depth - de) > dep)//  && bd == true)
+        return float4(0, 0, 0, 1);
+    
+    //아래쪽 픽셀
+    uv.x -= wid;
+    uv.y += hei;
+    normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
+    depthColor1 = DepthRT.Sample(DepthRTSampler, uv);
+    depthColor1.rg *= fn;
+    
+    ndot = dot(normalColor, normalColor1);
+    de = depthColor1.r / depthColor1.g;
+    if (abs(nordot - ndot) > nor)
+        return float4(0, 0, 0, 1);
+    if (abs(depth - de) > dep)//  && bd == true)
+        return float4(0, 0, 0, 1);
     //return float4(1, 1, 1, 1);
-
-    float4 realColor = RealRT.Sample(RealRTSampler, input.uv);
 
     return realColor;
 }
-
-
-    //if (abs(color1.x - color11.x) > 0.1f)
-    //    return float4(0, 0, 0, 1);
-    //if (abs(color1.y - color11.y) > 0.1f)
-    //    return float4(0, 0, 0, 1);
-    //if (abs(color1.z - color11.z) > 0.1f)
-    //    return float4(0, 0, 0, 1);
-    //
-    //if (abs(color1.x - color12.x) > 0.1f)
-    //    return float4(0, 0, 0, 1);
-    //if (abs(color1.y - color12.y) > 0.1f)
-    //    return float4(0, 0, 0, 1);
-    //if (abs(color1.z - color12.z) > 0.1f)
-    //    return float4(0, 0, 0, 1);
-    //
-    //if (abs(color1.x - color13.x) > 0.1f)
-    //    return float4(0, 0, 0, 1);
-    //if (abs(color1.y - color13.y) > 0.1f)
-    //    return float4(0, 0, 0, 1);
-    //if (abs(color1.z - color13.z) > 0.1f)
-    //    return float4(0, 0, 0, 1);
-    //
-    //if (abs(color1.x - color14.x) > 0.1f)
-    //    return float4(0, 0, 0, 1);
-    //if (abs(color1.y - color14.y) > 0.1f)
-    //    return float4(0, 0, 0, 1);
-    //if (abs(color1.z - color14.z) > 0.1f)
-    //    return float4(0, 0, 0, 1);
-    //float len1 = color1.x + color1.y + color1.z;
-    //float len11 = color11.x + color11.y + color11.z;
-    //float len12 = color12.x + color12.y + color12.z;
-    //float len13 = color13.x + color13.y + color13.z;
-    //float len14 = color14.x + color14.y + color14.z;
-    //
-    //if (abs(len1 - len11) > 0.1f)
-    //    return float4(0, 0, 0, 1);
-    //if (abs(len1 - len12) > 0.1f)
-    //    return float4(0, 0, 0, 1);
-    //if (abs(len1 - len13) > 0.1f)
-    //    return float4(0, 0, 0, 1);
-    //if (abs(len1 - len14) > 0.1f)
-    //    return float4(0, 0, 0, 1);

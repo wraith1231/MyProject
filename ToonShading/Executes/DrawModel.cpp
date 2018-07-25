@@ -26,11 +26,12 @@ DrawModel::DrawModel(ExecuteValues* values)
 	: Execute(values)
 	, skybox(NULL), world(NULL), 
 	grund(NULL), player(NULL)
+	, enemy(NULL)
 {
 	CreateEnvironment();
 	//CreateAnimationModel();
 	CreatePlayer();
-	CreateEnemy();
+	//CreateEnemy();
 
 }
 
@@ -39,6 +40,8 @@ DrawModel::~DrawModel()
 	SAFE_DELETE(skybox);
 	SAFE_DELETE(world);
 	SAFE_DELETE(grund);
+
+	SAFE_DELETE(enemy);
 	SAFE_DELETE(player);
 }
 
@@ -137,7 +140,7 @@ void DrawModel::CreateEnvironment()
 	meshFile = Models + L"Stage/france_sky.mesh";
 	skybox = new GameSkyBox(materialFile, meshFile);
 
-	skybox->SetBasisPosition({ 0, 20, 0 });
+	skybox->SetBasisPosition({ 0, 0, 0 });
 
 }
 

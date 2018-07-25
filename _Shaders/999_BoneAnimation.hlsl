@@ -27,7 +27,7 @@ struct PixelNormalInput
 struct PixelDepthInput
 {
     float4 position : SV_POSITION;
-    float depth : DEPTH0;
+    float2 depth : DEPTH0;
 };
 
 struct PixelNDInput
@@ -74,9 +74,9 @@ PixelDepthInput VS_Depth(VertexTextureNormal input)
     output.position = mul(input.position, _bones[_boneNumber]);
     output.position = mul(output.position, _view);
     output.position = mul(output.position, _projection);
-
-    output.depth = 1.0f - output.position.z / output.position.w;
     
+    output.depth = output.position.zw;
+
     return output;
 }
 
@@ -108,16 +108,24 @@ float4 PS(PixelInput input) : SV_TARGET
 
 float4 PS_Normal(PixelNormalInput input) : SV_TARGET
 {
-    return float4(input.normal, 1);
+    float3 normal = input.normal;
+
+    normal = abs(normal);
+
+    return float4(normal, 1);
 }
 
 float4 PS_Depth(PixelDepthInput input) : SV_TARGET
 {
-    return float4(input.depth, input.depth, input.depth, 1);
+    return float4(input.depth.x, input.depth.y, 1, 1);
 }
 
 float4 PS_ND(PixelNDInput input) : SV_TARGET
 {
-    return float4(input.normal, input.depth);
+    float3 normal = input.normal;
+
+    normal = abs(normal);
+
+    return float4(normal, input.depth);
 
 }

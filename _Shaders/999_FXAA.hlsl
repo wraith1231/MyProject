@@ -15,7 +15,7 @@ cbuffer PS_Value : register(b2)
     float _valueNear;
     float _valueFar;
 }
-#define FXAA_REDUCE_MIN (1.0f / 128.0f)
+
 Texture2D RenderTarget : register(t5);
 SamplerState RenderTargetSampler : register(s5);
 
@@ -41,12 +41,6 @@ PixelInput VS(VertexTextureNormal input)
     return output;
 }
 
-//struct FxaaTex
-//{
-//    SamplerState smpl;
-//    Texture2D tex;
-//};
-
 float4 PS(PixelInput input) : SV_TARGET
 {
     float2 rcpFrame = float2(1.0f / _valueWidth, 1.0f / _valueHeight);
@@ -54,9 +48,9 @@ float4 PS(PixelInput input) : SV_TARGET
     FxaaTex te;
     te.smpl = RenderTargetSampler;
     te.tex = RenderTarget;
+
     return FxaaPixelShader(input.zw, float4(0, 0, 0, 0),
     te, te, te, rcpFrame,
     float4(0, 0, 0, 0), float4(0, 0, 0, 0), float4(0, 0, 0, 0),
     0.75f, 0.166f, 0.0833f, 0.0f, 0.0f, 0.0f, float4(0, 0, 0, 0));
-    
 }

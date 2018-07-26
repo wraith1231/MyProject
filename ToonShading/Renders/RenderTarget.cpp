@@ -25,6 +25,8 @@ void RenderTarget::Create(UINT width, UINT height)
 	D3DDesc desc;
 	D3D::GetDesc(&desc);
 
+	if (width <= 0 && height <= 0) return;
+
 	if (width < 1)
 		width = (UINT)desc.Width;
 	if (height < 1)

@@ -19,22 +19,6 @@ public:
 
 	void ResizeScreen() {}
 
-	D3DXVECTOR3* GetCharPos();
-
 private:
-	void CreateEnvironment();
-	void CreateAnimationModel();
-	void CreatePlayer();
-	void CreateEnemy();
-
-private:
-	class GameAnimationModel* model;
-	class Model* pModel;
-	class ModelAnimPlayer* aPlayer;
-
-	class GameAnimationModel* grund;
-	class GamePlayer* player;
-	class GameEnemy* enemy;
-	class GameWorld* world;
-	class GameSkyBox* skybox;
+	class GameSettings* settings;
 };

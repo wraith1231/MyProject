@@ -3,8 +3,9 @@
 
 class GamePlayer : public GameUnit
 {
-private:
+public:
 	enum class DebugMode;
+private:
 	enum class LowerAction;
 	enum class UpperAction;
 
@@ -19,6 +20,7 @@ public:		//public Function
 	void ImGuiRender();
 
 	class Bullet* GetBullet() { return bullet; }
+	DebugMode GetDebugMode() { return debugMode; }
 
 private:
 	void LoadAnimation(wstring path);
@@ -36,12 +38,14 @@ private:
 	void ActionMovement(D3DXVECTOR3 direction);
 	void ActionRotation();
 
-private:	//private enum action, model
+public:
 	enum class DebugMode
 	{
 		None = 0, NeverDie, Superman, God,
 		//superman - 원샷 원킬, god = neverdie + superman
 	};
+
+private:	//private enum action, model
 	enum class LowerAction
 	{
 		//얘가 가질 액션들 전부

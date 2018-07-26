@@ -18,4 +18,7 @@ public:
 	static void GetLerp(D3DXVECTOR3 v1, D3DXVECTOR3 v2, float amount, D3DXVECTOR3& result);
 	static D3DXVECTOR3 Clamp(D3DXVECTOR3 val1, D3DXVECTOR3 min, D3DXVECTOR3 max);
 	static float DistanceSquared(D3DXVECTOR3 val1, D3DXVECTOR3 val2);
+
+	static float Distance(D3DXVECTOR3 v1, D3DXVECTOR3 v2);
+	//static float DistanceSquared(D3DXVECTOR3 v1, D3DXVECTOR3 v2);
 };

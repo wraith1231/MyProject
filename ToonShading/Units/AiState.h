@@ -1,29 +1,40 @@
 #pragma once
-//AIBase
+#include "stdafx.h"
 
-class AiState
+struct AiState
 {
-public:
-	function<void(float)> Updating;			//묶을때 보통 start~end로 묶음
-	function<void()> Starting;					//finish도 있고
-	function<void()> Finishing;					//destroy는 class?
-												
-	void Name(wstring val) { name = val; }
-	wstring Name() { return name; }
+	wstring Name;
+	float ActiveTime;
 
-	void ActiveTime(float val) { activeTime = val; }
-	float ActiveTime() { return activeTime; }
-	bool IsActive() { return activeTime > 0.0f; }	//active time이 0보다 크면 활성
+	function<void(AiState *)> Starting;
+	function<void(AiState *)> Finishing;
+	function<void(AiState *)> Updating;
 
-	void Reset();
-	void Update(float time);
+	bool IsActive() { return ActiveTime > 0.0f; }
 
-	void Start();
-	void Finish();
+	void Reset()
+	{
+		ActiveTime = 0.0f;
+	}
 
-private:
-	wstring name;	//상태 이름
-	float activeTime;	//활동 시간
+	void Update()
+	{
+		if (Updating == NULL) return;
 
+		Updating(this);
+	}
 
+	void Start()
+	{
+		if (Starting == NULL) return;
+
+		Starting(this);
+	}
+
+	void Finish()
+	{
+		if (Finishing == NULL) return;
+
+		Finishing(this);
+	}
 };

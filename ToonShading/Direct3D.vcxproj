@@ -34,7 +34,6 @@
     <ClInclude Include="Executes\ExportAnimation.h" />
     <ClInclude Include="Executes\ExportMesh.h" />
     <ClInclude Include="Executes\GuiSettings.h" />
-    <ClInclude Include="Executes\ToonShading2.h" />
     <ClInclude Include="Fbx\BoneWeights.h" />
     <ClInclude Include="Fbx\Exporter.h" />
     <ClInclude Include="Fbx\Type.h" />
@@ -76,10 +75,13 @@
     <ClInclude Include="Units\AiState.h" />
     <ClInclude Include="Units\AiContext.h" />
     <ClInclude Include="Units\Bullet.h" />
+    <ClInclude Include="Units\Enemytank.h" />
     <ClInclude Include="Units\GameData.h" />
     <ClInclude Include="Units\GameEnemy.h" />
     <ClInclude Include="Units\GamePlayer.h" />
+    <ClInclude Include="Units\GameSettings.h" />
     <ClInclude Include="Units\GameUnit.h" />
+    <ClInclude Include="Units\GameWeapon.h" />
     <ClInclude Include="Units\UnitPlayerInput.h" />
     <ClInclude Include="Utilities\BinaryFile.h" />
     <ClInclude Include="Utilities\Json.h" />
@@ -108,7 +110,6 @@
     <ClCompile Include="Executes\ExeGui.cpp" />
     <ClCompile Include="Executes\ExportAnimation.cpp" />
     <ClCompile Include="Executes\ExportMesh.cpp" />
-    <ClCompile Include="Executes\ToonShading2.cpp" />
     <ClCompile Include="Fbx\Exporter.cpp" />
     <ClCompile Include="Fbx\Utility.cpp" />
     <ClCompile Include="Fbx\XmlToAnim.cpp" />
@@ -138,12 +139,14 @@
     <ClCompile Include="Systems\Mouse.cpp" />
     <ClCompile Include="Systems\Time.cpp" />
     <ClCompile Include="Systems\Window.cpp" />
-    <ClCompile Include="Units\AiState.cpp" />
     <ClCompile Include="Units\AiContext.cpp" />
     <ClCompile Include="Units\Bullet.cpp" />
+    <ClCompile Include="Units\EnemyTank.cpp" />
     <ClCompile Include="Units\GameEnemy.cpp" />
     <ClCompile Include="Units\GamePlayer.cpp" />
+    <ClCompile Include="Units\GameSettings.cpp" />
     <ClCompile Include="Units\GameUnit.cpp" />
+    <ClCompile Include="Units\GameWeapon.cpp" />
     <ClCompile Include="Utilities\BinaryFile.cpp" />
     <ClCompile Include="Utilities\Json.cpp" />
     <ClCompile Include="Utilities\Math.cpp" />

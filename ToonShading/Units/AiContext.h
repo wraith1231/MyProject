@@ -1,6 +1,7 @@
 #pragma once
+#include "AiState.h"
 
-class AiState;
+struct AiState;
 
 class AiContext
 {
@@ -8,6 +9,9 @@ public:
 	AiContext();
 	~AiContext();
 
+	void Enable(bool val) { bEnable = val; }
+
+	//ÀÌ°Ç AiState°ª
 	AiState* Active() { return active; }
 	AiState* Next() { return next; }
 
@@ -28,6 +32,7 @@ private:
 
 private:
 	bool bActive;
+	bool bEnable;
 
 	AiState* active;
 	AiState* next;

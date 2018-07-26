@@ -3,19 +3,13 @@
 
 enum class UnitClassId;
 struct GameEnemySpec;
+struct AiState;
 class AiContext;
-class AiState;
-
-namespace Objects
-{
-	class BoundingBox;
-}
 
 class GameEnemy : public GameUnit
 {
-protected:
+public:
 	enum class AiType;
-	struct AiDesc;
 
 public:
 	GameEnemy(wstring matFile, wstring meshFile);
@@ -23,18 +17,13 @@ public:
 
 	virtual void Update();
 	virtual void Render();
-	virtual void PreRender();
-	virtual void PreRender2();
-	virtual void ImGuiRender();
-
-	void SetPlayerBullet(class Bullet* bul) { this->playerBullet = bul; }
 
 private:
-	void OnSearch();
-	void OnMove();
-	void OnAttack();
-	void OnTurnLeft();
-	void OnTurnRight();
+	void OnSearch(AiState* state);
+	void OnMove(AiState* state);
+	void OnAttack(AiState* state);
+	void OnTurnLeft(AiState* state);
+	void OnTurnRight(AiState* state);
 
 protected:
 	virtual void OnAiSearch(AiState* state) {}
@@ -43,9 +32,11 @@ protected:
 	virtual void OnAiTurnLeft(AiState* state) {}
 	virtual void OnAiTurnRight(AiState* state) {}
 
-protected:
-	Objects::BoundingBox* box;
+public:
+	void StartAi(AiType type, float time);
+	void NextAi(AiType type, float time);
 
+protected:
 	UnitClassId unitClass;
 	AiType startAi;
 	GameEnemySpec* specData;
@@ -54,20 +45,14 @@ protected:
 	float startAiTime;
 	float actionElapsedTime;
 
-	typedef pair<UINT, class AiState*> AiPair;
+	typedef pair<UINT, AiState*> AiPair;
 	AiPair aiSearch;
 	AiPair aiMove;
 	AiPair aiAttack;
 	AiPair aiTurnLeft;
 	AiPair aiTurnRight;
 
-	class Bullet* playerBullet;
-
-	vector<D3DXVECTOR3> destinations;
-	UINT destIndex;
-	float splineTime;
-
-protected:
+public:
 	enum class AiType
 	{
 		Search = 0, Move, Attack, 

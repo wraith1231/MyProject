@@ -10,7 +10,6 @@
 #include "./Executes/DrawTerrain.h"
 #include "./Executes/ExeGui.h"
 #include "./Executes/ToonShading.h"
-#include "./Executes/ToonShading2.h"
 
 Program::Program()
 {
@@ -27,7 +26,6 @@ Program::Program()
 	values->GlobalLight = new LightBuffer();
 
 	executes.push_back(new ToonShading(values));
-	//executes.push_back(new ToonShading2(values));
 	executes.push_back(new ExportMesh(values));
 	executes.push_back(new ExportAnimation(values));
 

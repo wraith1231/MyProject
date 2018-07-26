@@ -82,3 +82,21 @@ float Math::DistanceSquared(D3DXVECTOR3 val1, D3DXVECTOR3 val2)
 
 	return x*x + y*y + z*z;
 }
+
+float Math::Distance(D3DXVECTOR3 v1, D3DXVECTOR3 v2)
+{
+	D3DXVECTOR3 v = v1 - v2;
+	float result = v.x * v.x + v.y * v.y + v.z * v.z;
+
+	return sqrtf(result);
+}
+/*
+float Math::DistanceSquared(D3DXVECTOR3 v1, D3DXVECTOR3 v2)
+{
+	D3DXVECTOR3 v = v1 - v2;
+	float result = v.x * v.x + v.y * v.y + v.z * v.z;
+
+	return result;
+	//캐릭터간 판단할 거리를 제곱으로 해서 계산하는게 훨씬 빠름
+}
+*/

@@ -62,6 +62,9 @@ float4 PS(PixelInput input) : SV_TARGET
     float4 depthColor = DepthRT.Sample(DepthRTSampler, input.uv);
     float4 realColor = RealRT.Sample(RealRTSampler, input.uv);
     
+    float4 depthColor1, normalColor1;
+    float2 uv = input.uv;
+
     //depth 값을 near-far 값이랑 비례해서 좀 더 잘보이게 분화
     //normal에서 자기 자신에 대한 내적값을 구한다
     nordot = dot(normalColor, normalColor);
@@ -70,12 +73,12 @@ float4 PS(PixelInput input) : SV_TARGET
     depth *= fn;
 
     //윗픽셀
-    float2 uv = input.uv;
+    //float2 uv = input.uv;
     uv.y -= hei;
-    float4 normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
-    float4 depthColor1 = DepthRT.Sample(DepthRTSampler, uv);
-    
-    //해당 픽셀과 현재 픽셀의 내적값 
+    normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
+    depthColor1 = DepthRT.Sample(DepthRTSampler, uv);
+    //
+    ////해당 픽셀과 현재 픽셀의 내적값 
     ndot = dot(normalColor, normalColor1);
     //현재 픽셀의 depth값
     de = depthColor1.r / depthColor1.g;
@@ -119,6 +122,7 @@ float4 PS(PixelInput input) : SV_TARGET
     //아래쪽 픽셀
     uv.x -= wid;
     uv.y += hei;
+    //uv.y += hei;
     normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
     depthColor1 = DepthRT.Sample(DepthRTSampler, uv);
     

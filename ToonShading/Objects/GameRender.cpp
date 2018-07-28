@@ -5,6 +5,7 @@ GameRender::GameRender()
 	: enable(true), visible(true)
 	, position(0, 0, 0), direction(0, 0, 1)
 	, up(0, 1, 0), right(1, 0, 0)
+	, scale(1, 1, 1)
 {
 	D3DXMatrixIdentity(&world);
 	D3DXMatrixIdentity(&rootAxis);
@@ -122,9 +123,21 @@ D3DXVECTOR3 GameRender::Right()
 	return right;
 }
 
+void GameRender::Scale(float & val)
+{
+	scale = D3DXVECTOR3(val, val, val);
+}
+
+float GameRender::Scale()
+{
+	return scale.x;
+}
+
 D3DXMATRIX GameRender::Transformed()
 {
-	return rootAxis * world;
+	D3DXMATRIX S;
+	D3DXMatrixScaling(&S, scale.x, scale.y, scale.z);
+	return rootAxis * S *world;
 }
 D3DXVECTOR3 * GameRender::FollowPos()
 {

@@ -54,6 +54,24 @@ D3DXCOLOR Fbx::Utility::ToColor(FbxPropertyT<FbxDouble3>& vec, FbxPropertyT<FbxD
 	return result;
 }
 
+D3DXMATRIX Fbx::Utility::ToMatrix(FbxAMatrix & matrix)
+{
+	FbxVector4 r1 = matrix.GetRow(0);
+	FbxVector4 r2 = matrix.GetRow(1);
+	FbxVector4 r3 = matrix.GetRow(2);
+	FbxVector4 r4 = matrix.GetRow(3);
+
+	D3DXMATRIX mat = D3DXMATRIX
+	(
+		(float)r1.mData[0], (float)r1.mData[1], (float)r1.mData[2], (float)r1.mData[3],
+		(float)r2.mData[0], (float)r2.mData[1], (float)r2.mData[2], (float)r2.mData[3],
+		(float)r3.mData[0], (float)r3.mData[1], (float)r3.mData[2], (float)r3.mData[3],
+		(float)r4.mData[0], (float)r4.mData[1], (float)r4.mData[2], (float)r4.mData[3]
+	);
+
+	return mat;
+}
+
 D3DXMATRIX Fbx::Utility::ToMatrix(FbxAMatrix & matrix, bool bXna)
 {
 	FbxVector4 r1 = matrix.GetRow(0);

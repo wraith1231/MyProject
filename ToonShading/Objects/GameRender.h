@@ -34,6 +34,9 @@ public:
 	void Right(D3DXVECTOR3& vec);
 	D3DXVECTOR3 Right();
 
+	void Scale(float& val);
+	float Scale();
+
 	D3DXMATRIX Transformed();
 
 	virtual void Update() = 0;
@@ -52,6 +55,8 @@ protected:
 
 private:
 	D3DXMATRIX world;
+
+	D3DXVECTOR3 scale;
 
 	D3DXVECTOR3 position;
 	D3DXVECTOR3 direction;

@@ -2,7 +2,7 @@
 
 cbuffer VS_Bones : register(b2)
 {
-    matrix Bones[128];
+    matrix Bones[256];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -81,11 +81,7 @@ float4 PS_Normal(PixelNormalInput input) : SV_TARGET
     normal = abs(normal);
 
     return float4(normal, 1);
-
-    //float3 normal = input.normal;
-    //normal = abs(normal);
-    //
-    //return float4(normal, 1);
+    
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

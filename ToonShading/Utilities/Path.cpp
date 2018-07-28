@@ -122,11 +122,336 @@ wstring Path::GetFileNameWithoutExtension(wstring path)
 	return fileName.substr(0, index);
 }
 
+string Path::GetFileLocalPath(string path)
+{
+	string ret = path;
+
+	string fileName = Path::GetFileName(path);
+	string temp = GetDirectoryName(path);
+	size_t index = temp.length();
+	string temp2 = "";
+
+	for (UINT i = 6; i < index; i++)
+	{
+		//Models
+		temp2 = temp.substr(index - i, 6);
+		if (temp2 == "Models")
+		{
+			string temp3 = temp.substr(index - i + 7, i);
+			ret = String::ToString(Models) + temp3 + fileName;
+			return ret;
+		}
+		//Jsons
+		temp2 = temp.substr(index - i, 5);
+		if (temp2 == "_Json")
+		{
+			string temp3 = temp.substr(index - i + 6, i);
+			ret = String::ToString(Jsons) + temp3 + fileName;
+			return ret;
+		}
+		//Assets
+		temp2 = temp.substr(index - i, 7);
+		if (temp2 == "_Assets")
+		{
+			string temp3 = temp.substr(index - i + 8, i);
+			ret = String::ToString(Assets) + temp3 + fileName;
+			return ret;
+		}
+		//Contents
+		temp2 = temp.substr(index - i, 9);
+		if (temp2 == "_Contents")
+		{
+			string temp3 = temp.substr(index - i + 10, i);
+			ret = String::ToString(Contents) + temp3 + fileName;
+			return ret;
+		}
+		//Textures
+		temp2 = temp.substr(index - i, 8);
+		if (temp2 == "Textures")
+		{
+			string temp3 = temp.substr(index - i + 9, i);
+			ret = String::ToString(Textures) + temp3 + fileName;
+			return ret;
+		}
+		//FbxModels
+		temp2 = temp.substr(index - i, 9);
+		if (temp2 == "FbxModels")
+		{
+			string temp3 = temp.substr(index - i + 10, i);
+			ret = String::ToString(FbxModels) + temp3 + fileName;
+			return ret;
+		}
+		//Shaders
+		temp2 = temp.substr(index - i, 8);
+		if (temp2 == "_Shaders")
+		{
+			string temp3 = temp.substr(index - i + 9, i);
+			ret = String::ToString(Shaders) + temp3 + fileName;
+			return ret;
+		}
+		//Landscapes
+		temp2 = temp.substr(index - i, 9);
+		if (temp2 == "Landscape")
+		{
+			string temp3 = temp.substr(index - i + 10, i);
+			ret = String::ToString(Landscapes) + temp3 + fileName;
+			return ret;
+		}
+	}
+
+
+	return ret;
+}
+
+wstring Path::GetFileLocalPath(wstring path)
+{
+	wstring ret = path;
+
+	wstring fileName = Path::GetFileName(path);
+	wstring temp = GetDirectoryName(path);
+	size_t index = temp.length();
+	wstring temp2 = L"";
+
+	for (UINT i = 6; i < index; i++)
+	{
+		//Models
+		temp2 = temp.substr(index - i, 6);
+		if (temp2 == L"Models")
+		{
+			wstring temp3 = temp.substr(index - i + 7, i);
+			ret = Models + temp3 + fileName;
+			return ret;
+		}
+		//Jsons
+		temp2 = temp.substr(index - i, 5);
+		if (temp2 == L"_Json")
+		{
+			wstring temp3 = temp.substr(index - i + 6, i);
+			ret = Jsons + temp3 + fileName;
+			return ret;
+		}
+		//Assets
+		temp2 = temp.substr(index - i, 7);
+		if (temp2 == L"_Assets")
+		{
+			wstring temp3 = temp.substr(index - i + 8, i);
+			ret = Assets + temp3 + fileName;
+			return ret;
+		}
+		//Contents
+		temp2 = temp.substr(index - i, 9);
+		if (temp2 == L"_Contents")
+		{
+			wstring temp3 = temp.substr(index - i + 10, i);
+			ret = Contents + temp3 + fileName;
+			return ret;
+		}
+		//Textures
+		temp2 = temp.substr(index - i, 8);
+		if (temp2 == L"Textures")
+		{
+			wstring temp3 = temp.substr(index - i + 9, i);
+			ret = Textures + temp3 + fileName;
+			return ret;
+		}
+		//FbxModels
+		temp2 = temp.substr(index - i, 9);
+		if (temp2 == L"FbxModels")
+		{
+			wstring temp3 = temp.substr(index - i + 10, i);
+			ret = FbxModels + temp3 + fileName;
+			return ret;
+		}
+		//Shaders
+		temp2 = temp.substr(index - i, 8);
+		if (temp2 == L"_Shaders")
+		{
+			wstring temp3 = temp.substr(index - i + 9, i);
+			ret = Shaders + temp3 + fileName;
+			return ret;
+		}
+		//Landscapes
+		temp2 = temp.substr(index - i, 9);
+		if (temp2 == L"Landscape")
+		{
+			wstring temp3 = temp.substr(index - i + 10, i);
+			ret = Landscapes + temp3 + fileName;
+			return ret;
+		}
+
+	}
+
+	return ret;
+}
+
+string Path::GetFileLocalPathDirectory(string path)
+{
+	string ret = path;
+
+	string fileName = Path::GetFileName(path);
+	string temp = GetDirectoryName(path);
+	size_t index = temp.length();
+	string temp2 = "";
+
+	for (UINT i = 6; i < index; i++)
+	{
+		//Models
+		temp2 = temp.substr(index - i, 6);
+		if (temp2 == "Models")
+		{
+			string temp3 = temp.substr(index - i + 7, i);
+			ret = String::ToString(Models) + temp3;
+			return ret;
+		}
+		//Jsons
+		temp2 = temp.substr(index - i, 5);
+		if (temp2 == "_Json")
+		{
+			string temp3 = temp.substr(index - i + 6, i);
+			ret = String::ToString(Jsons) + temp3;
+			return ret;
+		}
+		//Assets
+		temp2 = temp.substr(index - i, 7);
+		if (temp2 == "_Assets")
+		{
+			string temp3 = temp.substr(index - i + 8, i);
+			ret = String::ToString(Assets) + temp3;
+			return ret;
+		}
+		//Contents
+		temp2 = temp.substr(index - i, 9);
+		if (temp2 == "_Contents")
+		{
+			string temp3 = temp.substr(index - i + 10, i);
+			ret = String::ToString(Contents) + temp3;
+			return ret;
+		}
+		//Textures
+		temp2 = temp.substr(index - i, 8);
+		if (temp2 == "Textures")
+		{
+			string temp3 = temp.substr(index - i + 9, i);
+			ret = String::ToString(Textures) + temp3;
+			return ret;
+		}
+		//FbxModels
+		temp2 = temp.substr(index - i, 9);
+		if (temp2 == "FbxModels")
+		{
+			string temp3 = temp.substr(index - i + 10, i);
+			ret = String::ToString(FbxModels) + temp3;
+			return ret;
+		}
+		//Shaders
+		temp2 = temp.substr(index - i, 8);
+		if (temp2 == "_Shaders")
+		{
+			string temp3 = temp.substr(index - i + 9, i);
+			ret = String::ToString(Shaders) + temp3;
+			return ret;
+		}
+		//Landscapes
+		temp2 = temp.substr(index - i, 9);
+		if (temp2 == "Landscape")
+		{
+			string temp3 = temp.substr(index - i + 10, i);
+			ret = String::ToString(Landscapes) + temp3;
+			return ret;
+		}
+	}
+
+
+	return ret;
+}
+
+wstring Path::GetFileLocalPathDirectory(wstring path)
+{
+	wstring ret = path;
+
+	wstring fileName = Path::GetFileName(path);
+	wstring temp = GetDirectoryName(path);
+	size_t index = temp.length();
+	wstring temp2 = L"";
+
+	for (UINT i = 6; i < index; i++)
+	{
+		//Models
+		temp2 = temp.substr(index - i, 6);
+		if (temp2 == L"Models")
+		{
+			wstring temp3 = temp.substr(index - i + 7, i);
+			ret = Models + temp3;
+			return ret;
+		}
+		//Jsons
+		temp2 = temp.substr(index - i, 5);
+		if (temp2 == L"_Json")
+		{
+			wstring temp3 = temp.substr(index - i + 6, i);
+			ret = Jsons + temp3;
+			return ret;
+		}
+		//Assets
+		temp2 = temp.substr(index - i, 7);
+		if (temp2 == L"_Assets")
+		{
+			wstring temp3 = temp.substr(index - i + 8, i);
+			ret = Assets + temp3;
+			return ret;
+		}
+		//Contents
+		temp2 = temp.substr(index - i, 9);
+		if (temp2 == L"_Contents")
+		{
+			wstring temp3 = temp.substr(index - i + 10, i);
+			ret = Contents + temp3;
+			return ret;
+		}
+		//Textures
+		temp2 = temp.substr(index - i, 8);
+		if (temp2 == L"Textures")
+		{
+			wstring temp3 = temp.substr(index - i + 9, i);
+			ret = Textures + temp3;
+			return ret;
+		}
+		//FbxModels
+		temp2 = temp.substr(index - i, 9);
+		if (temp2 == L"FbxModels")
+		{
+			wstring temp3 = temp.substr(index - i + 10, i);
+			ret = FbxModels + temp3;
+			return ret;
+		}
+		//Shaders
+		temp2 = temp.substr(index - i, 8);
+		if (temp2 == L"_Shaders")
+		{
+			wstring temp3 = temp.substr(index - i + 9, i);
+			ret = Shaders + temp3;
+			return ret;
+		}
+		//Landscapes
+		temp2 = temp.substr(index - i, 9);
+		if (temp2 == L"Landscape")
+		{
+			wstring temp3 = temp.substr(index - i + 10, i);
+			ret = Landscapes + temp3;
+			return ret;
+		}
+
+	}
+
+	return ret;
+}
+
 
 const WCHAR* Path::ImageFilter = L"Image\0*.png;*.bmp;*.jpg";
 const WCHAR* Path::BinModelFilter = L"Binary Model\0*.model";
 const WCHAR* Path::FbxModelFilter = L"Fbx Model\0*.fbx;*.obj\0";
 const WCHAR* Path::ShaderFilter = L"HLSL file\0*.hlsl";
+const WCHAR* Path::TerrainFilter = L"Terrain file\0*.terrain";
 
 void Path::OpenFileDialog(wstring file, const WCHAR* filter, wstring folder, function<void(wstring)> func, HWND hwnd)
 {

@@ -172,18 +172,32 @@ void ModelAnimPlayer::UpdateTime()
 
 void ModelAnimPlayer::UpdateBone()
 {
-	for (UINT i = 0;i < model->BoneCount(); i++)
+	for (UINT i = 0; i < model->BoneCount(); i++)
 	{
 		ModelBone* bone = model->Bone(i);
 
 		D3DXMATRIX matAnimation;
+		D3DXMatrixIdentity(&matAnimation);
 		D3DXMATRIX matParentAnimation;
 
 		D3DXMATRIX matInvBindPos = bone->AbsoluteTransform();
+
+		//D3DXVECTOR3 temp = D3DXVECTOR3(matInvBindPos._21, matInvBindPos._22, matInvBindPos._23);
+		//matInvBindPos._21 = matInvBindPos._31;
+		//matInvBindPos._22 = matInvBindPos._32;
+		//matInvBindPos._23 = matInvBindPos._33;
+		//matInvBindPos._31 = temp.x;
+		//matInvBindPos._32 = temp.y;
+		//matInvBindPos._33 = temp.z;
 		D3DXMatrixInverse(&matInvBindPos, NULL, &matInvBindPos);
 
 		ModelKeyframe* frame = currentClip->Keyframe(bone->Name());
-		if (frame == NULL) continue;
+		if (frame == NULL)
+		{
+			D3DXMatrixIdentity(&boneAnimation[i]);
+			D3DXMatrixIdentity(&skinTransform[i]);
+			continue;
+		}
 
 		if (bUseSlerp == true)
 		{
@@ -221,15 +235,16 @@ void ModelAnimPlayer::UpdateBone()
 			matAnimation = frame->Datas[currentKeyFrame].Transform;
 		}
 
-		int parentIndex = bone->ParentIndex();
+		int parentIndex = bone->ParentIndex() - 1;
 		if (parentIndex < 0)
 			D3DXMatrixIdentity(&matParentAnimation);
 			//model->Root()->Transform();
 		else
 			matParentAnimation = boneAnimation[parentIndex];
 
-		boneAnimation[i] = matAnimation * matParentAnimation;	//이건 누적으로 감
+		boneAnimation[i] = matAnimation *matParentAnimation;	//이건 누적으로 감
 		skinTransform[i] = matInvBindPos * boneAnimation[i];
+		//skinTransform[i] = boneAnimation[i];
 	}
 
 	/*

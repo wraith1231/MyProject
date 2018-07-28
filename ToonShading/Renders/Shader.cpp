@@ -38,7 +38,7 @@ void Shader::CreateVertexShader()
 		, &vertexBlob, &error, NULL
 	);
 	CheckShaderError(hr, error);
-
+	
 	hr = D3D::GetDevice()->CreateVertexShader
 	(
 		vertexBlob->GetBufferPointer()
@@ -59,7 +59,6 @@ void Shader::CreatePixelShader()
 		, &pixelBlob, &error, NULL
 	);
 	CheckShaderError(hr, error);
-
 	hr = D3D::GetDevice()->CreatePixelShader
 	(
 		pixelBlob->GetBufferPointer()

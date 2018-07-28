@@ -12,6 +12,8 @@ struct AnimationBlender
 	float BlendTime = 0.0f;
 	float ElapsedTime = 0.0f;
 
+	bool UseNegative = true;
+
 	bool Empty() { return BindCount == 0; }
 	bool Exist() { return ((Empty() == false) && (Current != NULL)); }
 
@@ -40,10 +42,11 @@ struct AnimationBlender
 		BindCount--;
 	}
 
-	void AddKeyframe(AnimationKeyframe* keyframe, float startTime, float blendTime, float timeScaleFactor, AnimationPlayMode mode)
+	void AddKeyframe(AnimationKeyframe* keyframe, float startTime, float blendTime, float timeScaleFactor, AnimationPlayMode mode, bool bNegative)
 	{
 		BlendTime = blendTime;
 		ElapsedTime = startTime;
+		UseNegative = bNegative;
 
 		if (BlendTime == 0.0f)
 		{
@@ -121,7 +124,10 @@ struct AnimationBlender
 			}
 		}
 
-		return Negative() * matrix * Negative();
+		if (UseNegative == true)
+			return Negative() * matrix * Negative();
+		else
+			return matrix;
 	}
 
 	void CalcBlendingKeyframe(AnimationKeyframeData* target, AnimationKeyframeData* src, float t)

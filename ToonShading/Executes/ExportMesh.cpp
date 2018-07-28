@@ -14,7 +14,9 @@ ExportMesh::ExportMesh(ExecuteValues* values)
 	//SAFE_DELETE(exporter);
 	//
 	//exporter = new Fbx::Exporter(Assets + L"Sapphi/Sapphiart@idle.fbx");
-	//exporter->ExportAnimation(Models + L"Sapphi/", L"Idle");
+	//exporter->ExportMaterial(Models + L"Sapphi/", L"Sapphi");
+	//exporter->ExportMesh(Models + L"Sapphi/", L"Sapphi");
+	//exporter->ExportAnimation(Models + L"Sapphi/", L"Idle", true);
 	//SAFE_DELETE(exporter);
 	//exporter = new Fbx::Exporter(Assets + L"Bonney/jewelry A.fbx");
 	//exporter->ExportMaterial(Models + L"Bonney/", L"Bonney");

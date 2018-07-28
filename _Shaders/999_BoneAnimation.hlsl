@@ -2,7 +2,7 @@
 
 cbuffer VS_Bone : register(b2)
 {
-    matrix _bones[128];
+    matrix _bones[256];
 }
 
 cbuffer VS_Render : register(b3)
@@ -73,8 +73,7 @@ PixelNormalInput VS_Normal(VertexTextureNormal input)
     output.position = mul(input.position, _bones[_boneNumber]);
     output.position = mul(output.position, _view);
     output.position = mul(output.position, _projection);
-
-    //output.normal = input.normal;
+    
     output.normal = mul(input.normal, (float3x3) _bones[_boneNumber]);
     output.normal = normalize(output.normal);
 
@@ -110,6 +109,9 @@ PixelDepthInput VS_Depth(VertexTextureNormal input)
 float4 PS_Depth(PixelDepthInput input) : SV_TARGET
 {
     return float4(input.depth.x, input.depth.y, 1, 1);
+    float depth = input.depth.x / input.depth.y;
+
+    return float4(depth,depth, depth, 1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

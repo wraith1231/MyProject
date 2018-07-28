@@ -113,6 +113,7 @@ void ToonShading::PostRender()
 	buffer->Data.Width = static_cast<float>(normalRT->GetWidth());
 	buffer->Data.Height = static_cast<float>(normalRT->GetHeight());
 	buffer->SetPSBuffer(2);
+	model->TransformsCopy();
 	model->Render();
 }
 
@@ -133,18 +134,13 @@ void ToonShading::PostRender2()
 	buffer->Data.Height = static_cast<float>(AART->GetHeight());
 	buffer->SetPSBuffer(2);
 	buffer->SetVSBuffer(2);
+	model2->TransformsCopy();
 	model2->Render();
 }
 
 void ToonShading::ImGuiRender()
 {
-	//ImGui::Begin("aaa");
-	//
-	//ImGui::SliderFloat("X Plus", &xplus, -1280, 1280);
-	//ImGui::SliderFloat("Y Plus", &yplus, -720, 720);
-	//ImGui::SliderFloat("Z Plus", &zplus, -1.0f, 1.0f);
-	//
-	//ImGui::End();
+
 }
 
 void ToonShading::ResizeScreen()

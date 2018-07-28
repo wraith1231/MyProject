@@ -23,8 +23,8 @@ public:
 	struct AnimationClip* GetClip(UINT index);
 	struct AnimationBlender* GetBlenderFromBoneName(wstring name);
 
-	bool Play(UINT index, enum class AnimationPlayMode mode);
-	bool Play(UINT index, float startTime, float blendTime, float timeScaleFactor, enum class AnimationPlayMode mode);
+	bool Play(UINT index, enum class AnimationPlayMode mode, bool negative = true);
+	bool Play(UINT index, float startTime, float blendTime, float timeScaleFactor, enum class AnimationPlayMode mode, bool negative = true);
 
 	float PlayTime(wstring boneName);
 

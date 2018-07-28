@@ -1,63 +1,63 @@
 {
-   "Sapphi_chequer" : {
+   "SapphiArt_19:Sapphi_chequer" : {
       "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
       "Diffuse" : [ 1.0, 1.0, 1.0, 0.80000001192092896 ],
       "DiffuseFile" : [ "Sapphi_chequer_c.tga" ],
       "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
       "EmissiveFile" : [ "" ],
-      "Name" : [ "Sapphi_chequer" ],
+      "Name" : [ "SapphiArt_19:Sapphi_chequer" ],
       "NormalFile" : [ "" ],
       "ShaderName" : [ "999_Mesh.hlsl" ],
       "Shininess" : 0.0,
       "Specular" : [ 0.0, 0.0, 0.0, 0.0 ],
       "SpecularFile" : [ "" ]
    },
-   "Sapphi_clothes" : {
+   "SapphiArt_19:Sapphi_clothes" : {
       "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
       "Diffuse" : [ 1.0, 1.0, 1.0, 0.80000001192092896 ],
       "DiffuseFile" : [ "Sapphi_clothes_c.tga" ],
       "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
       "EmissiveFile" : [ "" ],
-      "Name" : [ "Sapphi_clothes" ],
+      "Name" : [ "SapphiArt_19:Sapphi_clothes" ],
       "NormalFile" : [ "" ],
       "ShaderName" : [ "999_Mesh.hlsl" ],
       "Shininess" : 0.0,
       "Specular" : [ 0.0, 0.0, 0.0, 0.0 ],
       "SpecularFile" : [ "" ]
    },
-   "Sapphi_hairhead" : {
+   "SapphiArt_19:Sapphi_hairhead" : {
       "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
       "Diffuse" : [ 1.0, 1.0, 1.0, 0.80000001192092896 ],
       "DiffuseFile" : [ "Sapphi_hairhead_c.tga" ],
       "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
       "EmissiveFile" : [ "" ],
-      "Name" : [ "Sapphi_hairhead" ],
+      "Name" : [ "SapphiArt_19:Sapphi_hairhead" ],
       "NormalFile" : [ "" ],
       "ShaderName" : [ "999_Mesh.hlsl" ],
       "Shininess" : 0.0,
       "Specular" : [ 0.0, 0.0, 0.0, 0.0 ],
       "SpecularFile" : [ "" ]
    },
-   "Sapphi_underwear" : {
+   "SapphiArt_19:Sapphi_underwear" : {
       "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
       "Diffuse" : [ 1.0, 1.0, 1.0, 0.80000001192092896 ],
       "DiffuseFile" : [ "Sapphi_underwear_c.TGA" ],
       "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
       "EmissiveFile" : [ "" ],
-      "Name" : [ "Sapphi_underwear" ],
+      "Name" : [ "SapphiArt_19:Sapphi_underwear" ],
       "NormalFile" : [ "" ],
       "ShaderName" : [ "999_Mesh.hlsl" ],
       "Shininess" : 0.0,
       "Specular" : [ 0.0, 0.0, 0.0, 0.0 ],
       "SpecularFile" : [ "" ]
    },
-   "lambert3" : {
+   "SapphiArt_19:lambert3" : {
       "Ambient" : [ 0.0, 0.0, 0.0, 1.0 ],
       "Diffuse" : [ 1.0, 1.0, 1.0, 0.80000001192092896 ],
       "DiffuseFile" : [ "Sapphi_eye_c.tga" ],
       "Emissive" : [ 0.0, 0.0, 0.0, 1.0 ],
       "EmissiveFile" : [ "" ],
-      "Name" : [ "lambert3" ],
+      "Name" : [ "SapphiArt_19:lambert3" ],
       "NormalFile" : [ "" ],
       "ShaderName" : [ "999_Mesh.hlsl" ],
       "Shininess" : 0.0,

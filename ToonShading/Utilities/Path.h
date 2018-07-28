@@ -28,11 +28,16 @@ public:
 	static string GetFileNameWithoutExtension(string path);
 	static wstring GetFileNameWithoutExtension(wstring path);
 
+	static string GetFileLocalPath(string path);
+	static wstring GetFileLocalPath(wstring path);
+	static string GetFileLocalPathDirectory(string path);
+	static wstring GetFileLocalPathDirectory(wstring path);
 
 	const static WCHAR* ImageFilter;
 	const static WCHAR* BinModelFilter;
 	const static WCHAR* FbxModelFilter;
 	const static WCHAR* ShaderFilter;
+	const static WCHAR* TerrainFilter;
 
 	static void OpenFileDialog(wstring file, const WCHAR* filter, wstring folder, function<void(wstring)> func, HWND hwnd = NULL);
 	static void SaveFileDialog(wstring file, const WCHAR* filter, wstring folder, function<void(wstring)> func, HWND hwnd = NULL);

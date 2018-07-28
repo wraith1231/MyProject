@@ -7,7 +7,7 @@ class ModelBuffer : public ShaderBuffer
 public:
 	ModelBuffer() : ShaderBuffer(&data, sizeof(data))
 	{
-		for (int i = 0; i < 128; i++)
+		for (int i = 0; i < 256; i++)
 			D3DXMatrixIdentity(&data.Bones[i]);
 	}
 
@@ -35,7 +35,7 @@ public:
 private:
 	struct Struct
 	{
-		D3DXMATRIX Bones[128];
+		D3DXMATRIX Bones[256];
 	} data;
 };
 
@@ -102,6 +102,8 @@ public:
 
 	void CheckMaxMinVer(D3DXVECTOR3& max, D3DXVECTOR3& min);
 
+	void TransformsCopy();
+
 private:
 	void BindMeshData();
 
@@ -128,6 +130,8 @@ private:
 	//vector<class ModelAnimation*> animes;
 	Shader* shader2;
 	Shader* shader3;
+
+	vector<D3DXMATRIX> transforms;
 };
 
 class Models

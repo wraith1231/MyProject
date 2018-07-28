@@ -68,13 +68,13 @@ AnimationBlender * GameAnimationModel::GetBlenderFromBoneName(wstring name)
 	return NULL;
 }
 
-bool GameAnimationModel::Play(UINT index, AnimationPlayMode mode)
+bool GameAnimationModel::Play(UINT index, AnimationPlayMode mode, bool negative)
 {
 	//blend time이 0이면 안섞는단 얘기
-	return Play(index, 0.0f, 0.0f, 1.0f, mode);
+	return Play(index, 0.0f, 0.0f, 1.0f, mode, negative);
 }
 
-bool GameAnimationModel::Play(UINT index, float startTime, float blendTime, float timeScaleFactor, AnimationPlayMode mode)
+bool GameAnimationModel::Play(UINT index, float startTime, float blendTime, float timeScaleFactor, AnimationPlayMode mode, bool negative)
 {
 	AnimationClip* clip = GetClip(index);
 	if (clip == NULL) return false;
@@ -83,7 +83,7 @@ bool GameAnimationModel::Play(UINT index, float startTime, float blendTime, floa
 	{
 		AnimationBlender* blender = GetBlenderFromBoneName(keyframe->BoneName);
 
-		blender->AddKeyframe(keyframe, startTime, blendTime, timeScaleFactor, mode);
+		blender->AddKeyframe(keyframe, startTime, blendTime, timeScaleFactor, mode, negative);
 	}
 
 	return true;
@@ -104,13 +104,10 @@ void GameAnimationModel::Update()
 {
 	CalcPosition();
 
-	//clip이 없으면 play 안시킴
 	if (clips.size() > 0)
 	{
 		for (UINT i = 0; i < model->BoneCount(); i++)
 		{
-			//blender는 해당 bone의 블렌더가 없을 수 있음
-			//없어도 null은 아님
 			AnimationBlender* blender = blenders[i];
 			if (blender->Exist() == true)
 			{

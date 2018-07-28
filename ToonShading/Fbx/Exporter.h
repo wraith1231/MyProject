@@ -22,6 +22,7 @@ namespace Fbx
 		void ExportMaterial(wstring saveFolder, wstring saveName);
 		void ExportMesh(wstring saveFolder, wstring saveName);
 		void ExportAnimation(wstring saveFolder, wstring saveName);
+		void ExportAnimation(wstring saveFolder, wstring saveName, bool xmlstyle);
 
 	private:
 		void CopyTextureFile(string& textureFile, wstring saveFolder);
@@ -42,6 +43,7 @@ namespace Fbx
 		);
 		
 		void WriteAnimaiton(wstring saveFolder, wstring saveName);
+		void WriteAnimationXml(wstring saveFolder, wstring saveName);
 
 	private:
 		bool bXna;	//юс╫ц

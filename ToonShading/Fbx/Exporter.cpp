@@ -27,6 +27,11 @@ Fbx::Exporter::Exporter(wstring fbxFile, bool bXna)
 	bCheck = importer->Import(scene);
 	assert(bCheck == true);
 
+
+	FbxAxisSystem axis = scene->GetGlobalSettings().GetAxisSystem();
+	if (axis != FbxAxisSystem::DirectX)
+		FbxAxisSystem::DirectX.ConvertScene(scene);
+
 	converter = new FbxGeometryConverter(manager);
 }
 
@@ -145,6 +150,16 @@ void Fbx::Exporter::ExportAnimation(wstring saveFolder, wstring saveName)
 	WriteAnimaiton(saveFolder, saveName);
 }
 
+void Fbx::Exporter::ExportAnimation(wstring saveFolder, wstring saveName, bool xmlstyle)
+{
+	ReadAnimation();
+
+	if (xmlstyle == true)
+		WriteAnimationXml(saveFolder, saveName);
+	else
+		WriteAnimaiton(saveFolder, saveName);
+}
+
 void Fbx::Exporter::CopyTextureFile(string & textureFile, wstring saveFolder)
 {
 	if (textureFile.length() < 1)
@@ -182,8 +197,13 @@ void Fbx::Exporter::ReadBoneData(FbxNode * node, int index, int parent)
 			bone->Parent = parent;
 			bone->Name = node->GetName();
 
-			bone->Transform = Utility::ToMatrix(node->EvaluateLocalTransform(), bXna);
-			bone->AbsoluteTransform = Utility::ToMatrix(node->EvaluateGlobalTransform(), bXna);
+			D3DXMatrixIdentity(&bone->Transform);
+			D3DXMatrixIdentity(&bone->AbsoluteTransform);
+
+			//bone->Transform = Utility::ToMatrix(node->EvaluateLocalTransform(), bXna);
+			//bone->AbsoluteTransform = Utility::ToMatrix(node->EvaluateGlobalTransform(), bXna);
+			//bone->Transform = Utility::ToMatrix(node->EvaluateLocalTransform());
+			//bone->AbsoluteTransform = Utility::ToMatrix(node->EvaluateGlobalTransform());
 
 			boneDatas.push_back(bone);
 
@@ -223,15 +243,16 @@ void Fbx::Exporter::ReadMeshData(FbxNode * node, int parentBone)
 			vertex->ControlPoint = cpIndex;
 
 			FbxVector4 position = mesh->GetControlPointAt(cpIndex);
-			D3DXVECTOR3 temp = Utility::ToVector3(position);;
+			D3DXVECTOR3 temp = Utility::ToVector3(position);
 			D3DXVec3TransformCoord(&vertex->Vertex.position, &temp, &Utility::Negative(bXna));
-
+			//vertex->Vertex.position = temp;
 			FbxVector4 normal;
 			mesh->GetPolygonVertexNormal(p, vi, normal);
 			normal.Normalize();
 			temp = Utility::ToVector3(normal);
 			//사실 이거 w가 0이라 곱해지는 값이 없어서 그냥 coord로 해줘도 상관은 없음
 			D3DXVec3TransformNormal(&vertex->Vertex.normal, &temp, &Utility::Negative(bXna));
+			//vertex->Vertex.normal = temp;
 
 			vertex->MaterialName = Utility::GetMaterialName(mesh, p, cpIndex);
 
@@ -284,9 +305,8 @@ void Fbx::Exporter::ReadSkinData()
 				cluster->GetTransformMatrix(transform);
 				cluster->GetTransformLinkMatrix(linkTransform);
 
-				boneDatas[boneIndex]->Transform = Utility::ToMatrix(transform, bXna);
-				boneDatas[boneIndex]->AbsoluteTransform = Utility::ToMatrix(linkTransform, bXna);
-
+				D3DXMatrixIdentity(&boneDatas[boneIndex]->Transform);
+				D3DXMatrixIdentity(&boneDatas[boneIndex]->AbsoluteTransform);
 
 				for (int indexCount = 0; indexCount < cluster->GetControlPointIndicesCount(); indexCount++)
 				{
@@ -457,16 +477,19 @@ void Fbx::Exporter::ReadAnimation(FbxAnimation * animation, FbxNode * node, int 
 				animationTime.SetFrame(i);
 
 				FbxAMatrix matrix = node->EvaluateLocalTransform(animationTime);	//아무것도 않넣으면 가장 기본적인게 나오고 시간을 넣으면 해당 시간으로 변환된 로컬 transform이 넘어온다
-				D3DXMATRIX transform = Utility::ToMatrix(matrix, bXna);
+				//D3DXMATRIX transform = Utility::ToMatrix(matrix, bXna);
+				D3DXMATRIX transform = Utility::ToMatrix(matrix);
 				
 				FbxKeyFrameData data;
-				data.Transform = transform;
-				data.Translate = D3DXVECTOR3(transform._41, transform._42, transform._43);
 
-				D3DXQuaternionRotationMatrix(&data.Rotation, &transform);
-
-				FbxVector4 scale = node->EvaluateLocalScaling(animationTime);
-				data.Scale = Utility::ToVector3(scale);
+				D3DXMatrixDecompose(&data.Scale, &data.Rotation, &data.Translate, &transform);
+				//data.Transform = transform;
+				//data.Translate = D3DXVECTOR3(transform._41, transform._42, transform._43);
+				//
+				//D3DXQuaternionRotationMatrix(&data.Rotation, &transform);
+				//
+				//FbxVector4 scale = node->EvaluateLocalScaling(animationTime);
+				//data.Scale = Utility::ToVector3(scale);
 
 				keyFrame->Transforms.push_back(data);
 			}
@@ -512,6 +535,61 @@ void Fbx::Exporter::WriteAnimaiton(wstring saveFolder, wstring saveName)
 		}
 
 		SAFE_DELETE(animation);
+	}
+
+	w->Close();
+	SAFE_DELETE(w);
+}
+
+void Fbx::Exporter::WriteAnimationXml(wstring saveFolder, wstring saveName)
+{
+	if (Path::ExistDirectory(saveFolder) == false)
+		CreateDirectory(saveFolder.c_str(), NULL);
+
+	BinaryWriter* w = new BinaryWriter();
+	w->Open(saveFolder + saveName + L".anim");
+
+	w->UInt(animDatas[0]->KeyFrames.size());
+	float duration = animDatas[0]->TotalFrame / animDatas[0]->FrameRate;
+	w->Float(duration);
+
+	for (FbxKeyframe* keyframe : animDatas[0]->KeyFrames)
+	{
+		w->String(keyframe->BoneName);
+
+		w->UInt(keyframe->Transforms.size());
+		vector<D3DXVECTOR3> translations;
+		vector<D3DXQUATERNION> rotations;
+		vector<D3DXVECTOR3> scales;
+
+		for (FbxKeyFrameData data : keyframe->Transforms)
+		{
+			translations.push_back(data.Translate);
+			rotations.push_back(data.Rotation);
+			scales.push_back(data.Scale);
+		}
+		keyframe->Transforms.clear();
+
+		w->Float(duration);
+		w->Float(duration / animDatas[0]->TotalFrame);
+
+		UINT size = 0;
+		size = translations.size();
+		w->UInt(size);
+		w->Byte(&translations[0], sizeof(D3DXVECTOR3) * size);
+		
+		size = rotations.size();
+		w->UInt(size);
+		w->Byte(&rotations[0], sizeof(D3DXQUATERNION) * size);
+
+		size = scales.size();
+		w->UInt(size);
+		w->Byte(&scales[0], sizeof(D3DXVECTOR3) * size);
+
+		size = 0;
+		w->UInt(0);
+
+		SAFE_DELETE(keyframe);
 	}
 
 	w->Close();

@@ -34,8 +34,18 @@ PixelInput VS(VertexTextureNormal input)
     return output;
 }
 
+//float mask[9] =
+//{
+//    -1, -1, -1,
+//    -1, 8, -1,
+//    -1, -1, -1
+//};  //Laplacian Filter
+//
+//float coord[3] = { -1, 0, 1 };
+
 float4 PS(PixelInput input) : SV_TARGET
 {
+
     //연산 순서는 노멀~뎁스순으로 갑시다
     //노멀은 dot 값 비교 - 1도단위(pi / 180) 비교로
     //깊이는 적당한 값으로...
@@ -48,7 +58,7 @@ float4 PS(PixelInput input) : SV_TARGET
     //depth 비교를 위한 값
     //너무 크면 깊이가 거리에 따라서 어느정도는 차이가 없다고 보고 외곽선 안그리는 경우 발생
     //너무 작으면 그냥 다 깊이 차이난다고 보고 외곽선을 덕지덕지 그림
-    float dep = 1.0f;
+    float dep = 0.015f;
 
     float nordot, depth, ndot, de;  //nordot-현재 픽셀 dot값, depth-현재 픽셀 depth값, ndot-비교 픽셀 dot값, de-비교 픽셀 depth값 
     bool bd = true;
@@ -56,7 +66,7 @@ float4 PS(PixelInput input) : SV_TARGET
     float hei = 1.0f / _valueHeight;
     float wid = 1.0f / _valueWidth;
     //depth용 좀 더 수월하게 계산하기 위함
-    float fn = _valueFar / _valueNear;
+    float fn = _valueFar * _valueNear;
     //현재 픽셀의 normal, depth, real pixel 값을 가져온다
     float4 normalColor = NormalRT.Sample(NormalRTSampler, input.uv);
     float4 depthColor = DepthRT.Sample(DepthRTSampler, input.uv);
@@ -133,7 +143,7 @@ float4 PS(PixelInput input) : SV_TARGET
         return float4(0, 0, 0, 1);
     if (abs(depth - de) > dep)
         return float4(0, 0, 0, 1);
-
+    
     //검사결과 이상없으면 원래 그려질 색을 그린다
     return realColor;
 }

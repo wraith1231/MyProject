@@ -11,6 +11,7 @@ namespace Fbx
 		static D3DXVECTOR3 ToVector3(FbxVector4& vec);
 		static D3DXCOLOR ToColor(FbxVector4& vec);
 		static D3DXCOLOR ToColor(FbxPropertyT<FbxDouble3>& vec, FbxPropertyT<FbxDouble>& factor);
+		static D3DXMATRIX ToMatrix(FbxAMatrix& matrix);
 		static D3DXMATRIX ToMatrix(FbxAMatrix& matrix, bool bXna);
 
 		static string GetTextureFile(FbxProperty& prop);

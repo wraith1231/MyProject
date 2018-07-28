@@ -228,6 +228,12 @@
     <ClInclude Include="Units\GameWeapon.h">
       <Filter>Units</Filter>
     </ClInclude>
+    <ClInclude Include="Objects\GameTerrain.h">
+      <Filter>Objects\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\GameUntouchable.h">
+      <Filter>Objects\Models</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Executes">
@@ -461,6 +467,12 @@
     </ClCompile>
     <ClCompile Include="Units\GameWeapon.cpp">
       <Filter>Units</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\GameTerrain.cpp">
+      <Filter>Objects\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\GameUntouchable.cpp">
+      <Filter>Objects\Models</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

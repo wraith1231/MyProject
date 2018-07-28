@@ -9,7 +9,7 @@ private:
 	public:
 		BoneBuffer() : ShaderBuffer(&Data, sizeof(Data))
 		{
-			for (int i = 0; i < 128; i++)
+			for (int i = 0; i < 256; i++)
 				D3DXMatrixIdentity(&Data.Bones[i]);
 		}
 
@@ -24,7 +24,7 @@ private:
 	private:
 		struct Struct
 		{
-			D3DXMATRIX Bones[128];
+			D3DXMATRIX Bones[256];
 		} Data;
 	};
 

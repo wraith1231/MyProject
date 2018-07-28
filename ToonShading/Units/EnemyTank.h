@@ -43,7 +43,7 @@ private:
 	D3DXMATRIX transformTurret;
 	float turretAngleSpeed;
 
-	float rotate;
+	//float rotate;
 
 private:
 	enum class Action

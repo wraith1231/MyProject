@@ -33,16 +33,13 @@ Program::Program()
 	//Json::ReadData(values->jsonRoot);
 
 	values->MainCamera = new FreeCam(100);
-	values->MainCamera->SetPosition(0.0f, 0.0f, -5.0f);
+	values->MainCamera->SetPosition(0.0f, 10.0f, -10.0f);
 	values->MainCamera->SetRotationDegree(0.0f, 0.0f);
 
 	DrawModel* model = new DrawModel(values);
 	
 	//values->MainCamera = new ThirdPerson(model->GetCharPos());
 	executes.push_back(model);
-	//executes.push_back(terrain);
-	//executes.push_back(new DrawModel(values));
-	//executes.push_back(new DrawTerrain(values));
 	executes.push_back(new ExeGui(values));
 }
 
@@ -77,7 +74,7 @@ void Program::PreRender()
 
 	for (Execute* exe : executes)
 		exe->PreRender();
-
+	
 	//SetGlobalBuffers();
 	for (Execute* exe : executes)
 		exe->PreRender2();
@@ -87,6 +84,8 @@ void Program::PreRender()
 
 void Program::Render()
 {
+	//D3D::Get()->SetRenderTarget();
+
 	for (Execute* exe : executes)
 		exe->Render();
 
@@ -96,7 +95,7 @@ void Program::PostRender()
 {
 	for (Execute* exe : executes)
 		exe->PostRender();
-
+	
 	D3D::Get()->SetRenderTarget();
 	
 	for (Execute* exe : executes)

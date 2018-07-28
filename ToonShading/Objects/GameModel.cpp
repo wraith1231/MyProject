@@ -92,7 +92,7 @@ void GameModel::Render()
 	for (Material* material : model->Materials())
 		material->SetShader(shader);
 	
-	boneBuffer->SetBones(&boneTransforms[0], boneTransforms.size());
+	//boneBuffer->SetBones(&boneTransforms[0], boneTransforms.size());
 	boneBuffer->SetVSBuffer(2);
 
 	for (ModelMesh* mesh : model->Meshes())
@@ -135,7 +135,7 @@ void GameModel::PreRender2()
 	for (Material* material : model->Materials())
 		material->SetShader(shader3);
 	
-	boneBuffer->SetBones(&boneTransforms[0], boneTransforms.size());
+	//boneBuffer->SetBones(&boneTransforms[0], boneTransforms.size());
 	boneBuffer->SetVSBuffer(2);
 	
 	for (ModelMesh* mesh : model->Meshes())

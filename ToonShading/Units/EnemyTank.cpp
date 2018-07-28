@@ -56,7 +56,7 @@ EnemyTank::EnemyTank(wstring matFile, wstring meshFile)
 	currentWeapon->SpecData()->TracerBulletLength = 3.0f;
 	currentWeapon->SpecData()->TracerBulletThickness = 0.7f;
 
-	rotate = 0.0f;
+	//rotate = 0.0f;
 	PlayAction(Action::Idle);
 }
 
@@ -82,7 +82,7 @@ void EnemyTank::Update()
 
 	if (turretAngleSpeed != 0.0f)
 	{
-		rotate += turretAngleSpeed * Time::Delta();
+		float rotate = turretAngleSpeed * Time::Delta();
 		if (rotate >= 180.0f) rotate -= 360.0f;
 		if (rotate <= -180.0f) rotate += 360.0f;
 
@@ -94,11 +94,11 @@ void EnemyTank::Update()
 		D3DXMATRIX mat;
 		D3DXMatrixRotationAxis(&mat, &right, Math::ToRadian(rotate));
 
-		//transformTurret *= mat;
-		model->Bone(indexTurretBone)->Transform(transformTurret * mat);
+		transformTurret *= mat;
+		//model->Bone(indexTurretBone)->Transform(transformTurret * mat);
 	}
 
-	//model->Bone(indexTurretBone)->Transform(transformTurret);
+	model->Bone(indexTurretBone)->Transform(transformTurret);
 	//D3DXMATRIX transformed = Transformed();
 	//model->CopyAbsoluteBoneTo(transformed, boneTransforms);
 

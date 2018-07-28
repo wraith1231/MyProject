@@ -36,13 +36,6 @@ Model::~Model()
 			SAFE_DELETE(clip);
 	}
 	clips.clear();
-	//for (vector<ModelAnimClip*> vClips : clips)
-	//{
-	//	for (ModelAnimClip* clip : vClips)
-	//		SAFE_DELETE(clip);
-	//}
-	//for (ModelAnimClip* clip : clips)
-	//	SAFE_DELETE(clip);
 
 	for (ModelBone* bone : bones)
 		SAFE_DELETE(bone);
@@ -50,29 +43,19 @@ Model::~Model()
 
 void Model::Update()
 {
-	/*
-	for (ModelAnimation* ani : animes)
-	{
-		ani->Update();
-		ModelBone* bone = Bone(ani->GetName());
-		bone->transform = ani->GetTransform() * bone->oriTransform;
-	}
-	gizmo->Update();
 
-	root->transform = root->oriTransform * gizmo->GetWorld();
-	*/
 }
 
 void Model::PreRender()
 {
-	vector<D3DXMATRIX> transforms;
+	transforms.clear();
 	CopyAbsoluteBoneTo(transforms);
 
 	for (ModelMesh* mesh : meshes)
 	{
 		int index = mesh->ParentBoneIndex();
 		D3DXMATRIX transform = transforms[index];
-
+		
 		mesh->SetWorld(transform);
 		mesh->Render();
 	}
@@ -80,14 +63,11 @@ void Model::PreRender()
 
 void Model::PreRender2()
 {
-	vector<D3DXMATRIX> transforms;
-	CopyAbsoluteBoneTo(transforms);
-
 	for (ModelMesh* mesh : meshes)
 	{
 		int index = mesh->ParentBoneIndex();
 		D3DXMATRIX transform = transforms[index];
-
+		
 		mesh->SetWorld(transform);
 		mesh->Render();
 	}
@@ -95,14 +75,11 @@ void Model::PreRender2()
 
 void Model::Render()
 {
-	vector<D3DXMATRIX> transforms;
-	CopyAbsoluteBoneTo(transforms);
-
 	for (ModelMesh* mesh : meshes)
 	{
 		int index = mesh->ParentBoneIndex();
 		D3DXMATRIX transform = transforms[index];
-
+		
 		mesh->SetWorld(transform);
 		mesh->Render();
 	}
@@ -272,6 +249,11 @@ void Model::CheckMaxMinVer(D3DXVECTOR3 & max, D3DXVECTOR3 & min)
 {
 	for (ModelMesh* mesh : meshes)
 		mesh->CheckMaxMin(max, min);
+}
+void Model::TransformsCopy()
+{
+	transforms.clear();
+	CopyAbsoluteBoneTo(transforms);
 }
 //skin 있는 애들은 이거 안씀
 void Model::CopyAbsoluteBoneTo(vector<D3DXMATRIX>& transforms)

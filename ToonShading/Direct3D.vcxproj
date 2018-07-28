@@ -55,6 +55,8 @@
     <ClInclude Include="Objects\GameModel.h" />
     <ClInclude Include="Objects\GameRender.h" />
     <ClInclude Include="Objects\GameSkyBox.h" />
+    <ClInclude Include="Objects\GameTerrain.h" />
+    <ClInclude Include="Objects\GameUntouchable.h" />
     <ClInclude Include="Objects\GameWorld.h" />
     <ClInclude Include="Objects\AnimationKeyframe.h" />
     <ClInclude Include="Program.h" />
@@ -127,6 +129,8 @@
     <ClCompile Include="Objects\GameModel.cpp" />
     <ClCompile Include="Objects\GameRender.cpp" />
     <ClCompile Include="Objects\GameSkyBox.cpp" />
+    <ClCompile Include="Objects\GameTerrain.cpp" />
+    <ClCompile Include="Objects\GameUntouchable.cpp" />
     <ClCompile Include="Objects\GameWorld.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="Renders\Material.cpp" />

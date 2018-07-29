@@ -24,6 +24,7 @@ Program::Program()
 	values->Viewport = new Viewport(desc.Width, desc.Height);
 	values->GuiSettings = new GuiSettings();
 	values->GlobalLight = new LightBuffer();
+	values->MainCamera = new ThirdPerson();
 
 	executes.push_back(new ToonShading(values));
 	executes.push_back(new ExportMesh(values));
@@ -32,13 +33,12 @@ Program::Program()
 	//values->jsonRoot = new Json::Value();
 	//Json::ReadData(values->jsonRoot);
 
-	values->MainCamera = new FreeCam(100);
-	values->MainCamera->SetPosition(0.0f, 10.0f, -10.0f);
-	values->MainCamera->SetRotationDegree(0.0f, 0.0f);
+	//values->MainCamera = new FreeCam(100);
+	//values->MainCamera->SetPosition(0.0f, 10.0f, -10.0f);
+	//values->MainCamera->SetRotationDegree(0.0f, 0.0f);
 
 	DrawModel* model = new DrawModel(values);
 	
-	//values->MainCamera = new ThirdPerson(model->GetCharPos());
 	executes.push_back(model);
 	executes.push_back(new ExeGui(values));
 }

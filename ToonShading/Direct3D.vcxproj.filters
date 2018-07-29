@@ -195,12 +195,6 @@
     <ClInclude Include="Viewer\FreeCam.h">
       <Filter>Viewer</Filter>
     </ClInclude>
-    <ClInclude Include="Units\UnitPlayerInput.h">
-      <Filter>Units</Filter>
-    </ClInclude>
-    <ClInclude Include="Units\GameData.h">
-      <Filter>Units</Filter>
-    </ClInclude>
     <ClInclude Include="Executes\ToonShading.h">
       <Filter>Executes</Filter>
     </ClInclude>
@@ -222,17 +216,23 @@
     <ClInclude Include="Units\GamePlayer.h">
       <Filter>Units\Player</Filter>
     </ClInclude>
-    <ClInclude Include="Units\Bullet.h">
-      <Filter>Units\Ai</Filter>
-    </ClInclude>
-    <ClInclude Include="Units\GameWeapon.h">
-      <Filter>Units</Filter>
-    </ClInclude>
     <ClInclude Include="Objects\GameTerrain.h">
       <Filter>Objects\Models</Filter>
     </ClInclude>
     <ClInclude Include="Objects\GameUntouchable.h">
       <Filter>Objects\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Units\Bullet.h">
+      <Filter>Units\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="Units\GameWeapon.h">
+      <Filter>Units\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="Units\GameData.h">
+      <Filter>Units\UnitInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="Units\UnitPlayerInput.h">
+      <Filter>Units\UnitInfo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -283,6 +283,12 @@
     </Filter>
     <Filter Include="Units\Player">
       <UniqueIdentifier>{c00740d6-e83f-4233-a9d8-82c3d7837951}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Units\Weapon">
+      <UniqueIdentifier>{d36d9b2b-de09-4a87-a3a7-ad5ff070aebf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Units\UnitInfo">
+      <UniqueIdentifier>{4e4f23f7-4c9b-4fc6-b4a1-6592e65f2267}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -444,9 +450,6 @@
     <ClCompile Include="Viewer\FreeCam.cpp">
       <Filter>Viewer</Filter>
     </ClCompile>
-    <ClCompile Include="Units\Bullet.cpp">
-      <Filter>Units</Filter>
-    </ClCompile>
     <ClCompile Include="Executes\ToonShading.cpp">
       <Filter>Executes</Filter>
     </ClCompile>
@@ -465,14 +468,17 @@
     <ClCompile Include="Units\GamePlayer.cpp">
       <Filter>Units\Player</Filter>
     </ClCompile>
-    <ClCompile Include="Units\GameWeapon.cpp">
-      <Filter>Units</Filter>
-    </ClCompile>
     <ClCompile Include="Objects\GameTerrain.cpp">
       <Filter>Objects\Models</Filter>
     </ClCompile>
     <ClCompile Include="Objects\GameUntouchable.cpp">
       <Filter>Objects\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Units\Bullet.cpp">
+      <Filter>Units\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="Units\GameWeapon.cpp">
+      <Filter>Units\Weapon</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

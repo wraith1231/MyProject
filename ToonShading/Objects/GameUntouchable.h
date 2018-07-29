@@ -23,6 +23,7 @@ public:
 	void AddTransforms(D3DXVECTOR3 scale, D3DXVECTOR3 rotate, D3DXVECTOR3 trans);
 
 	bool SelectObject(Objects::Ray* ray);
+	bool ObjectCheck(Objects::Ray* ray);
 
 	void Update();
 	void SelectObjectUpdate();
@@ -33,6 +34,14 @@ public:
 	void Render();
 
 	void ImGuiRender();
+
+	void SaveTransforms(Json::Value* val, UINT num);
+
+	UINT Transforms();
+
+	Objects::BoundingBox* Box(UINT num);
+
+	wstring GetFileName() { return file; }
 
 private:
 	bool selected;

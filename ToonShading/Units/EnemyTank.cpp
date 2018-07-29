@@ -6,6 +6,7 @@
 #include "GameSettings.h"
 #include "GameData.h"
 #include "GameWeapon.h"
+#include "Bullet.h"
 
 EnemyTank::EnemyTank(wstring matFile, wstring meshFile)
 	: GameEnemy(matFile, meshFile)
@@ -131,8 +132,16 @@ bool EnemyTank::ActionFire()
 	fireDir.z = boneTransforms[indexTurretBone]._23;
 
 	//TODO: น฿ป็
+	if (currentWeapon == NULL)
+		return false;
 
-	return false;
+	if (bullet->BulletQuan() > currentWeapon->SpecData()->FireCount)
+		return false;
+
+	bullet->AddBullet(fireStart, fireDir, currentWeapon->SpecData()->TracerBulletSpeed, currentWeapon->SpecData()->FireRange);
+	currentWeapon->ReloadTime(currentWeapon->SpecData()->FireIntervalTime);
+
+	return true;
 }
 
 void EnemyTank::ActionHit(GameUnit * attacker)
@@ -165,8 +174,13 @@ void EnemyTank::ActionHit(GameUnit * attacker)
 bool EnemyTank::ActionReload(GameWeapon * weapon)
 {
 	//TODO : Reload Process - Need Weapon
+	if (weapon == NULL)
+		return false;
 
-	return false;
+	float reloadTime = weapon->ReloadTime() - Time::Delta();
+	weapon->ReloadTime(reloadTime);
+
+	return true;
 }
 
 void EnemyTank::ActionDamage(GameUnit * attacker)
@@ -272,7 +286,7 @@ void EnemyTank::OnAiSearch(AiState * state)
 
 		if (cross.y < 0.0f) angle = -angle;
 
-		if (fabs(angle) < 10.0f)
+		if (fabs(angle) < 3.0f)
 		{
 			if (distance <= currentWeapon->SpecData()->FireRange)
 			{
@@ -287,11 +301,11 @@ void EnemyTank::OnAiSearch(AiState * state)
 		}
 		else
 		{
-			if (angle > 10.0f)
+			if (angle > 3.0f)
 			{
 				NextAi(AiType::TurnRight, fabs(angle) / specData->TurnAngle);
 			}
-			else if (angle < 10.0f)
+			else if (angle < 3.0f)
 			{
 				NextAi(AiType::TurnLeft, fabs(angle) / specData->TurnAngle);
 			}
@@ -333,12 +347,20 @@ void EnemyTank::OnAiAttack(AiState * state)
 	{
 		Velocity(D3DXVECTOR3(0, 0, 0));
 
+		if (currentWeapon->ReloadTime() < 0.0f)
+		{
+			ActionFire();
+		}
+		else
+		{
+			ActionReload(currentWeapon);
+		}
 		//TODO: Reload Check
 		//Reload-> Reload Process
 
 		//TODO: Check Fire Enable
 		//Fire Enabled == true -> Fire
-		ActionFire();
+		//ActionFire();
 
 		//TODO: Attack
 

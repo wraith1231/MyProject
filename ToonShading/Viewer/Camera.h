@@ -68,6 +68,8 @@ public:
 
 	virtual void Update() = 0;
 
+	void SetTarget(D3DXVECTOR3* tar) { target = tar; }
+
 protected:
 	Camera();
 
@@ -75,7 +77,10 @@ protected:
 	virtual void UpdateRotation();
 	virtual void UpdateView();
 
+	D3DXVECTOR3* target;
+
 private:
+
 	D3DXVECTOR3 position;
 	D3DXVECTOR2 rotation;
 

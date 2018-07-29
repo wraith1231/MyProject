@@ -81,7 +81,7 @@ struct GameWeaponSpec : public GameMeshSpec
 	int Damage = 300;
 
 	UINT FireCount = 1;
-	float FireRange = 70.0f;
+	float FireRange = 50.0f;
 	float FireIntervalTime = 3.0f;
 	float FireDelayTimeTillFirst = 0.0f;
 	
@@ -92,7 +92,7 @@ struct GameWeaponSpec : public GameMeshSpec
 
 	int TotalBulletCount = -1;
 	bool TracerBulletFire = true;	//총알 속도 추적 여부
-	float TracerBulletSpeed = 200.0f;
+	float TracerBulletSpeed = 10.0f;
 	float TracerBulletLength = 3.0f;	//범위
 	float TracerBulletThickness = 0.7f;	//두께
 	

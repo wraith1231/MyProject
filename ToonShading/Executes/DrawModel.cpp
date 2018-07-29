@@ -6,8 +6,7 @@
 DrawModel::DrawModel(ExecuteValues* values)
 	: Execute(values)
 {
-	settings = new GameSettings();
-	settings->SetValues(values);
+	settings = new GameSettings(values);
 }
 
 DrawModel::~DrawModel()

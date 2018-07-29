@@ -22,6 +22,9 @@ public:
 	WeaponState State() { return state; }
 	enum class WeaponType WeaponType();
 
+	float ReloadTime() { return reloadTime; }
+	void ReloadTime(float& val) { reloadTime = val; }
+
 public:
 	enum class WeaponState
 	{
@@ -32,6 +35,7 @@ private:
 	vector<class Model*> models;
 
 	struct GameWeaponSpec* specData;
+	float reloadTime;
 	WeaponState state;
 
 	vector<UINT> indexWeaponFireDummy; //무기 붙일 곳 (총구)

@@ -187,6 +187,18 @@ void Objects::BoundingBox::Render(D3DXMATRIX mat)
 	Render();
 }
 
+bool Objects::BoundingBox::Intersects(Objects::BoundingBox * box)
+{
+	if (this->max.x < box->min.x || this->min.x > box->max.x)
+		return false;
+	if (this->max.y < box->min.y || this->min.y > box->max.y)
+		return false;
+	if (this->max.z < box->min.z || this->min.z > box->max.z)
+		return false;
+
+	return true;
+}
+
 bool Objects::BoundingBox::Intersects(Objects::Plane * plane)
 {
 	D3DXVECTOR3 vec3 = D3DXVECTOR3(0.0f, 0.0f, 0.0f);

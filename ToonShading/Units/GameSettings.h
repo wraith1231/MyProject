@@ -4,7 +4,7 @@
 class GameSettings
 {
 public:
-	GameSettings();
+	GameSettings(ExecuteValues* values = NULL);
 	~GameSettings();
 
 	void Update();
@@ -21,10 +21,20 @@ public:
 	static class GameTerrain* Terrain() { return terrain; }
 
 	void SetValues(ExecuteValues* value) { values = value; }
+
+	void SaveScene();
+	void LoadScene();
+
+	void SceneSave(wstring file = L"");
+	void SceneLoad(wstring file = L"");
+
 private:
 	void CreateEnvironment();
 	void CreatePlayer();
 	void CreateEnemy();
+	void DisposeEnemy(D3DXVECTOR3 position);
+
+	void DeleteAll();
 
 private:
 	ExecuteValues* values;
@@ -35,6 +45,7 @@ private:
 
 	static class GamePlayer* player;
 	class GameEnemy* enemy;
+	vector<class GameEnemy*> enemies;
 
 	class GameAnimationModel* model;
 	vector<class GameAnimationModel*> models;
@@ -42,5 +53,13 @@ private:
 	vector<class GameUntouchable*> untouchables;
 
 	bool inter, disposed, untouchSel;
+	bool enemyDispose, playerDispose, enemySel;
+	bool editMode;
+
 	class GameUntouchable* untoTemp;
+
+	wstring sceneFile;
+
+	class Bullet* playerBullet;
+	vector<class Bullet*> enemyBullets;
 };

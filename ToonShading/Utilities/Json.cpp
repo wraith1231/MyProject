@@ -71,6 +71,16 @@ void Json::SetValue(Json::Value & parent, string name, string & value)
 	parent[name.c_str()].append(value);
 }
 
+void Json::GetValue(Json::Value & parent, string name, int & vec)
+{
+	vec = parent[name.c_str()].asInt();
+}
+
+void Json::SetValue(Json::Value & parent, string name, int & vec)
+{
+	parent[name.c_str()] = vec;
+}
+
 void Json::ReadData(wstring file, Json::Value * root)
 {
 	ifstream stream;

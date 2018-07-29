@@ -8,6 +8,11 @@ ExportMesh::ExportMesh(ExecuteValues* values)
 {
 	Fbx::Exporter* exporter = NULL;
 
+	//exporter = new Fbx::Exporter(Assets + L"spheres.fbx");
+	//exporter->ExportMaterial(Models + L"Bullets/", L"Bullet");
+	//exporter->ExportMesh(Models + L"Bullets/", L"Bullet");
+	//SAFE_DELETE(exporter);
+
 	//exporter = new Fbx::Exporter(Assets + L"Sapphi/Sapphiart_model.fbx");
 	//exporter->ExportMaterial(Models + L"Sapphi/", L"Sapphi");
 	//exporter->ExportMesh(Models + L"Sapphi/", L"Sapphi");

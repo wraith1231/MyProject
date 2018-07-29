@@ -58,8 +58,7 @@ void Model::BindMeshData()
 		mesh->Binding();
 		//if (mesh->name == L"Paladin_J_Nordstrom")
 		{
-			mesh->CheckMaxVer(maxVer);
-			mesh->CheckMinVer(minVer);
+			mesh->CheckMaxMin(maxVer, minVer);
 		}
 	}
 

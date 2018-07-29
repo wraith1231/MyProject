@@ -21,6 +21,12 @@ public:
 
 	bool Intersect(D3DXVECTOR3 cam, D3DXVECTOR3 camDir, float& dis);
 
+	wstring GetFileName() { return terrainFile; }
+
+	UINT Width() { return width; }
+	UINT Height() { return height; }
+
+
 private:
 	void Init();
 	void CreateNormal();
@@ -53,4 +59,6 @@ private:
 
 	WorldBuffer* buffer;
 	wstring textureFile;
+
+	wstring terrainFile;
 };

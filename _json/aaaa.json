@@ -1,0 +1,10 @@
+{
+   "Terrain" : {
+      "Terrain Save" : [ "C:/Work/MyToonShading/_Contents/Landscape/vd.terrain" ]
+   },
+   "Untouchable" : {
+      "Untouchables" : {
+         "Untouchalbe Quantity" : 1
+      }
+   }
+}

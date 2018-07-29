@@ -71,6 +71,21 @@ bool GameUntouchable::SelectObject(Objects::Ray * ray)
 	return false;
 }
 
+bool GameUntouchable::ObjectCheck(Objects::Ray * ray)
+{
+	for (size_t i = 0; i < transforms.size(); i++)
+	{
+		box->Update(transforms[i]->Transforms);
+
+		if (box->Intersects(ray) == true)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void GameUntouchable::Update()
 {
 	if (selected == true)
@@ -280,4 +295,41 @@ void GameUntouchable::ImGuiRender()
 		ImGui::End();
 	}
 
+}
+
+void GameUntouchable::SaveTransforms(Json::Value* val, UINT i)
+{
+	Json::Value* tem = new Json::Value;
+	Json::Value va;
+	Json::SetValue(va, "File Name", String::ToString(file));
+	int temp = transforms.size();
+	Json::SetValue(va, "Quantity", temp);
+
+	for (UINT i = 0; i < transforms.size(); i++)
+	{
+		Json::Value v;
+		Json::SetValue(v, "Scale", transforms[i]->Scale);
+		Json::SetValue(v, "Rotate", transforms[i]->Rotate);
+		Json::SetValue(v, "Trans", transforms[i]->Translation);
+
+		string s = "Number" + to_string(i);
+		va[s] = v;
+	}
+
+	(*tem)["Structs"] = va;
+
+	string s = "Untouchable" + to_string(i);
+	(*val)[s] = *tem;
+}
+
+UINT GameUntouchable::Transforms()
+{
+	return transforms.size();
+}
+
+Objects::BoundingBox * GameUntouchable::Box(UINT num)
+{
+	box->Update(transforms[num]->Transforms);
+
+	return box;
 }

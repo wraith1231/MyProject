@@ -30,14 +30,27 @@ public:
 	~Bullet();
 
 	void AddBullet(D3DXVECTOR3 pos, D3DXVECTOR3 dir, float speed = 3.0f, float range = 50.0f, bool useGravity = false, D3DXVECTOR3 gravity = D3DXVECTOR3(0, 0, 0), float gravityPower = 9.8f);
-	
+	void DeleteBullet(UINT num);
+
 	void Update();
+
+	void PreRender();
+	void PreRender2();
 	void Render();
 
-	bool CheckIntersect(Objects::BoundingBox* box);
+	bool CheckIntersect(Objects::BoundingBox* box, UINT& num);
+
+	void BulletClear();
+
+	UINT BulletQuan();
 
 private:
 	Objects::BoundingSphere* sphere;
 	vector<BulletStruct*> bullets;
 
+	class Model* model;
+
+	Shader* shader;
+	Shader* shader2;
+	Shader* shader3;
 };

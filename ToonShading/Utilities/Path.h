@@ -38,6 +38,7 @@ public:
 	const static WCHAR* FbxModelFilter;
 	const static WCHAR* ShaderFilter;
 	const static WCHAR* TerrainFilter;
+	const static WCHAR* JsonFilter;
 
 	static void OpenFileDialog(wstring file, const WCHAR* filter, wstring folder, function<void(wstring)> func, HWND hwnd = NULL);
 	static void SaveFileDialog(wstring file, const WCHAR* filter, wstring folder, function<void(wstring)> func, HWND hwnd = NULL);

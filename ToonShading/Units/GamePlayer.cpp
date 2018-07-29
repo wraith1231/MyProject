@@ -3,13 +3,18 @@
 
 #include "UnitPlayerInput.h"
 #include "GameData.h"
-
 #include "Bullet.h"
+#include "GameWeapon.h"
+
+#include "../Bounding/BoundingBox.h"
 
 GamePlayer::GamePlayer(wstring matFile, wstring meshFile, wstring animPath, ExecuteValues* values)
-	: GameUnit(matFile, meshFile), values(values)
+	: GameUnit(matFile, meshFile), values(values), start(0, 0, 0)
 {
+	values->MainCamera->SetTarget(&position);
+
 	LoadAnimation(animPath);
+	CreateWeapon(L"", L"");
 
 	specData = new GamePlayerSpec();
 	input = new GamePlayerInput();
@@ -34,6 +39,10 @@ GamePlayer::GamePlayer(wstring matFile, wstring meshFile, wstring animPath, Exec
 
 	weaponDelay = 0.0f;
 	weaponTime = 1.0f;
+
+	D3DXVECTOR3 max, min;
+	model->CheckMaxMinVer(max, min);
+	box = new Objects::BoundingBox(max, min);
 
 	PlayLowerAction(LowerAction::Idle);
 	PlayUpperAction(UpperAction::Idle);
@@ -62,6 +71,16 @@ void GamePlayer::Update()
 	ActionRotation();
 
 	bullet->Update();
+	D3DXMATRIX transformed = Transformed();
+	box->Update(transformed);
+}
+
+void GamePlayer::EditUpdate()
+{
+	GameUnit::Update();
+
+	D3DXMATRIX transformed = Transformed();
+	box->Update(transformed);
 }
 
 void GamePlayer::Render()
@@ -82,6 +101,16 @@ void GamePlayer::PreRender2()
 
 void GamePlayer::ImGuiRender()
 {
+}
+
+void GamePlayer::BulletClear()
+{
+	bullet->BulletClear();
+}
+
+void GamePlayer::SetCamTarget()
+{
+	values->MainCamera->SetTarget(&position);
 }
 
 void GamePlayer::LoadAnimation(wstring path)
@@ -313,13 +342,14 @@ void GamePlayer::HandleFire()
 		float y = boneTransforms[15]._42;
 		float z = boneTransforms[15]._43;
 
-		bullet->AddBullet(D3DXVECTOR3(x, y, z), Direction());
+		GameWeaponSpec* spec = currentWeapon->SpecData();
+		bullet->AddBullet(D3DXVECTOR3(x, y, z), Direction(), spec->TracerBulletSpeed, spec->FireRange);
 
 		x = boneTransforms[25]._41;
 		y = boneTransforms[25]._42;
 		z = boneTransforms[25]._43;
 
-		bullet->AddBullet(D3DXVECTOR3(x, y, z), Direction(), 6.0f, 50.0f, true, D3DXVECTOR3(0, -1, 0));
+		bullet->AddBullet(D3DXVECTOR3(x, y, z), Direction(), spec->TracerBulletSpeed, spec->FireRange, true, D3DXVECTOR3(0, -1, 0));
 
 	}
 }

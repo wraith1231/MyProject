@@ -4,6 +4,7 @@
 #include "BoundingBox.h"
 
 Objects::BoundingSphere::BoundingSphere(D3DXVECTOR3 center, float radius)
+	: vertexBuffer(NULL), indexBuffer(NULL)
 {
 	worldBuffer = new WorldBuffer;
 	buffer = new SphBuffer();
@@ -17,12 +18,12 @@ Objects::BoundingSphere::BoundingSphere(D3DXVECTOR3 center, float radius)
 }
 
 Objects::BoundingSphere::BoundingSphere(D3DXVECTOR3 center, D3DXVECTOR3 max, D3DXVECTOR3 min)
+	: vertexBuffer(NULL), indexBuffer(NULL)
 {
 	worldBuffer = new WorldBuffer;
 	buffer = new SphBuffer();
 	shader = new Shader(Shaders + L"040_Objects.hlsl");
-	vertexBuffer = NULL;
-	indexBuffer = NULL;
+
 	float x = max.x - min.x;
 	float y = max.y - min.y;
 	float z = max.z - min.z;

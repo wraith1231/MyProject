@@ -7,6 +7,7 @@ GameTerrain::GameTerrain()
 	: tex1(NULL), tex2(NULL), tex3(NULL), tex4(NULL)
 	, shader(NULL), shader2(NULL), shader3(NULL)
 	, vertexBuffer(NULL), indexBuffer(NULL)
+	, terrainFile(L"")
 {
 	Init();
 	CreateNormal();
@@ -54,10 +55,12 @@ void GameTerrain::SaveTerrain(wstring saveFile)
 	}
 
 	wstring file = saveFile;
-	if (Path::GetExtension(file) != L".terrain")
+	if (Path::GetExtension(file) != L"terrain")
 	{
 		file += L".terrain";
 	}
+
+	terrainFile = file;
 
 	BinaryWriter* w = new BinaryWriter();
 	w->Open(file);
@@ -391,11 +394,11 @@ void GameTerrain::ImGuiRender()
 
 bool GameTerrain::Intersect(D3DXVECTOR3 cam, D3DXVECTOR3 camDir, float & dis)
 {
-	if (D3DXIntersectTri(&intersectCheck[0], &intersectCheck[1], &intersectCheck[2], &cam, &camDir, NULL, NULL, &dis) == true)
+	if (D3DXIntersectTri(&intersectCheck[0], &intersectCheck[1], &intersectCheck[2], &cam, &camDir, NULL, NULL, &dis) == TRUE)
 	{
 
 	}
-	else if (D3DXIntersectTri(&intersectCheck[2], &intersectCheck[1], &intersectCheck[3], &cam, &camDir, NULL, NULL, &dis) == true)
+	else if (D3DXIntersectTri(&intersectCheck[2], &intersectCheck[1], &intersectCheck[3], &cam, &camDir, NULL, NULL, &dis) == TRUE)
 	{
 
 	}

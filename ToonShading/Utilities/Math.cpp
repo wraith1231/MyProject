@@ -3,6 +3,28 @@
 
 const float Math::PI = 3.14159265f;
 
+D3DXVECTOR3 Math::Max(D3DXVECTOR3 val1, D3DXVECTOR3 val2)
+{
+	D3DXVECTOR3 ret;
+
+	ret.x = val1.x > val2.x ? val1.x : val2.x;
+	ret.y = val1.y > val2.y ? val1.y : val2.y;
+	ret.z = val1.z > val2.z ? val1.z : val2.z;
+
+	return ret;
+}
+
+D3DXVECTOR3 Math::Min(D3DXVECTOR3 val1, D3DXVECTOR3 val2)
+{
+	D3DXVECTOR3 ret;
+
+	ret.x = val1.x < val2.x ? val1.x : val2.x;
+	ret.y = val1.y < val2.y ? val1.y : val2.y;
+	ret.z = val1.z < val2.z ? val1.z : val2.z;
+
+	return ret;
+}
+
 float Math::Modulo(float val1, float val2)
 {
 	while (val1 - val2 >= 0)

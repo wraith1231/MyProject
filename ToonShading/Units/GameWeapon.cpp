@@ -10,6 +10,7 @@ GameWeapon::GameWeapon()
 	specData = new GameWeaponSpec();
 
 	state = WeaponState::Ready;
+	reloadTime = 0.0f;
 }
 
 GameWeapon::~GameWeapon()
@@ -19,6 +20,7 @@ GameWeapon::~GameWeapon()
 
 void GameWeapon::Update()
 {
+
 }
 
 void GameWeapon::Render()

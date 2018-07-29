@@ -137,7 +137,7 @@ D3DXMATRIX GameRender::Transformed()
 {
 	D3DXMATRIX S;
 	D3DXMatrixScaling(&S, scale.x, scale.y, scale.z);
-	return rootAxis * S *world;
+	return rootAxis * S * world;
 }
 D3DXVECTOR3 * GameRender::FollowPos()
 {

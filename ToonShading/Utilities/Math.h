@@ -4,6 +4,9 @@ class Math
 public:
 	static const float PI;
 
+	static D3DXVECTOR3 Max(D3DXVECTOR3 val1, D3DXVECTOR3 val2);
+	static D3DXVECTOR3 Min(D3DXVECTOR3 val1, D3DXVECTOR3 val2);
+
 	static float Modulo(float val1, float val2);
 
 	static float ToRadian(float degree);

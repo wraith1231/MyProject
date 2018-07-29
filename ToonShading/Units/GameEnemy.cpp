@@ -4,6 +4,10 @@
 #include "GameData.h"
 #include "AiContext.h"
 #include "AiState.h"
+#include "Bullet.h"
+
+#include "../Bounding/BoundingBox.h"
+#include "../Bounding/ObjectsRay.h"
 
 GameEnemy::GameEnemy(wstring matFile, wstring meshFile)
 	: GameUnit(matFile, meshFile)
@@ -12,6 +16,7 @@ GameEnemy::GameEnemy(wstring matFile, wstring meshFile)
 	, specData(NULL)
 	, startAiTime(0.0f)
 	, actionElapsedTime(0.0f)
+	, start(0, 0, 0), rot(0, 0)
 {
 	CreateWeapon(L"", L"");
 
@@ -47,6 +52,12 @@ GameEnemy::GameEnemy(wstring matFile, wstring meshFile)
 	}
 
 	aiContext->StartState((UINT)startAi, startAiTime);
+
+	D3DXVECTOR3 max, min;
+	model->CheckMaxMinVer(max, min);
+	box = new Objects::BoundingBox(max, min);
+
+	bullet = new Bullet();
 }
 
 GameEnemy::~GameEnemy()
@@ -55,13 +66,71 @@ GameEnemy::~GameEnemy()
 
 void GameEnemy::Update()
 {
+	bullet->Update();
 	aiContext->Update();
 	GameUnit::Update();
+	D3DXMATRIX transformed = Transformed();
+	D3DXMATRIX R;
+	D3DXMatrixRotationX(&R, (float)D3DX_PI / 2);
+	transformed = R * transformed;
+	
+	box->Update(transformed);
+}
+
+void GameEnemy::EditUpdate()
+{
+	Rotate(rot);
+	rot = D3DXVECTOR2(0.0f, 0.0f);
+
+	D3DXMATRIX transformed = Transformed();
+
+	model->CopyAbsoluteBoneTo(transformed, boneTransforms);
+}
+
+void GameEnemy::PreRender()
+{
+	bullet->PreRender();
+	GameUnit::PreRender();
+}
+
+void GameEnemy::PreRender2()
+{
+	bullet->PreRender2();
+	GameUnit::PreRender2();
 }
 
 void GameEnemy::Render()
 {
+	bullet->Render();
 	GameUnit::Render();
+}
+
+void GameEnemy::ImGuiRender()
+{
+	if (selected == true)
+	{
+		ImGui::Begin("Selected Enemy");
+
+		float scale = Scale();
+		ImGui::InputFloat("Scale", &scale);
+		Scale(scale);
+		ImGui::InputFloat2("Rotate", rot);
+		D3DXVECTOR3 pos = Position();
+		ImGui::InputFloat3("Translation", pos);
+		Position(pos);
+
+		ImGui::End();
+	}
+}
+
+bool GameEnemy::SelectEnemy(Objects::Ray * ray)
+{
+	selected = false;
+	D3DXMATRIX transformed = Transformed();
+	box->Update(transformed);
+
+	selected = box->Intersects(ray);
+	return selected;
 }
 
 void GameEnemy::OnSearch(AiState* state)

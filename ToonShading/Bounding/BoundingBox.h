@@ -44,8 +44,9 @@ namespace Objects
 		D3DXVECTOR3 GetMax() { return max; }
 		D3DXVECTOR3 GetMin() { return min; }
 
+		
+		bool Intersects(Objects::BoundingBox* box);
 		bool Intersects(Objects::Plane* plane);
-
 		bool Intersects(Objects::Ray* ray);
 
 	private:

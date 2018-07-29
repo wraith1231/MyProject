@@ -53,12 +53,12 @@ protected:
 
 	D3DXMATRIX rootAxis;
 
+	D3DXVECTOR3 position;
 private:
 	D3DXMATRIX world;
 
 	D3DXVECTOR3 scale;
 
-	D3DXVECTOR3 position;
 	D3DXVECTOR3 direction;
 	D3DXVECTOR3 up;
 	D3DXVECTOR3 right;

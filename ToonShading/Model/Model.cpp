@@ -247,6 +247,11 @@ void Model::SetWorld(D3DXMATRIX& mat)
 }
 void Model::CheckMaxMinVer(D3DXVECTOR3 & max, D3DXVECTOR3 & min)
 {
+	max = maxVer;
+	min = minVer;
+
+	return;
+
 	for (ModelMesh* mesh : meshes)
 		mesh->CheckMaxMin(max, min);
 }

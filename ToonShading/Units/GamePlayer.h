@@ -1,6 +1,13 @@
 #pragma once
 #include "GameUnit.h"
 
+class Bullet;
+
+namespace Objects
+{
+	class BoundingBox;
+}
+
 class GamePlayer : public GameUnit
 {
 public:
@@ -14,13 +21,23 @@ public:		//public Function
 	~GamePlayer();
 
 	void Update();
+	void EditUpdate();
 	void Render();
 	void PreRender();
 	void PreRender2();
 	void ImGuiRender();
 
-	class Bullet* GetBullet() { return bullet; }
+	Bullet* GetBullet() { return bullet; }
 	DebugMode GetDebugMode() { return debugMode; }
+
+	void StartPoint(D3DXVECTOR3& vec) { start = vec; }
+	D3DXVECTOR3 StartPoint() { return start; }
+
+	void BulletClear();
+
+	Objects::BoundingBox* Box() { return box; }
+
+	void SetCamTarget();
 
 private:
 	void LoadAnimation(wstring path);
@@ -74,6 +91,8 @@ private:	//private enum action, model
 	};
 
 private:	//private variables
+	Objects::BoundingBox* box;
+
 	ExecuteValues* values;
 
 	DebugMode debugMode;
@@ -98,7 +117,9 @@ private:	//private variables
 	class ModelBone* boneWaist;
 	D3DXMATRIX boneWaistSrc;
 
-	class Bullet* bullet;
+	D3DXVECTOR3 start;
+
+	Bullet* bullet;
 	
 private:	
 	float runDurationTime;

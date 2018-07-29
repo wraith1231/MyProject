@@ -4,13 +4,12 @@
 class ThirdPerson : public Camera
 {
 public:
-	ThirdPerson(D3DXVECTOR3* target);
+	ThirdPerson();
 	~ThirdPerson();
 
 	void Update();
 
 private:
-	D3DXVECTOR3* target;
 
 	float camDis;
 

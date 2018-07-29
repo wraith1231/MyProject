@@ -6,6 +6,12 @@ struct GameEnemySpec;
 struct AiState;
 class AiContext;
 
+namespace Objects
+{
+	class BoundingBox;
+	class Ray;
+}
+
 class GameEnemy : public GameUnit
 {
 public:
@@ -16,7 +22,21 @@ public:
 	virtual ~GameEnemy();
 
 	virtual void Update();
+	virtual void EditUpdate();
+
+	virtual void PreRender();
+	virtual void PreRender2();
 	virtual void Render();
+	virtual void ImGuiRender();
+
+	void StartPoint(D3DXVECTOR3& vec) { start = vec; }
+	D3DXVECTOR3 StartPoint() { return start; }
+
+	bool SelectEnemy(Objects::Ray* ray);
+	void Unselect() { selected = false; }
+	
+	class Bullet* GetBullet() { return bullet; }
+	Objects::BoundingBox* Box() { return box; }
 
 private:
 	void OnSearch(AiState* state);
@@ -37,6 +57,8 @@ public:
 	void NextAi(AiType type, float time);
 
 protected:
+	class Bullet* bullet;
+
 	UnitClassId unitClass;
 	AiType startAi;
 	GameEnemySpec* specData;
@@ -52,6 +74,13 @@ protected:
 	AiPair aiTurnLeft;
 	AiPair aiTurnRight;
 
+	D3DXVECTOR3 start;
+	Objects::BoundingBox* box;
+
+	bool selected;
+	D3DXVECTOR2 rot;
+
+	
 public:
 	enum class AiType
 	{

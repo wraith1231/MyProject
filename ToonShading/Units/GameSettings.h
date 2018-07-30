@@ -19,6 +19,7 @@ public:
 
 	static class GamePlayer* Player() { return player; }
 	static class GameTerrain* Terrain() { return terrain; }
+	static vector<class GameUntouchable*> Untouchables() { return untouchables; }
 
 	void SetValues(ExecuteValues* value) { values = value; }
 
@@ -50,7 +51,7 @@ private:
 	class GameAnimationModel* model;
 	vector<class GameAnimationModel*> models;
 
-	vector<class GameUntouchable*> untouchables;
+	static vector<class GameUntouchable*> untouchables;
 
 	bool inter, disposed, untouchSel;
 	bool enemyDispose, playerDispose, enemySel;

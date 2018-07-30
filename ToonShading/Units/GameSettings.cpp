@@ -17,6 +17,7 @@
 
 GamePlayer* GameSettings::player = NULL;
 GameTerrain* GameSettings::terrain = NULL;
+vector<GameUntouchable*> GameSettings::untouchables = vector<GameUntouchable*>();
 
 GameSettings::GameSettings(ExecuteValues* values)
 	: skyBox(NULL), world(NULL)

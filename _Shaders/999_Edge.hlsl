@@ -58,7 +58,7 @@ float4 PS(PixelInput input) : SV_TARGET
     //depth 비교를 위한 값
     //너무 크면 깊이가 거리에 따라서 어느정도는 차이가 없다고 보고 외곽선 안그리는 경우 발생
     //너무 작으면 그냥 다 깊이 차이난다고 보고 외곽선을 덕지덕지 그림
-    float dep = 0.015f;
+    float dep = 0.2f;
 
     float nordot, depth, ndot, de;  //nordot-현재 픽셀 dot값, depth-현재 픽셀 depth값, ndot-비교 픽셀 dot값, de-비교 픽셀 depth값 
     bool bd = true;

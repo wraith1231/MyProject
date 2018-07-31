@@ -66,7 +66,7 @@ void ThirdPerson::Update()
 		if (target != NULL)
 		{
 			lookAt = *target;
-			eye = eye + *target;
+			eye = eye + *target + D3DXVECTOR3(0, 2, 0);
 		}
 
 		SetPosition(eye.x, eye.y, eye.z);

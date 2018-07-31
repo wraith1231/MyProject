@@ -84,6 +84,7 @@ PixelDepthInput VS_Depth(VertexTextureNormal input)
 
 float4 PS_Depth(PixelDepthInput input) : SV_TARGET
 {
+    return float4(input.position.zw, 1, 1);
     return float4(input.zw.x, input.zw.y, 0, 1);
 
 }

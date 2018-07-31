@@ -1,67 +1,42 @@
 {
    "Enemy" : {
-      "Enemy Quantity" : 3,
-      "Enemy0" : {
-         "Start Position" : [ 20.233034133911133, 0.0, 15.033943176269531 ]
-      },
-      "Enemy1" : {
-         "Start Position" : [ 19.930517196655273, 3.814697265625e-06, 104.51834869384766 ]
-      },
-      "Enemy2" : {
-         "Start Position" : [ 80.893020629882813, 0.0, 51.708206176757813 ]
-      }
+      "Enemy Quantity" : 0
    },
    "Player" : {
-      "Player Position" : [ 85.701644897460938, 0.0, 20.513612747192383 ]
+      "Player Position" : [ 0.0, 0.0, 0.0 ]
    },
    "Terrain" : {
-      "Terrain Save" : [ "C:/Work/MyToonShading/_Contents/Landscape/aaa.terrain" ]
+      "Terrain Save" : [ "F:/work/MyD3D/_Contents/Landscape/aaa.terrain" ]
    },
    "Untouchable" : {
       "Untouchable0" : {
          "Structs" : {
-            "File Name" : [ "../_Contents/Models/Enemies/Tiger" ],
-            "Number0" : {
-               "Rotate" : [ 0.0, 0.0, 0.0 ],
-               "Scale" : [ 1.0, 1.0, 1.0 ],
-               "Trans" : [ 16.816513061523438, 0.0, 58.304229736328125 ]
-            },
-            "Number1" : {
-               "Rotate" : [ 0.0, 0.0, 0.0 ],
-               "Scale" : [ 1.0, 1.0, 1.0 ],
-               "Trans" : [ 14.20921516418457, 0.0, 31.713476181030273 ]
-            },
-            "Number2" : {
-               "Rotate" : [ 0.0, 0.0, 0.0 ],
-               "Scale" : [ 1.0, 1.0, 1.0 ],
-               "Trans" : [ 30.290727615356445, 0.0, 39.064613342285156 ]
-            },
-            "Quantity" : 3
-         }
-      },
-      "Untouchable1" : {
-         "Structs" : {
             "File Name" : [ "../_Contents/Models/Grund/Grund" ],
             "Number0" : {
-               "Rotate" : [ 0.0, 0.0, 0.0 ],
-               "Scale" : [ 1.0, 1.0, 1.0 ],
-               "Trans" : [ 56.185115814208984, 0.0, 100.68972778320313 ]
+               "Rotate" : [ 0.0, 1.0088427066802979, 0.47833186388015747 ],
+               "Scale" : [ 6.9614167213439941, 6.9576935768127441, 6.7322249412536621 ],
+               "Trans" : [ 57.550636291503906, 0.0, 83.133926391601563 ]
             },
             "Number1" : {
                "Rotate" : [ 0.0, 0.0, 0.0 ],
                "Scale" : [ 1.0, 1.0, 1.0 ],
-               "Trans" : [ 51.770339965820313, 0.0, 33.456413269042969 ]
+               "Trans" : [ 68.162620544433594, 3.814697265625e-06, 63.719818115234375 ]
             },
             "Number2" : {
                "Rotate" : [ 0.0, 0.0, 0.0 ],
                "Scale" : [ 1.0, 1.0, 1.0 ],
-               "Trans" : [ 34.928421020507813, 0.0, 18.722902297973633 ]
+               "Trans" : [ 39.794387817382813, 3.814697265625e-06, 40.776123046875 ]
             },
-            "Quantity" : 3
+            "Number3" : {
+               "Rotate" : [ 0.0, 0.0, 0.0 ],
+               "Scale" : [ 1.0, 1.0, 1.0 ],
+               "Trans" : [ 68.898353576660156, 0.0, 29.089950561523438 ]
+            },
+            "Quantity" : 4
          }
       },
       "Untouchables" : {
-         "Untouchable Quantity" : 2
+         "Untouchable Quantity" : 1
       }
    }
 }

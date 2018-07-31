@@ -6,6 +6,7 @@ void Shader::Render()
 	D3D::GetDC()->IASetInputLayout(inputLayout);
 	D3D::GetDC()->VSSetShader(vertexShader, NULL, 0);
 	D3D::GetDC()->PSSetShader(pixelShader, NULL, 0);
+
 }
 
 Shader::Shader(wstring shaderFile, string vsName, string psName)

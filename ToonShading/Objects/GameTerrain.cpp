@@ -30,6 +30,10 @@ GameTerrain::GameTerrain()
 
 GameTerrain::~GameTerrain()
 {
+	for (Tree* tree : trees)
+		SAFE_DELETE(tree);
+	trees.clear();
+
 	SAFE_DELETE(terrainBuffer);
 
 	SAFE_RELEASE(vertexBuffer);
@@ -141,6 +145,17 @@ void GameTerrain::SaveTerrain(wstring saveFile)
 		w->Byte(indices, sizeof(UINT) * indexSize);
 	}
 
+	//Tree
+	{
+		w->UInt(trees.size());
+		for (Tree* tree : trees)
+		{
+			w->String(String::ToString(tree->FileName()));
+			w->UInt(tree->Trees().size());
+			w->Byte(&tree->Trees()[0], sizeof(TreeStruct) * tree->Trees().size());
+		}
+	}
+
 	w->Close();
 	SAFE_DELETE(w);
 }
@@ -221,6 +236,27 @@ void GameTerrain::LoadTerrain(wstring saveFile)
 		r->Byte((void**)&vertices, sizeof(VertexType) * vertexSize);
 		indexSize = r->UInt();
 		r->Byte((void**)&indices, sizeof(UINT) * indexSize);
+	}
+
+	//tree
+	{
+		int num = r->UInt();
+		for (UINT i = 0; i < num; i++)
+		{
+			wstring file = String::ToWString(r->String());
+			file = Path::GetFileLocalPath(file);
+			UINT size = r->UInt();
+
+			vector<TreeStruct> temp;
+			temp.assign(size, TreeStruct());
+			void* ptr = (void*)&temp[0];
+			r->Byte(&ptr, sizeof(TreeStruct) * size);
+
+			Tree* tree = new Tree(file);
+			tree->TreeLoad(temp);
+			trees.push_back(tree);
+		}
+
 	}
 
 	r->Close();

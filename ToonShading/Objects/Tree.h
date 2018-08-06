@@ -47,6 +47,10 @@ public:
 
 	wstring FileName() { return fileName; }
 
+	vector<TreeStruct> Trees() { return trees; }
+
+	void TreeLoad(vector<TreeStruct> v);
+
 private:
 	Model* model;
 	wstring fileName;

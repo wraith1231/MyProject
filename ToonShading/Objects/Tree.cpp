@@ -2,6 +2,7 @@
 #include "Tree.h"
 
 Tree::Tree(wstring fileName)
+	: fileName(fileName)
 {
 	model = new Model();
 	model->ReadMaterial(Models + L"Mesh/Quad.material");
@@ -78,4 +79,9 @@ void Tree::Render()
 		for (ModelMesh* mesh : model->Meshes())
 			mesh->Render();
 	}
+}
+
+void Tree::TreeLoad(vector<TreeStruct> v)
+{
+	trees.assign(v.begin(), v.end());
 }

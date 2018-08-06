@@ -5,11 +5,24 @@ Texture2D _texture2 : register(t6);
 Texture2D _texture3 : register(t7);
 Texture2D _texture4 : register(t8);
 
+SamplerState _samplerState : register(s5);
+
+cbuffer TerrainBuffer : register(b2)
+{
+    uint _on;
+    uint _type;
+    float _distance;
+    float _padding1;
+    float3 _point;
+    float _padding2;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct PixelInput
 {
     float4 position : SV_POSITION;
+    float3 oPosition : OPOSITION0;
     float2 uv : TEXCOORD0;
     float3 normal : NORMAL0;
     float4 color : COLOR0;
@@ -23,6 +36,8 @@ PixelInput VS(VertexColorTextureNormal input)
     output.position = mul(output.position, _view);
     output.position = mul(output.position, _projection);
 
+    output.oPosition = input.position;
+
     output.normal = GetWorldNormal(input.normal, _world);
     output.normal = normalize(output.normal);
     
@@ -34,19 +49,50 @@ PixelInput VS(VertexColorTextureNormal input)
 
 float4 PS(PixelInput input) : SV_TARGET
 {
+    float4 penCol = float4(0, 0, 0, 0);
+
+    if (_on == 1)
+    {
+        if (_type == 0)
+        {
+            float x = input.oPosition.x - _point.x;
+            float z = input.oPosition.z - _point.z;
+
+            float dis = sqrt(x * x + z * z);
+
+            if (dis < _distance)
+                penCol.r = 1.0f;
+        }
+        else if (_type == 1)
+        {
+            if(input.oPosition.x > _point.x - _distance &&
+                input.oPosition.x < _point.x + _distance)
+            {
+                if (input.oPosition.z > _point.z - _distance &&
+                    input.oPosition.z < _point.z + _distance)
+                    penCol.g = 1.0f;
+            }
+        }
+
+    }
 
     float4 color1 = _diffuseMap.Sample(_diffuseSampler, input.uv);
-    float4 color2 = _texture1.Sample(_diffuseSampler, input.uv);
-    
-    float4 diffuse = lerp(color1, color2, input.color.a);
-    color2 = _texture2.Sample(_diffuseSampler, input.uv);
-    diffuse = lerp(color1, color2, input.color.b);
-    color2 = _texture3.Sample(_diffuseSampler, input.uv);
-    diffuse = lerp(color1, color2, input.color.g);
-    color2 = _texture4.Sample(_diffuseSampler, input.uv);
-    diffuse = lerp(color1, color2, input.color.r);
+    float4 color2 = _texture1.Sample(_samplerState, input.uv);
+    float4 diffuse = float4(0, 0, 0, 0);
+    diffuse = lerp(color1, color2, input.color.a);
 
-    return GetDiffuseColor(diffuse, _direction, input.normal);
+    color2 = _texture2.Sample(_samplerState, input.uv);
+    diffuse = lerp(diffuse, color2, input.color.b);
+    
+    color2 = _texture3.Sample(_samplerState, input.uv);
+    diffuse = lerp(diffuse, color2, input.color.g);
+    
+    color2 = _texture4.Sample(_samplerState, input.uv);
+    diffuse = lerp(diffuse, color2, input.color.r);
+
+    diffuse = GetDiffuseColor(diffuse, _direction, input.normal);
+
+    return diffuse + penCol;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

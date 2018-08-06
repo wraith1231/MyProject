@@ -1,13 +1,27 @@
 #include "stdafx.h"
 #include "GameTerrain.h"
 
+#include "Tree.h"
+
 #include "../Utilities/BinaryFile.h"
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//editMode는 editor 상태일때만
+//shader = 기본, shader2 = normal, shader3 = depth
+//texureFile은 맵 texture용, terrainFile은 맵 저장용
+//editType : 0 = height 높낮이, 1 = height 조절, 2 = height 0으로, 3 = 나무심기
+//terrainBuffer -> type : 0 = 원형 브러쉬, 1 = 사각형 브러쉬
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GameTerrain::GameTerrain()
 	: tex1(NULL), tex2(NULL), tex3(NULL), tex4(NULL)
 	, shader(NULL), shader2(NULL), shader3(NULL)
 	, vertexBuffer(NULL), indexBuffer(NULL)
 	, terrainFile(L"")
+	, editMode(false), changed(false)
+	, editType(0), heightSet(0.0f)
+	, treeSet(NULL), treeDisposed(false), treeNum(1), treeScale(1.0f)
+	, splat(D3DXCOLOR(0, 0, 0, 0)), treeDelay(0.0f)
 {
 	Init();
 	CreateNormal();
@@ -16,6 +30,8 @@ GameTerrain::GameTerrain()
 
 GameTerrain::~GameTerrain()
 {
+	SAFE_DELETE(terrainBuffer);
+
 	SAFE_RELEASE(vertexBuffer);
 	SAFE_RELEASE(indexBuffer);
 
@@ -250,17 +266,17 @@ void GameTerrain::SetTexture(UINT num, wstring file)
 		tex1 = new Texture(fileName);
 		break;
 	case 2:
-		SAFE_DELETE(tex1);
+		SAFE_DELETE(tex2);
 
 		tex2 = new Texture(fileName);
 		break;
 	case 3:
-		SAFE_DELETE(tex1);
+		SAFE_DELETE(tex3);
 
 		tex3 = new Texture(fileName);
 		break;
 	case 4:
-		SAFE_DELETE(tex1);
+		SAFE_DELETE(tex4);
 
 		tex4 = new Texture(fileName);
 		break;
@@ -269,20 +285,44 @@ void GameTerrain::SetTexture(UINT num, wstring file)
 
 void GameTerrain::Update()
 {
+	terrainBuffer->Data.On = (UINT)editMode;
+
+	if (editMode == true)
+	{
+		terrainBuffer->Data.Point = selTer;
+	}
+
+	if (changed == true && Mouse::Get()->Up(0) == true)
+	{
+		changed = false;
+		CreateNormal();
+	}
+	D3D::GetDC()->UpdateSubresource
+	(
+		vertexBuffer, 0, NULL, vertices, sizeof(VertexType) * vertexSize, 0
+	);
+	treeDelay += Time::Delta();
+
 	intersectCheck[0] = vertices[0].position;
 	intersectCheck[1] = vertices[(width + 1) * height].position;
 	intersectCheck[2] = vertices[width].position;
 	intersectCheck[3] = vertices[(width + 1) * height + width].position;
+
+	for (Tree* tree : trees)
+		tree->Update();
 }
 
 void GameTerrain::Render()
 {
 	if (tex1 != NULL)
 		tex1->SetShaderResource(5);
+
 	if (tex2 != NULL)
 		tex2->SetShaderResource(6);
+
 	if (tex3 != NULL)
 		tex3->SetShaderResource(7);
+
 	if (tex4 != NULL)
 		tex4->SetShaderResource(8);
 
@@ -294,19 +334,26 @@ void GameTerrain::Render()
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	material->SetShader(shader);
 	buffer->SetVSBuffer(1);
+	terrainBuffer->SetPSBuffer(2);
 	material->SetBuffer();
 
 	D3D::GetDC()->DrawIndexed(indexSize, 0, 0);
+
+	for (Tree* tree : trees)
+		tree->Render();
 }
 
 void GameTerrain::PreRender()
 {
 	if (tex1 != NULL)
 		tex1->SetShaderResource(5);
+
 	if (tex2 != NULL)
 		tex2->SetShaderResource(6);
+
 	if (tex3 != NULL)
 		tex3->SetShaderResource(7);
+
 	if (tex4 != NULL)
 		tex4->SetShaderResource(8);
 
@@ -327,10 +374,13 @@ void GameTerrain::PreRender2()
 {
 	if (tex1 != NULL)
 		tex1->SetShaderResource(5);
+
 	if (tex2 != NULL)
 		tex2->SetShaderResource(6);
+
 	if (tex3 != NULL)
 		tex3->SetShaderResource(7);
+
 	if (tex4 != NULL)
 		tex4->SetShaderResource(8);
 
@@ -345,10 +395,14 @@ void GameTerrain::PreRender2()
 	material->SetBuffer();
 
 	D3D::GetDC()->DrawIndexed(indexSize, 0, 0);
+
+	for (Tree* tree : trees)
+		tree->PostRender2();
 }
 
 void GameTerrain::ImGuiRender()
 {
+	//상단 메뉴바
 	ImGui::BeginMainMenuBar();
 	{
 		if (ImGui::BeginMenu("Terrain"))
@@ -357,6 +411,9 @@ void GameTerrain::ImGuiRender()
 				SaveTerrain();
 			if (ImGui::MenuItem("Load Terrain"))
 				LoadTerrain();
+
+			if (ImGui::MenuItem("Terrain Edit"))
+				editMode = !editMode;
 
 			ImGui::Separator();
 
@@ -390,6 +447,41 @@ void GameTerrain::ImGuiRender()
 		}
 	}
 	ImGui::EndMainMenuBar();
+
+	//imgui
+	if (editMode == true)
+	{
+		ImGui::Begin("Terrain Edit");
+
+		{
+			//
+			ImGui::SliderInt("Edit Type", (int*)&editType, 0, 4);
+			ImGui::Text("Edit Type : 0 = Height change");
+			ImGui::Text("1 = Height standardize");
+			ImGui::Text("2 = Height 0 3 = Splatting");
+			ImGui::Text("4 = Tree");
+			ImGui::SliderInt("Type", (int*)&terrainBuffer->Data.Type, 0, 1);
+			ImGui::Text("Type : 0 = Circle, 1 = Square");
+			ImGui::SliderFloat("Distance", &terrainBuffer->Data.Distance, 0.1f, 10.0f);
+			if (editType == 2)
+				ImGui::InputFloat("Height Set", &heightSet);
+			else if (editType == 3)
+			{
+				ImGui::ColorEdit4("Splatting", splat);
+			}
+			else if (editType == 4)
+			{
+				if (ImGui::Button("Tree Texture"))
+				{
+					TreeFile();
+				}
+				ImGui::SliderFloat("Tree Scale", &treeScale, 0.1f, 20.0f);
+				ImGui::SliderInt("Tree Num", (int*)&treeNum, 1, 20);
+			}
+		}
+
+		ImGui::End();
+	}
 }
 
 bool GameTerrain::Intersect(D3DXVECTOR3 cam, D3DXVECTOR3 camDir, float & dis)
@@ -421,11 +513,13 @@ bool GameTerrain::Intersect(D3DXVECTOR3 cam, D3DXVECTOR3 camDir, float & dis)
 
 			if (D3DXIntersectTri(&pos0, &pos1, &pos2, &cam, &camDir, NULL, NULL, &dis))
 			{
+				selTer = cam + camDir*dis;
 				return true;
 			}
 
 			if (D3DXIntersectTri(&pos2, &pos1, &pos3, &cam, &camDir, NULL, NULL, &dis))
 			{
+				selTer = cam + camDir*dis;
 				return true;
 			}
 		}
@@ -434,12 +528,287 @@ bool GameTerrain::Intersect(D3DXVECTOR3 cam, D3DXVECTOR3 camDir, float & dis)
 	return false;
 }
 
+void GameTerrain::EditMode(bool val)
+{
+	editMode = val;
+
+	if (editMode == false)
+	{
+		if (treeDisposed == false)
+			SAFE_DELETE(treeSet);
+		treeSet = NULL;
+		treeDisposed = false;
+	}
+}
+
+void GameTerrain::EditTerrain()
+{
+	if (terrainBuffer->Data.Type == 0)
+	{
+		//circle brush edit
+
+		//Height
+		if (editType < 4)
+		{
+			for (int z = selTer.z - (int)terrainBuffer->Data.Distance; z < selTer.z + (int)terrainBuffer->Data.Distance; z++)
+			{
+				if (z < 0 || z >(int)height) continue;
+				for (int x = selTer.x - (int)terrainBuffer->Data.Distance; x < selTer.x + (int)terrainBuffer->Data.Distance; x++)
+				{
+					if (x < 0 || x >(int)width) continue;
+
+					float xdis = selTer.x - x;
+					float zdis = selTer.z - z;
+
+					float dis = sqrtf(xdis*xdis + zdis*zdis);
+					if (dis < terrainBuffer->Data.Distance)
+					{
+						float inten = 1.0f - dis / terrainBuffer->Data.Distance;
+						if (editType == 0)
+						{
+							//Height Change
+							if (Keyboard::Get()->Press(VK_SHIFT))
+								vertices[x + z * (width + 1)].position.y -= inten * 5.0f * Time::Delta();
+							else
+								vertices[x + z * (width + 1)].position.y += inten * 5.0f * Time::Delta();
+						}
+						else if (editType == 1)
+						{
+							//Height Standardize
+							float h = 0.0f;
+
+							int count = 0;
+
+							int c = x + (z + 1) * (width + 1);
+							if (c >= 0 && c <= vertexSize)
+							{
+								h += vertices[x + (z + 1) * (width + 1)].position.y;
+								count++;
+							}
+
+							c = x - 1 + z * (width + 1);
+							if (c >= 0 && c <= vertexSize)
+							{
+								h += vertices[x - 1 + z * (width + 1)].position.y;
+								count++;
+							}
+
+							h += vertices[x + z * (width + 1)].position.y;
+							count++;
+
+							c = x + 1 + z * (width + 1);
+							if (c >= 0 && c <= vertexSize)
+							{
+								h += vertices[x + 1 + z * (width + 1)].position.y;
+								count++;
+							}
+							c = x + (z - 1) * (width + 1);
+							if (c >= 0 && c <= vertexSize)
+							{
+								h += vertices[x + (z - 1) * (width + 1)].position.y;
+								count++;
+							}
+
+							h /= count;
+							h -= vertices[x + z * (width + 1)].position.y;
+
+							vertices[x + z * (width + 1)].position.y += h * Time::Delta();
+						}
+						else if (editType == 2)
+						{
+							vertices[x + z * (width + 1)].position.y = heightSet;
+						}
+						else if (editType == 3)
+						{
+							//splatting
+							D3DXCOLOR ori = vertices[x + z * (width + 1)].color;
+							inten *= 0.2f;
+							D3DXCOLOR temp = SplatColor(ori, splat, inten);
+
+							vertices[x + z * (width + 1)].color = temp;
+						}
+					}// if dis < distance
+				} //for x
+			}//for z
+		}//editType < 4
+		else if (editType == 4)
+		{
+			if (treeSet != NULL && treeDelay >= 0.5f)
+			{
+				treeDelay = 0.0f;
+				for (UINT i = 0; i < treeNum; i++)
+				{
+					int minx = selTer.x - terrainBuffer->Data.Distance;
+					int minz = selTer.z - terrainBuffer->Data.Distance;
+					int maxx = selTer.x + terrainBuffer->Data.Distance;
+					int maxz = selTer.z + terrainBuffer->Data.Distance;
+
+					int x = Math::Random(minx, maxx);
+					int z = Math::Random(minz, maxz);
+					float y;
+					if (GetHeight(x, z, y) == true)
+					{
+						treeSet->AddTree(treeScale, D3DXVECTOR3(x, y, z));
+
+						if (treeDisposed == false)
+						{
+							treeDisposed = true;
+							trees.push_back(treeSet);
+						}
+					}
+				} //for i
+
+			} //treeSet != NULL
+		} //editType == 4
+	}	//terrainBuffer->Data.type == 0
+	else if (terrainBuffer->Data.Type == 1)
+	{
+		//square brush edit
+
+		//Height
+		if (editType < 4)
+		{
+			for (int z = selTer.z - (int)terrainBuffer->Data.Distance; z < selTer.z + (int)terrainBuffer->Data.Distance; z++)
+			{
+				if (z < 0 || z >(int)height) continue;
+				for (int x = selTer.x - (int)terrainBuffer->Data.Distance; x < selTer.x + (int)terrainBuffer->Data.Distance; x++)
+				{
+					if (x < 0 || x >(int)width) continue;
+					
+					if (editType == 0)
+					{
+						//Height Change
+						if (Keyboard::Get()->Press(VK_SHIFT))
+							vertices[x + z * (width + 1)].position.y -= 5.0f * Time::Delta();
+						else
+							vertices[x + z * (width + 1)].position.y += 5.0f * Time::Delta();
+					}
+					else if (editType == 1)
+					{
+						//Height Standardize
+						float h = 0.0f;
+
+						int count = 0;
+
+						int c = x + (z + 1) * (width + 1);
+						if (c >= 0 && c <= vertexSize)
+						{
+							h += vertices[x + (z + 1) * (width + 1)].position.y;
+							count++;
+						}
+
+						c = x - 1 + z * (width + 1);
+						if (c >= 0 && c <= vertexSize)
+						{
+							h += vertices[x - 1 + z * (width + 1)].position.y;
+							count++;
+						}
+
+						h += vertices[x + z * (width + 1)].position.y;
+						count++;
+
+						c = x + 1 + z * (width + 1);
+						if (c >= 0 && c <= vertexSize)
+						{
+							h += vertices[x + 1 + z * (width + 1)].position.y;
+							count++;
+						}
+						c = x + (z - 1) * (width + 1);
+						if (c >= 0 && c <= vertexSize)
+						{
+							h += vertices[x + (z - 1) * (width + 1)].position.y;
+							count++;
+						}
+
+						h /= count;
+						h -= vertices[x + z * (width + 1)].position.y;
+
+						vertices[x + z * (width + 1)].position.y += h * Time::Delta();
+					}
+					else if (editType == 2)
+					{
+						vertices[x + z * (width + 1)].position.y = heightSet;
+					}
+					else if (editType == 3)
+					{
+						//splatting
+						float xdis = selTer.x - x;
+						float zdis = selTer.z - z;
+						float dis = sqrt(xdis * xdis + zdis * zdis);
+						if (dis > terrainBuffer->Data.Distance - 0.01f) dis = terrainBuffer->Data.Distance - 0.01f;
+
+						D3DXCOLOR ori = vertices[x + z * (width + 1)].color;
+						float inten = 1.0f - dis / terrainBuffer->Data.Distance;
+						inten *= 0.2f;
+						D3DXCOLOR temp = SplatColor(ori, splat, inten);
+
+						vertices[x + z * (width + 1)].color = temp;
+					}
+				}//for x
+			}//for z
+		}//editType < 4
+		else if (editType == 4)
+		{
+
+		}//editType == 4
+	}
+
+	D3D::GetDC()->UpdateSubresource
+	(
+		vertexBuffer, 0, NULL, vertices, sizeof(VertexType) * vertexSize, 0
+	);
+	changed = true;
+}
+
+bool GameTerrain::GetHeight(float x, float z, float & y)
+{
+	if (x < 0 || x >= width)
+		return 0.0f;
+
+	if (z < 0 || z >= height)
+		return 0.0f;
+
+	UINT index0 = (width + 1) * z + x;
+	UINT index1 = (width + 1) * (z + 1) + x;
+	UINT index2 = (width + 1) * z + x + 1;
+	UINT index3 = (width + 1) * (z + 1) + (x + 1);
+
+	D3DXVECTOR3 v0 = vertices[index0].position;
+	D3DXVECTOR3 v1 = vertices[index1].position;
+	D3DXVECTOR3 v2 = vertices[index2].position;
+	D3DXVECTOR3 v3 = vertices[index3].position;
+
+	float deltaX = x - v0.x;
+	float deltaZ = z - v0.z;
+
+	D3DXVECTOR3 temp;
+	if (deltaX + deltaZ <= 1)
+		temp = v0 + (v2 - v0) * deltaX + (v1 - v0) * deltaZ;
+	else
+	{
+		deltaX = 1 - deltaX;
+		deltaZ = 1 - deltaZ;
+
+		temp = v3 + (v2 - v3) * deltaX + (v1 - v3) * deltaZ;
+	}
+
+	y = temp.y;
+
+	return true;
+}
+
+bool GameTerrain::GetHeight(D3DXVECTOR3 & pos)
+{
+	return GetHeight(pos.x, pos.z, pos.y);
+}
+
 void GameTerrain::Init()
 {
 	shader = new Shader(Shaders + L"999_Terrain.hlsl");
 	shader2 = new Shader(Shaders + L"999_Terrain.hlsl", "VS_Normal", "PS_Normal");
 	shader3 = new Shader(Shaders + L"999_Terrain.hlsl", "VS_Depth", "PS_Depth");
 	buffer = new WorldBuffer();
+	terrainBuffer = new TerrainBuffer();
 
 	material = new Material;
 	material->SetShader(shader);
@@ -544,4 +913,55 @@ void GameTerrain::CreateBuffer()
 		hr = D3D::GetDevice()->CreateBuffer(&desc, &data, &indexBuffer);
 		assert(SUCCEEDED(hr));
 	}
+}
+
+void GameTerrain::TreeFile(wstring file)
+{
+	D3DDesc descc;
+	D3D::GetDesc(&descc);
+
+	if (file.length() < 1)
+	{
+		function<void(wstring)> f;
+		f = bind(&GameTerrain::TreeFile, this, placeholders::_1);
+
+		Path::OpenFileDialog(L"", Path::ImageFilter, Textures, f, descc.Handle);
+
+		return;
+	}
+
+	if (treeDisposed == false && treeSet != NULL)
+		SAFE_DELETE(treeSet);
+
+	treeSet = new Tree(file);
+	treeDisposed = false;
+}
+
+float GameTerrain::SplatColor(float origin, float brush, float inten)
+{
+	float ret = inten;
+	if (brush > origin)
+	{
+		if (origin + inten > brush) ret = brush;
+		else ret = origin + inten;
+	}
+	else
+	{
+		//bru.r < col.r
+		if (origin - inten < brush) ret = brush;
+		else ret = origin - inten;
+	}
+	return ret;
+}
+
+D3DXCOLOR GameTerrain::SplatColor(D3DXCOLOR origin, D3DXCOLOR brush, float inten)
+{
+	D3DXCOLOR ret;
+
+	ret.r = SplatColor(origin.r, brush.r, inten);
+	ret.g = SplatColor(origin.g, brush.g, inten);
+	ret.b = SplatColor(origin.b, brush.b, inten);
+	ret.a = SplatColor(origin.a, brush.a, inten);
+
+	return ret;
 }

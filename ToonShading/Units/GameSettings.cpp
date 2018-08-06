@@ -223,6 +223,11 @@ void GameSettings::Update()
 				SAFE_DELETE(ray);
 			}
 		}
+		else if (Mouse::Get()->Press(0) && inter == true)
+		{
+			if (terrain->EditMode() == true)
+				terrain->EditTerrain();
+		}
 		for (GameUntouchable* unto : untouchables)
 			unto->Update();
 		if (terrain != NULL)
@@ -390,9 +395,27 @@ void GameSettings::ImguiRender()
 			if (ImGui::BeginMenu("Scene"))
 			{
 				if (ImGui::MenuItem("Scene Save"))
+				{
+					untouchSel = false;
+					playerDispose = false;
+					enemyDispose = false;
+					enemySel = false;
+					terrain->EditMode(false);
+					for (GameUntouchable* un : untouchables)
+						un->Unselect();
 					SaveScene();
+				}
 				if (ImGui::MenuItem("Scene Load"))
+				{
+					untouchSel = false;
+					playerDispose = false;
+					enemyDispose = false;
+					enemySel = false;
+					terrain->EditMode(false);
+					for (GameUntouchable* un : untouchables)
+						un->Unselect();
 					LoadScene();
+				}
 
 				ImGui::EndMenu();
 			}
@@ -407,6 +430,7 @@ void GameSettings::ImguiRender()
 					playerDispose = false;
 					enemyDispose = false;
 					enemySel = false;
+					terrain->EditMode(false);
 					for (GameUntouchable* un : untouchables)
 						un->Unselect();
 
@@ -429,6 +453,7 @@ void GameSettings::ImguiRender()
 					playerDispose = false;
 					enemyDispose = false;
 					enemySel = false;
+					terrain->EditMode(false);
 				}
 
 				ImGui::Separator();
@@ -450,6 +475,7 @@ void GameSettings::ImguiRender()
 					playerDispose = false;
 					enemyDispose = false;
 					enemySel = false;
+					terrain->EditMode(false);
 				}
 
 				ImGui::Separator();
@@ -470,6 +496,7 @@ void GameSettings::ImguiRender()
 					untouchSel = false;
 					playerDispose = false;
 					enemySel = false;
+					terrain->EditMode(false);
 					enemyDispose = !enemyDispose;
 				}
 
@@ -488,6 +515,7 @@ void GameSettings::ImguiRender()
 					disposed = false;
 
 					untouchSel = false;
+					terrain->EditMode(false);
 					playerDispose = false;
 					enemySel = !enemySel;
 					enemyDispose = false;
@@ -510,6 +538,7 @@ void GameSettings::ImguiRender()
 
 					untouchSel = false;
 					enemyDispose = false;
+					terrain->EditMode(false);
 					enemySel = false;
 					playerDispose = !playerDispose;
 				}
@@ -522,7 +551,27 @@ void GameSettings::ImguiRender()
 	}
 
 	ImGui::Begin("Edit Mode Activate/Deactivate");
+	bool b = editMode;
 	ImGui::Checkbox("Edit Mode", &editMode);
+	if (b != editMode && editMode == false)
+	{
+		if (untoTemp != NULL)
+		{
+			if (disposed == false)
+				SAFE_DELETE(untoTemp);
+			untoTemp = NULL;
+		}
+		for (GameUntouchable* un : untouchables)
+			un->Unselect();
+
+		disposed = false;
+
+		untouchSel = false;
+		enemyDispose = false;
+		terrain->EditMode(false);
+		enemySel = false;
+		playerDispose = false;
+	}
 
 	ImGui::End();
 

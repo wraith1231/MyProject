@@ -19,6 +19,7 @@ namespace Fbx
 		~Exporter();
 
 	public:
+		// 수업
 		void ExportMaterial(wstring saveFolder, wstring saveName);
 		void ExportMesh(wstring saveFolder, wstring saveName);
 		void ExportAnimation(wstring saveFolder, wstring saveName);
@@ -45,6 +46,7 @@ namespace Fbx
 		void WriteAnimaiton(wstring saveFolder, wstring saveName);
 		void WriteAnimationXml(wstring saveFolder, wstring saveName);
 
+		//수업
 	private:
 		bool bXna;	//임시
 
@@ -63,5 +65,6 @@ namespace Fbx
 		vector<struct FbxMeshData*> meshDatas;
 
 		vector<struct FbxAnimation*> animDatas;
+
 	};
 }

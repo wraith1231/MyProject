@@ -71,7 +71,7 @@ void Program::Update()
 void Program::PreRender()
 {
 	SetGlobalBuffers();
-
+	
 	for (Execute* exe : executes)
 		exe->PreRender();
 	

@@ -238,7 +238,7 @@ void Fbx::Exporter::ReadMeshData(FbxNode * node, int parentBone)
 		for (int vi = vertexInPolygon - 1; vi >= 0; vi--)
 		{
 			FbxVertex* vertex = new FbxVertex;
-			int cpIndex = mesh->GetPolygonVertex(p, vi);	
+			int cpIndex = mesh->GetPolygonVertex(p, vi);
 
 			vertex->ControlPoint = cpIndex;
 

@@ -3,6 +3,29 @@
 class GameTerrain
 {
 public:
+	class TerrainBuffer : public ShaderBuffer
+	{
+	public:
+		TerrainBuffer() : ShaderBuffer(&Data, sizeof(Struct))
+		{
+			Data.On = 0;
+			Data.Type = 0;
+			Data.Distance = 5.0f;
+			Data.Point = D3DXVECTOR3(-1, -1, -1);
+		}
+
+		struct Struct
+		{
+			UINT On;
+			UINT Type;
+			float Distance;
+			float Padding1;
+			D3DXVECTOR3 Point;
+			float Padding2;
+		} Data;
+	};
+
+public:
 	GameTerrain();
 	~GameTerrain();
 
@@ -26,21 +49,32 @@ public:
 	UINT Width() { return width; }
 	UINT Height() { return height; }
 
+	bool EditMode() { return editMode; }
+	void EditMode(bool val);
+
+	void EditTerrain();
+
+	bool GetHeight(float x, float z, float& y);
+	bool GetHeight(D3DXVECTOR3& pos);
 
 private:
 	void Init();
 	void CreateNormal();
 	void CreateBuffer();
 
+	void TreeFile(wstring file = L"");
+
+	float SplatColor(float origin, float brush, float inten);
+	D3DXCOLOR SplatColor(D3DXCOLOR origin, D3DXCOLOR brush, float inten);
+
 private:
 	typedef VertexColorTextureNormal VertexType;
 
+	//base
 	UINT width, height;
 
 	VertexType* vertices;
 	UINT* indices;
-
-	D3DXVECTOR3 intersectCheck[4];
 
 	UINT vertexSize, indexSize;
 
@@ -58,7 +92,33 @@ private:
 	Material* material;
 
 	WorldBuffer* buffer;
+	TerrainBuffer* terrainBuffer;
+
+	//for texture
 	wstring textureFile;
 
+	//for save
 	wstring terrainFile;
+
+	//for edit
+	bool editMode;
+
+	UINT editType;
+
+	D3DXVECTOR3 intersectCheck[4];
+	D3DXVECTOR3 selTer;
+
+	bool changed;
+	float heightSet;
+
+	//splatting
+	D3DXCOLOR splat;
+
+	//edit-tree
+	class Tree* treeSet;
+	vector<class Tree*> trees;
+	bool treeDisposed;
+	UINT treeNum;
+	float treeScale;
+	float treeDelay;
 };

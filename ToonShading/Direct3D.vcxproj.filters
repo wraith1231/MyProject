@@ -180,12 +180,6 @@
     <ClInclude Include="Objects\GameModel.h">
       <Filter>Objects\Models</Filter>
     </ClInclude>
-    <ClInclude Include="Objects\GameSkyBox.h">
-      <Filter>Objects\Models</Filter>
-    </ClInclude>
-    <ClInclude Include="Objects\GameWorld.h">
-      <Filter>Objects\Models</Filter>
-    </ClInclude>
     <ClInclude Include="Objects\GameAnimationModel.h">
       <Filter>Objects\Animation</Filter>
     </ClInclude>
@@ -216,9 +210,6 @@
     <ClInclude Include="Units\GamePlayer.h">
       <Filter>Units\Player</Filter>
     </ClInclude>
-    <ClInclude Include="Objects\GameTerrain.h">
-      <Filter>Objects\Models</Filter>
-    </ClInclude>
     <ClInclude Include="Objects\GameUntouchable.h">
       <Filter>Objects\Models</Filter>
     </ClInclude>
@@ -233,6 +224,21 @@
     </ClInclude>
     <ClInclude Include="Units\UnitPlayerInput.h">
       <Filter>Units\UnitInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\GameSkyBox.h">
+      <Filter>Objects\Models\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\GameTerrain.h">
+      <Filter>Objects\Models\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\GameWorld.h">
+      <Filter>Objects\Models\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Water.h">
+      <Filter>Objects\Models\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Tree.h">
+      <Filter>Objects\Models\Terrain</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -289,6 +295,9 @@
     </Filter>
     <Filter Include="Units\UnitInfo">
       <UniqueIdentifier>{4e4f23f7-4c9b-4fc6-b4a1-6592e65f2267}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects\Models\Terrain">
+      <UniqueIdentifier>{52ec6f5a-3eac-416d-94af-2dbfe2b04759}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -435,12 +444,6 @@
     <ClCompile Include="Objects\GameModel.cpp">
       <Filter>Objects\Models</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\GameSkyBox.cpp">
-      <Filter>Objects\Models</Filter>
-    </ClCompile>
-    <ClCompile Include="Objects\GameWorld.cpp">
-      <Filter>Objects\Models</Filter>
-    </ClCompile>
     <ClCompile Include="Objects\GameAnimationModel.cpp">
       <Filter>Objects\Animation</Filter>
     </ClCompile>
@@ -468,9 +471,6 @@
     <ClCompile Include="Units\GamePlayer.cpp">
       <Filter>Units\Player</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\GameTerrain.cpp">
-      <Filter>Objects\Models</Filter>
-    </ClCompile>
     <ClCompile Include="Objects\GameUntouchable.cpp">
       <Filter>Objects\Models</Filter>
     </ClCompile>
@@ -479,6 +479,21 @@
     </ClCompile>
     <ClCompile Include="Units\GameWeapon.cpp">
       <Filter>Units\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\GameTerrain.cpp">
+      <Filter>Objects\Models\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\GameSkyBox.cpp">
+      <Filter>Objects\Models\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\GameWorld.cpp">
+      <Filter>Objects\Models\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Water.cpp">
+      <Filter>Objects\Models\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Tree.cpp">
+      <Filter>Objects\Models\Terrain</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

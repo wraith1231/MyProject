@@ -59,6 +59,8 @@
     <ClInclude Include="Objects\GameUntouchable.h" />
     <ClInclude Include="Objects\GameWorld.h" />
     <ClInclude Include="Objects\AnimationKeyframe.h" />
+    <ClInclude Include="Objects\Tree.h" />
+    <ClInclude Include="Objects\Water.h" />
     <ClInclude Include="Program.h" />
     <ClInclude Include="Renders\GlobalBuffers.h" />
     <ClInclude Include="Renders\Material.h" />
@@ -132,6 +134,8 @@
     <ClCompile Include="Objects\GameTerrain.cpp" />
     <ClCompile Include="Objects\GameUntouchable.cpp" />
     <ClCompile Include="Objects\GameWorld.cpp" />
+    <ClCompile Include="Objects\Tree.cpp" />
+    <ClCompile Include="Objects\Water.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="Renders\Material.cpp" />
     <ClCompile Include="Renders\RenderTarget.cpp" />

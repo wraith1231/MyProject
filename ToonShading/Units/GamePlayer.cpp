@@ -77,7 +77,7 @@ void GamePlayer::Update()
 
 void GamePlayer::EditUpdate()
 {
-	GameUnit::Update();
+	//GameUnit::Update();
 
 	D3DXMATRIX transformed = Transformed();
 	box->Update(transformed);

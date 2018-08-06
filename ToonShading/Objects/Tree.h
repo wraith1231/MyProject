@@ -10,30 +10,6 @@ struct TreeStruct
 class Tree
 {
 public:
-	class TreeBuffer : public ShaderBuffer
-	{
-	public:
-		TreeBuffer() : ShaderBuffer(&Data, sizeof(Data))
-		{
-			D3DXMatrixIdentity(&Data.Rotate);
-
-			Data.WindDirection = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
-
-			Data.Power = 0.0f;
-		}
-
-		struct Struct
-		{
-			D3DXMATRIX Rotate;
-
-			D3DXVECTOR3 WindDirection;
-			float Padding1;
-
-			float Power;
-			float Padding2[3];
-		} Data;
-	};
-
 public:
 	Tree(wstring fileName);
 	~Tree();
@@ -58,9 +34,6 @@ private:
 	Shader* shader;
 	Shader* shader3;
 
-	TreeBuffer* treeBuffer;
-
 	vector<TreeStruct> trees;
 
-	float offset, power;
 };

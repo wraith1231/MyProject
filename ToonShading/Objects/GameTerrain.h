@@ -24,6 +24,30 @@ public:
 			float Padding2;
 		} Data;
 	};
+	class TreeBuffer : public ShaderBuffer
+	{
+	public:
+		TreeBuffer() : ShaderBuffer(&Data, sizeof(Data))
+		{
+			D3DXMatrixIdentity(&Data.Rotate);
+
+			Data.WindDirection = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+
+			Data.Power = 0.0f;
+		}
+
+		struct Struct
+		{
+			D3DXMATRIX Rotate;
+
+			D3DXVECTOR3 WindDirection;
+			float Padding1;
+
+			float Power;
+			float Padding2[3];
+		} Data;
+	};
+
 
 public:
 	GameTerrain();
@@ -110,9 +134,14 @@ private:
 
 	bool changed;
 	float heightSet;
+	float power;
 
 	//splatting
 	D3DXCOLOR splat;
+
+	//for tree
+	TreeBuffer* treeBuffer;
+	float offset, windPower;
 
 	//edit-tree
 	class Tree* treeSet;

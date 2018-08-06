@@ -19,9 +19,10 @@ GameTerrain::GameTerrain()
 	, vertexBuffer(NULL), indexBuffer(NULL)
 	, terrainFile(L"")
 	, editMode(false), changed(false)
-	, editType(0), heightSet(0.0f)
+	, editType(0), heightSet(0.0f), power(5.0f)
 	, treeSet(NULL), treeDisposed(false), treeNum(1), treeScale(1.0f)
 	, splat(D3DXCOLOR(0, 0, 0, 0)), treeDelay(0.0f)
+	, offset(0.0f), windPower(0.0f)
 {
 	Init();
 	CreateNormal();
@@ -34,6 +35,7 @@ GameTerrain::~GameTerrain()
 		SAFE_DELETE(tree);
 	trees.clear();
 
+	SAFE_DELETE(treeBuffer);
 	SAFE_DELETE(terrainBuffer);
 
 	SAFE_RELEASE(vertexBuffer);
@@ -139,6 +141,9 @@ void GameTerrain::SaveTerrain(wstring saveFile)
 
 	//vertex & index
 	{
+		w->UInt(width);
+		w->UInt(height);
+
 		w->UInt(vertexSize);
 		w->Byte(vertices, sizeof(VertexType) * vertexSize);
 		w->UInt(indexSize);
@@ -147,6 +152,7 @@ void GameTerrain::SaveTerrain(wstring saveFile)
 
 	//Tree
 	{
+		w->Float(windPower);
 		w->UInt(trees.size());
 		for (Tree* tree : trees)
 		{
@@ -231,6 +237,8 @@ void GameTerrain::LoadTerrain(wstring saveFile)
 
 	//vertex & index
 	{
+		width = r->UInt();
+		height = r->UInt();
 
 		vertexSize = r->UInt();
 		r->Byte((void**)&vertices, sizeof(VertexType) * vertexSize);
@@ -238,9 +246,13 @@ void GameTerrain::LoadTerrain(wstring saveFile)
 		r->Byte((void**)&indices, sizeof(UINT) * indexSize);
 	}
 
+	for (Tree* tree : trees)
+		SAFE_DELETE(tree);
+	trees.clear();
 	//tree
 	{
-		int num = r->UInt();
+		windPower = r->Float();
+		UINT num = r->UInt();
 		for (UINT i = 0; i < num; i++)
 		{
 			wstring file = String::ToWString(r->String());
@@ -339,6 +351,10 @@ void GameTerrain::Update()
 	);
 	treeDelay += Time::Delta();
 
+	offset += windPower * Time::Delta();
+	if (offset > D3DX_PI * 2) offset -= static_cast<float>(D3DX_PI * 2);
+	treeBuffer->Data.Power = sinf(offset);
+
 	intersectCheck[0] = vertices[0].position;
 	intersectCheck[1] = vertices[(width + 1) * height].position;
 	intersectCheck[2] = vertices[width].position;
@@ -375,6 +391,7 @@ void GameTerrain::Render()
 
 	D3D::GetDC()->DrawIndexed(indexSize, 0, 0);
 
+	treeBuffer->SetVSBuffer(2);
 	for (Tree* tree : trees)
 		tree->Render();
 }
@@ -432,6 +449,7 @@ void GameTerrain::PreRender2()
 
 	D3D::GetDC()->DrawIndexed(indexSize, 0, 0);
 
+	treeBuffer->SetVSBuffer(2);
 	for (Tree* tree : trees)
 		tree->PostRender2();
 }
@@ -490,7 +508,7 @@ void GameTerrain::ImGuiRender()
 		ImGui::Begin("Terrain Edit");
 
 		{
-			//
+			ImGui::SliderFloat("Wind Power", &windPower, 0.0f, 5.0f);
 			ImGui::SliderInt("Edit Type", (int*)&editType, 0, 4);
 			ImGui::Text("Edit Type : 0 = Height change");
 			ImGui::Text("1 = Height standardize");
@@ -499,6 +517,8 @@ void GameTerrain::ImGuiRender()
 			ImGui::SliderInt("Type", (int*)&terrainBuffer->Data.Type, 0, 1);
 			ImGui::Text("Type : 0 = Circle, 1 = Square");
 			ImGui::SliderFloat("Distance", &terrainBuffer->Data.Distance, 0.1f, 10.0f);
+			if (editType == 0)
+				ImGui::InputFloat("Power", &power);
 			if (editType == 2)
 				ImGui::InputFloat("Height Set", &heightSet);
 			else if (editType == 3)
@@ -586,15 +606,15 @@ void GameTerrain::EditTerrain()
 		//Height
 		if (editType < 4)
 		{
-			for (int z = selTer.z - (int)terrainBuffer->Data.Distance; z < selTer.z + (int)terrainBuffer->Data.Distance; z++)
+			for (int z = (int)selTer.z - (int)terrainBuffer->Data.Distance; z < (int)selTer.z + (int)terrainBuffer->Data.Distance; z++)
 			{
 				if (z < 0 || z >(int)height) continue;
-				for (int x = selTer.x - (int)terrainBuffer->Data.Distance; x < selTer.x + (int)terrainBuffer->Data.Distance; x++)
+				for (int x = (int)selTer.x - (int)terrainBuffer->Data.Distance; x < (int)selTer.x + (int)terrainBuffer->Data.Distance; x++)
 				{
 					if (x < 0 || x >(int)width) continue;
 
-					float xdis = selTer.x - x;
-					float zdis = selTer.z - z;
+					float xdis = selTer.x - (float)x;
+					float zdis = selTer.z - (float)z;
 
 					float dis = sqrtf(xdis*xdis + zdis*zdis);
 					if (dis < terrainBuffer->Data.Distance)
@@ -604,9 +624,9 @@ void GameTerrain::EditTerrain()
 						{
 							//Height Change
 							if (Keyboard::Get()->Press(VK_SHIFT))
-								vertices[x + z * (width + 1)].position.y -= inten * 5.0f * Time::Delta();
+								vertices[x + z * (width + 1)].position.y -= inten * power * Time::Delta();
 							else
-								vertices[x + z * (width + 1)].position.y += inten * 5.0f * Time::Delta();
+								vertices[x + z * (width + 1)].position.y += inten * power * Time::Delta();
 						}
 						else if (editType == 1)
 						{
@@ -615,7 +635,7 @@ void GameTerrain::EditTerrain()
 
 							int count = 0;
 
-							int c = x + (z + 1) * (width + 1);
+							UINT c = x + (z + 1) * (width + 1);
 							if (c >= 0 && c <= vertexSize)
 							{
 								h += vertices[x + (z + 1) * (width + 1)].position.y;
@@ -674,13 +694,13 @@ void GameTerrain::EditTerrain()
 				treeDelay = 0.0f;
 				for (UINT i = 0; i < treeNum; i++)
 				{
-					int minx = selTer.x - terrainBuffer->Data.Distance;
-					int minz = selTer.z - terrainBuffer->Data.Distance;
-					int maxx = selTer.x + terrainBuffer->Data.Distance;
-					int maxz = selTer.z + terrainBuffer->Data.Distance;
+					float minx = selTer.x - terrainBuffer->Data.Distance;
+					float minz = selTer.z - terrainBuffer->Data.Distance;
+					float maxx = selTer.x + terrainBuffer->Data.Distance;
+					float maxz = selTer.z + terrainBuffer->Data.Distance;
 
-					int x = Math::Random(minx, maxx);
-					int z = Math::Random(minz, maxz);
+					float x = Math::Random(minx, maxx);
+					float z = Math::Random(minz, maxz);
 					float y;
 					if (GetHeight(x, z, y) == true)
 					{
@@ -704,10 +724,10 @@ void GameTerrain::EditTerrain()
 		//Height
 		if (editType < 4)
 		{
-			for (int z = selTer.z - (int)terrainBuffer->Data.Distance; z < selTer.z + (int)terrainBuffer->Data.Distance; z++)
+			for (int z = (int)selTer.z - (int)terrainBuffer->Data.Distance; z < (int)selTer.z + (int)terrainBuffer->Data.Distance; z++)
 			{
 				if (z < 0 || z >(int)height) continue;
-				for (int x = selTer.x - (int)terrainBuffer->Data.Distance; x < selTer.x + (int)terrainBuffer->Data.Distance; x++)
+				for (int x = (int)selTer.x - (int)terrainBuffer->Data.Distance; x < (int)selTer.x + (int)terrainBuffer->Data.Distance; x++)
 				{
 					if (x < 0 || x >(int)width) continue;
 					
@@ -715,9 +735,9 @@ void GameTerrain::EditTerrain()
 					{
 						//Height Change
 						if (Keyboard::Get()->Press(VK_SHIFT))
-							vertices[x + z * (width + 1)].position.y -= 5.0f * Time::Delta();
+							vertices[x + z * (width + 1)].position.y -= power * Time::Delta();
 						else
-							vertices[x + z * (width + 1)].position.y += 5.0f * Time::Delta();
+							vertices[x + z * (width + 1)].position.y += power * Time::Delta();
 					}
 					else if (editType == 1)
 					{
@@ -726,7 +746,7 @@ void GameTerrain::EditTerrain()
 
 						int count = 0;
 
-						int c = x + (z + 1) * (width + 1);
+						UINT c = x + (z + 1) * (width + 1);
 						if (c >= 0 && c <= vertexSize)
 						{
 							h += vertices[x + (z + 1) * (width + 1)].position.y;
@@ -804,10 +824,10 @@ bool GameTerrain::GetHeight(float x, float z, float & y)
 	if (z < 0 || z >= height)
 		return 0.0f;
 
-	UINT index0 = (width + 1) * z + x;
-	UINT index1 = (width + 1) * (z + 1) + x;
-	UINT index2 = (width + 1) * z + x + 1;
-	UINT index3 = (width + 1) * (z + 1) + (x + 1);
+	UINT index0 = (width + 1) * (UINT)z + (UINT)x;
+	UINT index1 = (width + 1) * (UINT)(z + 1) + (UINT)x;
+	UINT index2 = (width + 1) * (UINT)z + (UINT)x + 1;
+	UINT index3 = (width + 1) * (UINT)(z + 1) + (UINT)(x + 1);
 
 	D3DXVECTOR3 v0 = vertices[index0].position;
 	D3DXVECTOR3 v1 = vertices[index1].position;
@@ -845,6 +865,8 @@ void GameTerrain::Init()
 	shader3 = new Shader(Shaders + L"999_Terrain.hlsl", "VS_Depth", "PS_Depth");
 	buffer = new WorldBuffer();
 	terrainBuffer = new TerrainBuffer();
+	treeBuffer = new TreeBuffer();
+	D3DXMatrixRotationY(&treeBuffer->Data.Rotate, (float)D3DX_PI);
 
 	material = new Material;
 	material->SetShader(shader);

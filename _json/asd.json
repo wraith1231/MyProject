@@ -1,59 +1,16 @@
 {
    "Enemy" : {
-      "Enemy Quantity" : 2,
-      "Enemy0" : {
-         "Start Position" : [ 22.438503265380859, 0.0, 64.082389831542969 ]
-      },
-      "Enemy1" : {
-         "Start Position" : [ 41.980991363525391, 0.0, 28.644264221191406 ]
-      }
+      "Enemy Quantity" : 0
    },
    "Player" : {
-      "Player Position" : [ 33.134166717529297, 0.0, 45.259639739990234 ]
+      "Player Position" : [ 0.0, 0.0, 0.0 ]
    },
    "Terrain" : {
       "Terrain Save" : [ "C:/Work/MyToonShading/_Contents/Landscape/asd.terrain" ]
    },
    "Untouchable" : {
-      "Untouchable0" : {
-         "Structs" : {
-            "File Name" : [ "../_Contents/Models/Bonney/Bonney" ],
-            "Number0" : {
-               "Rotate" : [ 0.0, 0.0, 0.0 ],
-               "Scale" : [ 1.0, 1.0, 1.0 ],
-               "Trans" : [ 3.1569685935974121, 0.0, 9.7122135162353516 ]
-            },
-            "Number1" : {
-               "Rotate" : [ 0.0, 0.0, 0.0 ],
-               "Scale" : [ 1.0, 1.0, 1.0 ],
-               "Trans" : [ 7.870539665222168, 0.0, 3.4976940155029297 ]
-            },
-            "Quantity" : 2
-         }
-      },
-      "Untouchable1" : {
-         "Structs" : {
-            "File Name" : [ "../_Contents/Models/Grund/Grund" ],
-            "Number0" : {
-               "Rotate" : [ 0.0, 0.0, 0.0 ],
-               "Scale" : [ 1.0, 1.0, 1.0 ],
-               "Trans" : [ 6.5536627769470215, 0.0, 36.723903656005859 ]
-            },
-            "Number1" : {
-               "Rotate" : [ 0.0, 0.0, 0.0 ],
-               "Scale" : [ 1.0, 1.0, 1.0 ],
-               "Trans" : [ 18.993919372558594, 0.0, 10.472288131713867 ]
-            },
-            "Number2" : {
-               "Rotate" : [ 0.0, 0.0, 0.0 ],
-               "Scale" : [ 1.0, 1.0, 1.0 ],
-               "Trans" : [ 16.690305709838867, 0.0, 29.193168640136719 ]
-            },
-            "Quantity" : 3
-         }
-      },
       "Untouchables" : {
-         "Untouchable Quantity" : 2
+         "Untouchable Quantity" : 0
       }
    }
 }

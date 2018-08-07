@@ -82,9 +82,12 @@ public:
 	bool GetHeight(D3DXVECTOR3& pos);
 
 private:
-	void Init();
+	void FirstInit();
+	void Init(UINT width = 255, UINT height = 255);
 	void CreateNormal();
 	void CreateBuffer();
+
+	void Clear();
 
 	void TreeFile(wstring file = L"");
 
@@ -136,6 +139,8 @@ private:
 	float heightSet;
 	float power;
 
+	UINT widthEdit, heightEdit;
+
 	//splatting
 	D3DXCOLOR splat;
 
@@ -150,4 +155,7 @@ private:
 	UINT treeNum;
 	float treeScale;
 	float treeDelay;
+
+	//Water
+	class Water* water;
 };

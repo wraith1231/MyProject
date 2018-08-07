@@ -2,6 +2,7 @@
 #include "GameTerrain.h"
 
 #include "Tree.h"
+#include "Water.h"
 
 #include "../Utilities/BinaryFile.h"
 
@@ -16,7 +17,7 @@
 GameTerrain::GameTerrain()
 	: tex1(NULL), tex2(NULL), tex3(NULL), tex4(NULL)
 	, shader(NULL), shader2(NULL), shader3(NULL)
-	, vertexBuffer(NULL), indexBuffer(NULL)
+	, vertexBuffer(NULL), indexBuffer(NULL) , water(NULL)
 	, terrainFile(L"")
 	, editMode(false), changed(false)
 	, editType(0), heightSet(0.0f), power(5.0f)
@@ -24,34 +25,16 @@ GameTerrain::GameTerrain()
 	, splat(D3DXCOLOR(0, 0, 0, 0)), treeDelay(0.0f)
 	, offset(0.0f), windPower(0.0f)
 {
+	FirstInit();
 	Init();
 	CreateNormal();
 	CreateBuffer();
+
 }
 
 GameTerrain::~GameTerrain()
 {
-	for (Tree* tree : trees)
-		SAFE_DELETE(tree);
-	trees.clear();
-
-	SAFE_DELETE(treeBuffer);
-	SAFE_DELETE(terrainBuffer);
-
-	SAFE_RELEASE(vertexBuffer);
-	SAFE_RELEASE(indexBuffer);
-
-	SAFE_DELETE(shader);
-	SAFE_DELETE(shader2);
-	SAFE_DELETE(shader3);
-
-	SAFE_DELETE(tex1);
-	SAFE_DELETE(tex2);
-	SAFE_DELETE(tex3);
-	SAFE_DELETE(tex4);
-
-	SAFE_DELETE(material);
-	SAFE_DELETE(buffer);
+	Clear();
 }
 
 void GameTerrain::SaveTerrain(wstring saveFile)
@@ -181,6 +164,9 @@ void GameTerrain::LoadTerrain(wstring saveFile)
 		return;
 	}
 
+	Clear();
+	FirstInit();
+
 	BinaryReader* r = new BinaryReader();
 
 	wstring fileName = Path::GetFileLocalPath(saveFile);
@@ -211,11 +197,6 @@ void GameTerrain::LoadTerrain(wstring saveFile)
 			material->SetDetailMap(r->String());
 	}
 
-	SAFE_DELETE(tex1);
-	SAFE_DELETE(tex2);
-	SAFE_DELETE(tex3);
-	SAFE_DELETE(tex4);
-
 	//texture
 	{
 		b = r->Bool();
@@ -239,16 +220,16 @@ void GameTerrain::LoadTerrain(wstring saveFile)
 	{
 		width = r->UInt();
 		height = r->UInt();
+		Init(width, height);
 
 		vertexSize = r->UInt();
 		r->Byte((void**)&vertices, sizeof(VertexType) * vertexSize);
 		indexSize = r->UInt();
 		r->Byte((void**)&indices, sizeof(UINT) * indexSize);
+		CreateNormal();
+		CreateBuffer();
 	}
 
-	for (Tree* tree : trees)
-		SAFE_DELETE(tree);
-	trees.clear();
 	//tree
 	{
 		windPower = r->Float();
@@ -362,6 +343,9 @@ void GameTerrain::Update()
 
 	for (Tree* tree : trees)
 		tree->Update();
+
+	if (water != NULL)
+		water->Update();
 }
 
 void GameTerrain::Render()
@@ -394,6 +378,9 @@ void GameTerrain::Render()
 	treeBuffer->SetVSBuffer(2);
 	for (Tree* tree : trees)
 		tree->Render();
+
+	if (water != NULL)
+		water->Render();
 }
 
 void GameTerrain::PreRender()
@@ -508,6 +495,18 @@ void GameTerrain::ImGuiRender()
 		ImGui::Begin("Terrain Edit");
 
 		{
+			ImGui::InputInt("Width", (int*)&widthEdit);
+			ImGui::SameLine();
+			ImGui::InputInt("Height", (int*)&heightEdit);
+			if (ImGui::Button("Terrain Resize : All Terrain Data Clear"))
+			{
+				Clear();
+				FirstInit();
+				Init(widthEdit, heightEdit);
+				CreateNormal();
+				CreateBuffer();
+			}
+
 			ImGui::SliderFloat("Wind Power", &windPower, 0.0f, 5.0f);
 			ImGui::SliderInt("Edit Type", (int*)&editType, 0, 4);
 			ImGui::Text("Edit Type : 0 = Height change");
@@ -537,6 +536,9 @@ void GameTerrain::ImGuiRender()
 		}
 
 		ImGui::End();
+
+		if (water != NULL)
+			water->ImGuiRender();
 	}
 }
 
@@ -858,7 +860,7 @@ bool GameTerrain::GetHeight(D3DXVECTOR3 & pos)
 	return GetHeight(pos.x, pos.z, pos.y);
 }
 
-void GameTerrain::Init()
+void GameTerrain::FirstInit()
 {
 	shader = new Shader(Shaders + L"999_Terrain.hlsl");
 	shader2 = new Shader(Shaders + L"999_Terrain.hlsl", "VS_Normal", "PS_Normal");
@@ -870,20 +872,24 @@ void GameTerrain::Init()
 
 	material = new Material;
 	material->SetShader(shader);
+}
 
-	width = 255;
-	height = 255;
+void GameTerrain::Init(UINT width, UINT height)
+{
+	this->width = width;
+	this->height = height;
 
-	vertexSize = (height+1) * (width+1);
+	water = new Water(width, height);
+	vertexSize = (this->height+1) * (this->width+1);
 	vertices = new VertexType[vertexSize];
 
 	UINT index = 0;
-	for (UINT z = 0; z <= height; z++)
+	for (UINT z = 0; z <= this->height; z++)
 	{
-		for (UINT x = 0; x <= width; x++)
+		for (UINT x = 0; x <= this->width; x++)
 		{
 			vertices[index].position = D3DXVECTOR3((float)x, 0, (float)z);
-			vertices[index].uv = D3DXVECTOR2((float)x / (float)width, (float)z / (float)height);
+			vertices[index].uv = D3DXVECTOR2((float)x / (float)this->width, (float)z / (float)this->height);
 
 			vertices[index].normal = D3DXVECTOR3(0, 0, 0);
 			vertices[index].color = D3DXCOLOR(0, 0, 0, 0);
@@ -891,26 +897,25 @@ void GameTerrain::Init()
 		}
 	}
 
-	indexSize = height * width * 6;
+	indexSize = this->height * this->width * 6;
 	indices = new UINT[indexSize];
 
 	index = 0;
-	for (UINT z = 0; z < height; z++)
+	for (UINT z = 0; z < this->height; z++)
 	{
-		for (UINT x = 0; x < width; x++)
+		for (UINT x = 0; x < this->width; x++)
 		{
-			indices[index + 0] = (width + 1) * z + x;
-			indices[index + 1] = (width + 1) * (z+1) + x;
-			indices[index + 2] = (width + 1) * z + x + 1;
-			indices[index + 3] = (width + 1) * z + x + 1;
-			indices[index + 4] = (width + 1) * (z+1) + x;
-			indices[index + 5] = (width + 1) * (z+1) + x+1;
+			indices[index + 0] = (this->width + 1) * z + x;
+			indices[index + 1] = (this->width + 1) * (z+1) + x;
+			indices[index + 2] = (this->width + 1) * z + x + 1;
+			indices[index + 3] = (this->width + 1) * z + x + 1;
+			indices[index + 4] = (this->width + 1) * (z+1) + x;
+			indices[index + 5] = (this->width + 1) * (z+1) + x+1;
 
 			index += 6;
 		}
 	}
 
-	int a = 10;
 }
 
 void GameTerrain::CreateNormal()
@@ -942,6 +947,9 @@ void GameTerrain::CreateNormal()
 
 void GameTerrain::CreateBuffer()
 {
+	SAFE_RELEASE(vertexBuffer);
+	SAFE_RELEASE(indexBuffer);
+
 	//Vertex Buffer Create
 	{
 		D3D11_BUFFER_DESC desc = { 0 };
@@ -971,6 +979,36 @@ void GameTerrain::CreateBuffer()
 		hr = D3D::GetDevice()->CreateBuffer(&desc, &data, &indexBuffer);
 		assert(SUCCEEDED(hr));
 	}
+}
+
+void GameTerrain::Clear()
+{
+	SAFE_DELETE(water);
+
+	for (Tree* tree : trees)
+		SAFE_DELETE(tree);
+	trees.clear();
+
+	SAFE_DELETE(treeBuffer);
+	SAFE_DELETE(terrainBuffer);
+
+	SAFE_RELEASE(vertexBuffer);
+	SAFE_RELEASE(indexBuffer);
+
+	SAFE_DELETE(shader);
+	SAFE_DELETE(shader2);
+	SAFE_DELETE(shader3);
+
+	SAFE_DELETE(tex1);
+	SAFE_DELETE(tex2);
+	SAFE_DELETE(tex3);
+	SAFE_DELETE(tex4);
+
+	SAFE_DELETE(material);
+	SAFE_DELETE(buffer);
+
+	SAFE_DELETE_ARRAY(vertices);
+	SAFE_DELETE_ARRAY(indices);
 }
 
 void GameTerrain::TreeFile(wstring file)

@@ -26,11 +26,11 @@ Water::Water(UINT width, UINT height)
 		States::GetBlendDesc(&desc);
 		States::CreateBlend(&desc, &blendState[0]);
 
-		desc.AlphaToCoverageEnable = true;
+		//desc.AlphaToCoverageEnable = true;
 		desc.RenderTarget[0].BlendEnable = true;
-		desc.RenderTarget[0].DestBlend = D3D11_BLEND_DEST_COLOR;
-		desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
-		desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_MAX;
+		//desc.RenderTarget[0].DestBlend = D3D11_BLEND_DEST_COLOR;
+		//desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
+		//desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_MAX;
 		States::CreateBlend(&desc, &blendState[1]);
 	}
 
@@ -174,4 +174,54 @@ void Water::ImGuiRender()
 	}
 
 	ImGui::End();
+}
+
+WaterStruct Water::GetWaterParameter()
+{
+	WaterStruct ret;
+
+	//vs
+	ret.TextureScale = vsBuffer->Data.TextureScale;
+	ret.WaveFrequancy = vsBuffer->Data.WaveFrequancy;
+	ret.WaveAmplitude = vsBuffer->Data.WaveAmplitude;
+	ret.Time = 0.0f;
+	ret.BumpScale = vsBuffer->Data.BumpScale;
+	ret.BumpSpeed = vsBuffer->Data.BumpSpeed;
+	ret.Height = vsBuffer->Data.Height;
+
+	//ps
+	ret.DeepColor = psBuffer->Data.DeepColor;
+	ret.ShallowColor = psBuffer->Data.ShallowColor;
+	ret.ReflectionColor = psBuffer->Data.ReflectionColor;
+	ret.ReflectionAmount = psBuffer->Data.ReflectionAmount;
+	ret.ReflectionBlur = psBuffer->Data.ReflectionBlur;
+	ret.FresnelPower = psBuffer->Data.FresnelPower;
+	ret.FresnelBias = psBuffer->Data.FresnelBias;
+	ret.HDRMultiplier = psBuffer->Data.HDRMultiplier;
+	ret.WaterAmount = psBuffer->Data.WaterAmount;
+
+	return ret;
+}
+
+void Water::SetWaterParameter(WaterStruct param)
+{
+	//vs
+	vsBuffer->Data.TextureScale = param.TextureScale;
+	vsBuffer->Data.WaveFrequancy = param.WaveFrequancy;
+	vsBuffer->Data.WaveAmplitude = param.WaveAmplitude;
+	vsBuffer->Data.Time = param.Time;
+	vsBuffer->Data.BumpScale = param.BumpScale;
+	vsBuffer->Data.BumpSpeed = param.BumpSpeed;
+	vsBuffer->Data.Height = param.Height;
+
+	//ps
+	psBuffer->Data.DeepColor = param.DeepColor;
+	psBuffer->Data.ShallowColor = param.ShallowColor;
+	psBuffer->Data.ReflectionColor = param.ReflectionColor;
+	psBuffer->Data.ReflectionAmount = param.ReflectionAmount;
+	psBuffer->Data.ReflectionBlur = param.ReflectionBlur;
+	psBuffer->Data.FresnelPower = param.FresnelPower;
+	psBuffer->Data.FresnelBias = param.FresnelBias;
+	psBuffer->Data.HDRMultiplier = param.HDRMultiplier;
+	psBuffer->Data.WaterAmount = param.WaterAmount;
 }

@@ -1,0 +1,16 @@
+{
+   "Enemy" : {
+      "Enemy Quantity" : 0
+   },
+   "Player" : {
+      "Player Position" : [ 0.0, 0.0, 0.0 ]
+   },
+   "Terrain" : {
+      "Terrain Save" : [ "C:/Work/MyToonShading/_Contents/Landscape/a1.terrain" ]
+   },
+   "Untouchable" : {
+      "Untouchables" : {
+         "Untouchable Quantity" : 0
+      }
+   }
+}

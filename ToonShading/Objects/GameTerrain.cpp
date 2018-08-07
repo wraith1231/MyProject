@@ -15,15 +15,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GameTerrain::GameTerrain()
-	: tex1(NULL), tex2(NULL), tex3(NULL), tex4(NULL)
-	, shader(NULL), shader2(NULL), shader3(NULL)
-	, vertexBuffer(NULL), indexBuffer(NULL) , water(NULL)
-	, terrainFile(L"")
-	, editMode(false), changed(false)
-	, editType(0), heightSet(0.0f), power(5.0f)
-	, treeSet(NULL), treeDisposed(false), treeNum(1), treeScale(1.0f)
-	, splat(D3DXCOLOR(0, 0, 0, 0)), treeDelay(0.0f)
-	, offset(0.0f), windPower(0.0f)
 {
 	FirstInit();
 	Init();
@@ -145,6 +136,16 @@ void GameTerrain::SaveTerrain(wstring saveFile)
 		}
 	}
 
+	//Water
+	{
+		w->Bool(useWater);
+		if (useWater == true)
+		{
+			WaterStruct temp = water->GetWaterParameter();
+			w->Byte(&temp, sizeof(WaterStruct));
+		}
+	}
+
 	w->Close();
 	SAFE_DELETE(w);
 }
@@ -165,7 +166,6 @@ void GameTerrain::LoadTerrain(wstring saveFile)
 	}
 
 	Clear();
-	FirstInit();
 
 	BinaryReader* r = new BinaryReader();
 
@@ -175,51 +175,59 @@ void GameTerrain::LoadTerrain(wstring saveFile)
 	bool b = false;
 
 	//material
+	string diffuseMap;
+	string specularMap;
+	string emissiveMap;
+	string normalMap;
+	string detailMap;
 	{
 		b = r->Bool();
 		if (b == true)
-			material->SetDiffuseMap(r->String());
+			diffuseMap = r->String();
 
 		b = r->Bool();
 		if (b == true)
-			material->SetSpecularMap(r->String());
+			specularMap = r->String();
 
 		b = r->Bool();
 		if (b == true)
-			material->SetEmissiveMap(r->String());
+			emissiveMap = r->String();
 
 		b = r->Bool();
 		if (b == true)
-			material->SetNormalMap(r->String());
+			normalMap = r->String();
 
 		b = r->Bool();
 		if (b == true)
-			material->SetDetailMap(r->String());
+			detailMap = r->String();
 	}
 
 	//texture
+	wstring tex1Map, tex2Map, tex3Map, tex4Map;
+	tex1Map = tex2Map = tex3Map = tex4Map = L"";
 	{
 		b = r->Bool();
 		if (b == true)
-			tex1 = new Texture(String::ToWString(r->String()));
+			tex1Map = String::ToWString(r->String());
 
 		b = r->Bool();
 		if (b == true)
-			tex2 = new Texture(String::ToWString(r->String()));
+			tex2Map = String::ToWString(r->String());
 
 		b = r->Bool();
 		if (b == true)
-			tex3 = new Texture(String::ToWString(r->String()));
+			tex3Map = String::ToWString(r->String());
 
 		b = r->Bool();
 		if (b == true)
-			tex4 = new Texture(String::ToWString(r->String()));
+			tex4Map = String::ToWString(r->String());
 	}
 
 	//vertex & index
 	{
 		width = r->UInt();
 		height = r->UInt();
+		FirstInit(width, height);
 		Init(width, height);
 
 		vertexSize = r->UInt();
@@ -229,6 +237,25 @@ void GameTerrain::LoadTerrain(wstring saveFile)
 		CreateNormal();
 		CreateBuffer();
 	}
+
+	if(diffuseMap.length() > 0)
+		material->SetDiffuseMap(diffuseMap);
+	if(specularMap.length() > 0)
+		material->SetSpecularMap(specularMap);
+	if(emissiveMap.length() > 0)
+		material->SetEmissiveMap(emissiveMap);
+	if(normalMap.length() > 0)
+		material->SetNormalMap(normalMap);
+	if(detailMap.length() > 0)
+		material->SetDetailMap(detailMap);
+	if(tex1Map.length() > 0)
+		tex1 = new Texture(tex1Map);
+	if(tex2Map.length() > 0)
+		tex2 = new Texture(tex2Map);
+	if(tex3Map.length() > 0)
+		tex3 = new Texture(tex3Map);
+	if(tex4Map.length() > 0)
+		tex4 = new Texture(tex4Map);
 
 	//tree
 	{
@@ -252,6 +279,18 @@ void GameTerrain::LoadTerrain(wstring saveFile)
 
 	}
 
+	//Water
+	{
+		useWater = r->Bool();
+		if (useWater == true)
+		{
+			WaterStruct* temp = new WaterStruct();
+			r->Byte((void**)&temp, sizeof(WaterStruct));
+
+			water = new Water(width, height);
+			water->SetWaterParameter(*temp);
+		}
+	}
 	r->Close();
 	SAFE_DELETE(r);
 
@@ -344,7 +383,7 @@ void GameTerrain::Update()
 	for (Tree* tree : trees)
 		tree->Update();
 
-	if (water != NULL)
+	if (water != NULL && useWater == true)
 		water->Update();
 }
 
@@ -375,12 +414,13 @@ void GameTerrain::Render()
 
 	D3D::GetDC()->DrawIndexed(indexSize, 0, 0);
 
+	if (water != NULL && useWater == true)
+		water->Render();
+
 	treeBuffer->SetVSBuffer(2);
 	for (Tree* tree : trees)
 		tree->Render();
 
-	if (water != NULL)
-		water->Render();
 }
 
 void GameTerrain::PreRender()
@@ -495,13 +535,18 @@ void GameTerrain::ImGuiRender()
 		ImGui::Begin("Terrain Edit");
 
 		{
+			ImGui::Checkbox("Use Water", &useWater);
+			if (useWater == true && water == NULL)
+			{
+				water = new Water(width, height);
+			}
 			ImGui::InputInt("Width", (int*)&widthEdit);
 			ImGui::SameLine();
 			ImGui::InputInt("Height", (int*)&heightEdit);
 			if (ImGui::Button("Terrain Resize : All Terrain Data Clear"))
 			{
 				Clear();
-				FirstInit();
+				FirstInit(widthEdit, heightEdit);
 				Init(widthEdit, heightEdit);
 				CreateNormal();
 				CreateBuffer();
@@ -807,6 +852,32 @@ void GameTerrain::EditTerrain()
 		}//editType < 4
 		else if (editType == 4)
 		{
+			if (treeSet != NULL && treeDelay >= 0.5f)
+			{
+				treeDelay = 0.0f;
+				for (UINT i = 0; i < treeNum; i++)
+				{
+					float minx = selTer.x - terrainBuffer->Data.Distance;
+					float minz = selTer.z - terrainBuffer->Data.Distance;
+					float maxx = selTer.x + terrainBuffer->Data.Distance;
+					float maxz = selTer.z + terrainBuffer->Data.Distance;
+
+					float x = Math::Random(minx, maxx);
+					float z = Math::Random(minz, maxz);
+					float y;
+					if (GetHeight(x, z, y) == true)
+					{
+						treeSet->AddTree(treeScale, D3DXVECTOR3(x, y, z));
+
+						if (treeDisposed == false)
+						{
+							treeDisposed = true;
+							trees.push_back(treeSet);
+						}
+					}
+				} //for i
+
+			} //treeSet != NULL
 
 		}//editType == 4
 	}
@@ -860,8 +931,27 @@ bool GameTerrain::GetHeight(D3DXVECTOR3 & pos)
 	return GetHeight(pos.x, pos.z, pos.y);
 }
 
-void GameTerrain::FirstInit()
+void GameTerrain::FirstInit(UINT width, UINT height)
 {
+	tex1 = tex2 = tex3 = tex4 = NULL;
+	shader = shader2 = shader3 = NULL;
+	vertexBuffer = indexBuffer = NULL;
+
+	terrainFile = L"";
+	editMode = changed = treeDisposed = useWater = false;
+	heightSet = treeDelay = offset = windPower = 0.0f;
+	widthEdit = width;
+	heightEdit = height;
+
+	treeSet = NULL;
+	water = NULL;
+	editType = 0;
+	treeNum = 1;
+	treeScale = 1.0f;
+	power = 5.0f;
+	splat = D3DXCOLOR(0, 0, 0, 0);
+
+
 	shader = new Shader(Shaders + L"999_Terrain.hlsl");
 	shader2 = new Shader(Shaders + L"999_Terrain.hlsl", "VS_Normal", "PS_Normal");
 	shader3 = new Shader(Shaders + L"999_Terrain.hlsl", "VS_Depth", "PS_Depth");
@@ -879,7 +969,6 @@ void GameTerrain::Init(UINT width, UINT height)
 	this->width = width;
 	this->height = height;
 
-	water = new Water(width, height);
 	vertexSize = (this->height+1) * (this->width+1);
 	vertices = new VertexType[vertexSize];
 

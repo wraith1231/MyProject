@@ -82,7 +82,7 @@ public:
 	bool GetHeight(D3DXVECTOR3& pos);
 
 private:
-	void FirstInit();
+	void FirstInit(UINT width = 255, UINT height = 255);
 	void Init(UINT width = 255, UINT height = 255);
 	void CreateNormal();
 	void CreateBuffer();
@@ -158,4 +158,5 @@ private:
 
 	//Water
 	class Water* water;
+	bool useWater;
 };

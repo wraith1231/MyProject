@@ -26,14 +26,15 @@ struct PixelInput
     float2 uv : TEXCOORD0;
     float3 normal : NORMAL0;
     float4 color : COLOR0;
+    float alpha : ALPHA0;
 };
 
 PixelInput VS(VertexColorTextureNormal input)
 {
     PixelInput output;
 
-    output.position = mul(input.position, _world);
-    output.position = mul(output.position, _view);
+    float4 world = mul(input.position, _world);
+    output.position = mul(world, _view);
     output.position = mul(output.position, _projection);
 
     output.oPosition = input.position;
@@ -43,6 +44,8 @@ PixelInput VS(VertexColorTextureNormal input)
     
     output.color = input.color;
     output.uv = input.uv;
+
+    output.alpha = 1.0f - saturate(1.0f / length(GetViewPosition() - world.xyz));
 
     return output;
 }
@@ -92,7 +95,7 @@ float4 PS(PixelInput input) : SV_TARGET
 
     diffuse = GetDiffuseColor(diffuse, _direction, input.normal);
 
-    return diffuse + penCol;
+    return float4(diffuse.rgb + penCol.rgb, input.alpha);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

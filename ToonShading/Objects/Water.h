@@ -1,5 +1,32 @@
 #pragma once
 
+struct WaterStruct
+{
+	D3DXVECTOR2 TextureScale;
+	float WaveFrequancy;
+	float WaveAmplitude;
+
+	float Time;
+	float BumpScale;
+	D3DXVECTOR2 BumpSpeed;
+
+	float Height;
+
+	D3DXCOLOR DeepColor;
+
+	D3DXCOLOR ShallowColor;
+
+	D3DXCOLOR ReflectionColor;
+
+	float ReflectionAmount;
+	float ReflectionBlur;
+	float FresnelPower;
+	float FresnelBias;
+
+	float HDRMultiplier;
+	float WaterAmount;
+};
+
 class Water
 {
 private:
@@ -77,6 +104,9 @@ public:
 	void Update();
 	void Render();
 	void ImGuiRender();
+
+	WaterStruct GetWaterParameter();
+	void SetWaterParameter(WaterStruct param);
 
 private:
 	void Init();

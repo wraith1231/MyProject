@@ -100,7 +100,7 @@ PixelInput VS(VertexTexture input)
     output.bump[1] = input.uv * _textureScale * 2.0f + _time * _bumpSpeed * 4.0f;
     output.bump[2] = input.uv * _textureScale * 4.0f + _time * _bumpSpeed * 8.0f;
 
-    output.alpha = 1.0f - saturate(1.0f / length(GetViewPosition() - world.xyz));
+    output.alpha = 0.5f * (1.0f - saturate(1.0f / length(GetViewPosition() - world.xyz)));
 
     return output;
 }
@@ -121,18 +121,19 @@ float4 PS(PixelInput input) : SV_TARGET
 
     n = normalize(mul(n, mat));
 
-    float4 reflection = (float4) 0;
-    Specular(reflection.rgb, _direction, n, input.eye);
-    reflection.rgb *= _reflectionBlur;
-    //float4 r;
-    //r.xyz = reflect(input.eye, n);
+    //float4 reflection = (float4) 0;
+    //Specular(reflection.rgb, _direction, n, input.eye);
+    //reflection.rgb *= _reflectionBlur;
+    float4 r;
+    r.xyz = reflect(input.eye, n);
 
-    //r.z = -r.z;
-    //r.w = _reflectionBlur;
-    //float4 reflection = tex2Dbias(_diffuseMap, r);
-    //reflection.rgb *= (reflection.r + reflection.g + reflection.b) * hdrMultiplier;
+    r.z = -r.z;
+    r.w = _reflectionBlur;
+    int2 offset = int2(0, 1);
+    float4 reflection = _specularMap.SampleBias(_specularSampler, r.xy, r.w, offset);
+    reflection.rgb *= (reflection.r + reflection.g + reflection.b) * hdrMultiplier;
 
-    float facing = 1.0f - max(dot(-input.eye, n), 0.0f);
+    float facing = saturate(1.0f - max(dot(-input.eye, n), 0.0f));
     float fresnel = saturate(_fresnelBias + pow(facing, _fresnelPower));
 
     float4 waterColor = lerp(_shallowColor, _deepColor, facing) * _waterAmount;

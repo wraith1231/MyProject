@@ -146,4 +146,5 @@ float4 PS(PixelInput input) : SV_TARGET
     
     //검사결과 이상없으면 원래 그려질 색을 그린다
     return realColor;
+    
 }

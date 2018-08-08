@@ -17,7 +17,8 @@ Water::Water(UINT width, UINT height)
 	material = new Material;
 	material->SetShader(shader);
 
-	material->SetDiffuseMap(Textures + L"Water.png");
+	//material->SetDiffuseMap(Textures + L"Water.png");
+	material->SetSpecularMap(Textures + L"WaveSpecular.png");
 	material->SetNormalMap(Textures + L"WaveNormal.png");
 
 	//blend

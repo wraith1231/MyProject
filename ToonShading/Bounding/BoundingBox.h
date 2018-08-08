@@ -38,6 +38,7 @@ namespace Objects
 
 		void Update();
 		void Update(D3DXMATRIX world);
+		void Update(D3DXVECTOR3 pos);
 		void Render();
 		void Render(D3DXMATRIX mat);
 

@@ -223,6 +223,13 @@ void GameSettings::Update()
 				}
 				SAFE_DELETE(ray);
 			}
+			else
+			{
+				terrain->PointLightDispose(cam + camDir * dis);
+				Objects::Ray* ray = new Objects::Ray(cam, camDir);
+				terrain->PointLightSelect(ray);
+				SAFE_DELETE(ray);
+			}
 		}
 		else if (Mouse::Get()->Press(0) && inter == true)
 		{

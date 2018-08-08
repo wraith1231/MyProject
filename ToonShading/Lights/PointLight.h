@@ -1,16 +1,29 @@
 #pragma once
 
+#define POINTLIGHTSIZE 16
+namespace Objects
+{
+	class BoundingBox;
+	class Ray;
+}
+
 class PointLight
 {
 public:
 	PointLight();
 	~PointLight();
 
-	bool AddPointLight(D3DXVECTOR3 position, D3DXVECTOR3 color, float intensity, float range);
+	UINT AddPointLight(D3DXVECTOR3 position = D3DXVECTOR3(0, 0, 0), D3DXVECTOR3 color = D3DXVECTOR3(1, 1, 1), float intensity =  1.0f, float range = 1.0f);
+	UINT PointLightSize();
 
 	void Render();
+	void Render(bool val);
 
 	void ImGuiRender();
+
+	bool LightSelect() { return lightSelect; }
+	void LightSelect(bool val, UINT num) { lightSelect = val; selectNum = num; }
+	void LightSelect(Objects::Ray* ray);
 
 private:
 	class Buffer : public ShaderBuffer
@@ -36,10 +49,15 @@ private:
 
 		struct Struct
 		{
-			Lights Light[16];
+			Lights Light[POINTLIGHTSIZE];
 		} Data;
 	};
 public:
+	Objects::BoundingBox* box;
+
 	Buffer* buffer;
+
+	bool lightSelect;
+	UINT selectNum;
 
 };

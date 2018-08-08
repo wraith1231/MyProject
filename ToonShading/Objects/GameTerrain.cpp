@@ -4,6 +4,8 @@
 #include "Tree.h"
 #include "Water.h"
 
+#include "../Bounding/ObjectsRay.h"
+
 #include "../Lights/PointLight.h"
 
 #include "../Utilities/BinaryFile.h"
@@ -357,10 +359,12 @@ void GameTerrain::Update()
 {
 	terrainBuffer->Data.On = (UINT)editMode;
 
-	if (editMode == true)
+	if (editMode == true && pointLightDispose == false && pointLightSelect == false)
 	{
 		terrainBuffer->Data.Point = selTer;
 	}
+	else
+		terrainBuffer->Data.Point = D3DXVECTOR3(-10, -10, -10);
 
 	if (changed == true && Mouse::Get()->Up(0) == true)
 	{
@@ -389,7 +393,7 @@ void GameTerrain::Update()
 void GameTerrain::Render()
 {
 	if (pointLight != NULL)
-		pointLight->Render();
+		pointLight->Render(pointLightSelect);
 
 	if (tex1 != NULL)
 		tex1->SetShaderResource(5);
@@ -496,7 +500,38 @@ void GameTerrain::ImGuiRender()
 				LoadTerrain();
 
 			if (ImGui::MenuItem("Terrain Edit"))
+			{
 				editMode = !editMode;
+				pointLightDispose = false;
+			}
+			if (ImGui::MenuItem("Point Light Dispose"))
+			{
+				if(editMode == false)
+					editMode = true;
+
+				if (editMode == true)
+				{
+					pointLightDispose = !pointLightDispose;
+					pointLightSelect = false;
+				}
+				else
+				{
+					pointLightDispose = false;
+				}
+			}
+			if (ImGui::MenuItem("Point Light Select"))
+			{
+				if (editMode == false)
+					editMode = true;
+
+				if (editMode == true)
+				{
+					pointLightDispose = false;
+					pointLightSelect = !pointLightSelect;
+				}
+				else
+					pointLightSelect = false;
+			}
 
 			ImGui::Separator();
 
@@ -532,7 +567,7 @@ void GameTerrain::ImGuiRender()
 	ImGui::EndMainMenuBar();
 
 	//imgui
-	if (editMode == true)
+	if (editMode == true && pointLightDispose == false)
 	{
 		ImGui::Begin("Terrain Edit");
 
@@ -596,6 +631,9 @@ void GameTerrain::ImGuiRender()
 		if (water != NULL)
 			water->ImGuiRender();
 	}
+
+	if (pointLightSelect == true)
+		pointLight->ImGuiRender();
 }
 
 bool GameTerrain::Intersect(D3DXVECTOR3 cam, D3DXVECTOR3 camDir, float & dis)
@@ -629,12 +667,12 @@ bool GameTerrain::Intersect(D3DXVECTOR3 cam, D3DXVECTOR3 camDir, float & dis)
 	
 					if (D3DXIntersectTri(&lb, &lt, &rb, &cam, &camDir, NULL, NULL, &dis) == TRUE || D3DXIntersectTri(&rb, &lt, &rt, &cam, &camDir, NULL, NULL, &dis) == TRUE)
 					{
-						for (int z = lb.z; z <= lt.z; z++)
+						for (int z = (int)lb.z; z <= (int)lt.z; z++)
 						{
-							if (z < 0 || z >= height) continue;
-							for (int x = lb.x; x <= rb.x; x++)
+							if (z < 0 || z >= (int)height) continue;
+							for (int x = (int)lb.x; x <= (int)rb.x; x++)
 							{
-								if (x <0 || x >= width) continue;
+								if (x <0 || x >= (int)width) continue;
 	
 								UINT ind0 = (width + 1) * z + x;
 								UINT ind1 = (width + 1) * (z+ 1) + x;
@@ -678,11 +716,17 @@ void GameTerrain::EditMode(bool val)
 			SAFE_DELETE(treeSet);
 		treeSet = NULL;
 		treeDisposed = false;
+
+		pointLightDispose = false;
+		pointLightSelect = false;
 	}
 }
 
 void GameTerrain::EditTerrain()
 {
+	if (pointLightDispose == true || pointLightSelect == true)
+		return;
+
 	if (terrainBuffer->Data.Type == 0)
 	{
 		//circle brush edit
@@ -926,6 +970,28 @@ void GameTerrain::EditTerrain()
 	changed = true;
 }
 
+void GameTerrain::PointLightDispose(D3DXVECTOR3 pos)
+{
+	if (pointLightDispose == true)
+	{
+		UINT num = pointLight->AddPointLight(pos);
+		if (num < pointLight->PointLightSize())
+		{
+			pointLightDispose = false;
+			pointLightSelect = true;
+			pointLight->LightSelect(true, num);
+		}
+	}
+}
+
+void GameTerrain::PointLightSelect(Objects::Ray* ray)
+{
+	if (pointLightSelect == true)
+	{
+		pointLight->LightSelect(ray);
+	}
+}
+
 bool GameTerrain::GetHeight(float x, float z, float & y)
 {
 	if (x < 0 || x >= width)
@@ -977,6 +1043,7 @@ void GameTerrain::FirstInit(UINT width, UINT height)
 
 	terrainFile = L"";
 	editMode = changed = treeDisposed = useWater = false;
+	pointLightDispose = pointLightSelect = false;
 	heightSet = treeDelay = offset = windPower = 0.0f;
 	widthEdit = width;
 	heightEdit = height;

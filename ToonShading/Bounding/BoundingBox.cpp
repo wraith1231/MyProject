@@ -161,6 +161,19 @@ void Objects::BoundingBox::Update(D3DXMATRIX world)
 	worldBuffer->SetMatrix(world);
 }
 
+void Objects::BoundingBox::Update(D3DXVECTOR3 pos)
+{
+	max = oMax + pos;
+	min = oMin + pos;
+
+	D3DXMATRIX mat = worldBuffer->GetMatrix();
+	mat._41 = pos.x;
+	mat._42 = pos.y;
+	mat._43 = pos.z;
+
+	worldBuffer->SetMatrix(mat);
+}
+
 void Objects::BoundingBox::Render()
 {
 	buffer->SetPSBuffer(2);

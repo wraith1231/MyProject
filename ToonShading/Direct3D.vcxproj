@@ -22,6 +22,7 @@
     <ClInclude Include="Bounding\BoundingBox.h" />
     <ClInclude Include="Bounding\BoundingFrustum.h" />
     <ClInclude Include="Bounding\BoundingSphere.h" />
+    <ClInclude Include="Bounding\Frustum.h" />
     <ClInclude Include="Bounding\GizmoAxis.h" />
     <ClInclude Include="Bounding\ObjectsBuffer.h" />
     <ClInclude Include="Bounding\ObjectsPlane.h" />
@@ -40,6 +41,7 @@
     <ClInclude Include="Fbx\Utility.h" />
     <ClInclude Include="Fbx\XmlToAnim.h" />
     <ClInclude Include="Interfaces\ICloneable.h" />
+    <ClInclude Include="Lights\PointLight.h" />
     <ClInclude Include="Model\Model.h" />
     <ClInclude Include="Model\ModelAnimation.h" />
     <ClInclude Include="Model\ModelAnimationClip.h" />
@@ -105,6 +107,7 @@
     <ClCompile Include="Bounding\BoundingBox.cpp" />
     <ClCompile Include="Bounding\BoundingFrustum.cpp" />
     <ClCompile Include="Bounding\BoundingSphere.cpp" />
+    <ClCompile Include="Bounding\Frustum.cpp" />
     <ClCompile Include="Bounding\GizmoAxis.cpp" />
     <ClCompile Include="Bounding\ObjectsPlane.cpp" />
     <ClCompile Include="Bounding\ObjectsRay.cpp" />
@@ -117,6 +120,7 @@
     <ClCompile Include="Fbx\Exporter.cpp" />
     <ClCompile Include="Fbx\Utility.cpp" />
     <ClCompile Include="Fbx\XmlToAnim.cpp" />
+    <ClCompile Include="Lights\PointLight.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Model\Model.cpp" />
     <ClCompile Include="Model\ModelAnimation.cpp" />

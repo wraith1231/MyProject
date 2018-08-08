@@ -4,6 +4,8 @@
 #include "Tree.h"
 #include "Water.h"
 
+#include "../Lights/PointLight.h"
+
 #include "../Utilities/BinaryFile.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -375,10 +377,7 @@ void GameTerrain::Update()
 	if (offset > D3DX_PI * 2) offset -= static_cast<float>(D3DX_PI * 2);
 	treeBuffer->Data.Power = sinf(offset);
 
-	intersectCheck[0] = vertices[0].position;
-	intersectCheck[1] = vertices[(width + 1) * height].position;
-	intersectCheck[2] = vertices[width].position;
-	intersectCheck[3] = vertices[(width + 1) * height + width].position;
+	QuadTreeUpdate();
 
 	for (Tree* tree : trees)
 		tree->Update();
@@ -389,6 +388,9 @@ void GameTerrain::Update()
 
 void GameTerrain::Render()
 {
+	if (pointLight != NULL)
+		pointLight->Render();
+
 	if (tex1 != NULL)
 		tex1->SetShaderResource(5);
 
@@ -545,11 +547,20 @@ void GameTerrain::ImGuiRender()
 			ImGui::InputInt("Height", (int*)&heightEdit);
 			if (ImGui::Button("Terrain Resize : All Terrain Data Clear"))
 			{
-				Clear();
-				FirstInit(widthEdit, heightEdit);
-				Init(widthEdit, heightEdit);
-				CreateNormal();
-				CreateBuffer();
+				if ((widthEdit >= 15 && heightEdit >= 15) && ((widthEdit % 4 == 3) && (heightEdit % 4 == 3)))
+				{
+					Clear();
+					FirstInit(widthEdit, heightEdit);
+					Init(widthEdit, heightEdit);
+					CreateNormal();
+					CreateBuffer();
+				}
+				else
+				{
+					D3DDesc desc;
+					D3D::GetDesc(&desc);
+					MessageBox(desc.Handle, L"Width and Height will over than 14 and quadruple - 1", L"Error", MB_OK);
+				}
 			}
 
 			ImGui::SliderFloat("Wind Power", &windPower, 0.0f, 5.0f);
@@ -589,45 +600,71 @@ void GameTerrain::ImGuiRender()
 
 bool GameTerrain::Intersect(D3DXVECTOR3 cam, D3DXVECTOR3 camDir, float & dis)
 {
-	if (D3DXIntersectTri(&intersectCheck[0], &intersectCheck[1], &intersectCheck[2], &cam, &camDir, NULL, NULL, &dis) == TRUE)
+	//root
+	D3DXVECTOR3 lb, lt, rb, rt;
+	lb = quadRoot.LB;
+	lt = quadRoot.LT;
+	rb = quadRoot.RB;
+	rt = quadRoot.RT;
+	
+	if (D3DXIntersectTri(&lb, &lt, &rb, &cam, &camDir, NULL, NULL, &dis) == TRUE || D3DXIntersectTri(&rb, &lt, &rt, &cam, &camDir, NULL, NULL, &dis) == TRUE)
 	{
-
-	}
-	else if (D3DXIntersectTri(&intersectCheck[2], &intersectCheck[1], &intersectCheck[3], &cam, &camDir, NULL, NULL, &dis) == TRUE)
-	{
-
-	}
-	else
-		return false;
-
-	for (UINT z = 0; z < height; z++)
-	{
-		for (UINT x = 0; x < width; x++)
+		//quadruple
+		for (size_t i = 0; i < 4; i++)
 		{
-			UINT ind0 = (width + 1) * z + x;
-			UINT ind1 = (width + 1) * (z+ 1) + x;
-			UINT ind2 = (width + 1) * z + x + 1;
-			UINT ind3 = (width + 1) * (z + 1) + (x + 1);
-
-			D3DXVECTOR3 pos0 = vertices[ind0].position;
-			D3DXVECTOR3 pos1 = vertices[ind1].position;
-			D3DXVECTOR3 pos2 = vertices[ind2].position;
-			D3DXVECTOR3 pos3 = vertices[ind3].position;
-
-			if (D3DXIntersectTri(&pos0, &pos1, &pos2, &cam, &camDir, NULL, NULL, &dis))
+			lb = quadruple[i].LB;
+			lt = quadruple[i].LT;
+			rb = quadruple[i].RB;
+			rt = quadruple[i].RT;
+	
+			if (D3DXIntersectTri(&lb, &lt, &rb, &cam, &camDir, NULL, NULL, &dis) == TRUE || D3DXIntersectTri(&rb, &lt, &rt, &cam, &camDir, NULL, NULL, &dis) == TRUE)
 			{
-				selTer = cam + camDir*dis;
-				return true;
-			}
-
-			if (D3DXIntersectTri(&pos2, &pos1, &pos3, &cam, &camDir, NULL, NULL, &dis))
-			{
-				selTer = cam + camDir*dis;
-				return true;
-			}
-		}
-	}
-
+				//sexdecuple
+				for (size_t j = i * 4; j < i * 4 + 4; j++)
+				{
+					lb = sexdecuple[j].LB;
+					lt = sexdecuple[j].LT;
+					rb = sexdecuple[j].RB;
+					rt = sexdecuple[j].RT;
+	
+					if (D3DXIntersectTri(&lb, &lt, &rb, &cam, &camDir, NULL, NULL, &dis) == TRUE || D3DXIntersectTri(&rb, &lt, &rt, &cam, &camDir, NULL, NULL, &dis) == TRUE)
+					{
+						for (int z = lb.z; z <= lt.z; z++)
+						{
+							if (z < 0 || z >= height) continue;
+							for (int x = lb.x; x <= rb.x; x++)
+							{
+								if (x <0 || x >= width) continue;
+	
+								UINT ind0 = (width + 1) * z + x;
+								UINT ind1 = (width + 1) * (z+ 1) + x;
+								UINT ind2 = (width + 1) * z + x + 1;
+								UINT ind3 = (width + 1) * (z + 1) + (x + 1);
+								
+								D3DXVECTOR3 pos0 = vertices[ind0].position;
+								D3DXVECTOR3 pos1 = vertices[ind1].position;
+								D3DXVECTOR3 pos2 = vertices[ind2].position;
+								D3DXVECTOR3 pos3 = vertices[ind3].position;
+								
+								if (D3DXIntersectTri(&pos0, &pos1, &pos2, &cam, &camDir, NULL, NULL, &dis))
+								{
+									selTer = cam + camDir*dis;
+									return true;
+								}
+								
+								if (D3DXIntersectTri(&pos2, &pos1, &pos3, &cam, &camDir, NULL, NULL, &dis))
+								{
+									selTer = cam + camDir*dis;
+									return true;
+								}
+							}	//for x
+						}	//for z
+					}	//sexdecuple Intersect
+				}	//for sexdecuple
+			}	//quadruple Intersect
+		}	//for quadruple
+	}	//quadRoot Intersect
+	
 	return false;
 }
 
@@ -936,6 +973,7 @@ void GameTerrain::FirstInit(UINT width, UINT height)
 	tex1 = tex2 = tex3 = tex4 = NULL;
 	shader = shader2 = shader3 = NULL;
 	vertexBuffer = indexBuffer = NULL;
+	pointLight = NULL;
 
 	terrainFile = L"";
 	editMode = changed = treeDisposed = useWater = false;
@@ -959,6 +997,7 @@ void GameTerrain::FirstInit(UINT width, UINT height)
 	terrainBuffer = new TerrainBuffer();
 	treeBuffer = new TreeBuffer();
 	D3DXMatrixRotationY(&treeBuffer->Data.Rotate, (float)D3DX_PI);
+	pointLight = new PointLight();
 
 	material = new Material;
 	material->SetShader(shader);
@@ -1072,6 +1111,8 @@ void GameTerrain::CreateBuffer()
 
 void GameTerrain::Clear()
 {
+	SAFE_DELETE(pointLight);
+
 	SAFE_DELETE(water);
 
 	for (Tree* tree : trees)
@@ -1149,4 +1190,73 @@ D3DXCOLOR GameTerrain::SplatColor(D3DXCOLOR origin, D3DXCOLOR brush, float inten
 	ret.a = SplatColor(origin.a, brush.a, inten);
 
 	return ret;
+}
+
+void GameTerrain::QuadTreeUpdate()
+{
+	//root
+	quadRoot.LB = vertices[0].position;
+	quadRoot.LT = vertices[(width + 1) * height].position;
+	quadRoot.RB = vertices[width].position;
+	quadRoot.RT = vertices[(width + 1) * height + width].position;
+
+	{
+		//quadruple
+		//0 - Left Bottom
+		quadruple[0].LB = quadRoot.LB;
+		quadruple[0].LT = quadRoot.LT / 2;
+		quadruple[0].RB = quadRoot.RB / 2;
+		quadruple[0].RT = quadRoot.RT / 2;
+
+		//1 - Left Top
+		quadruple[1].LB = quadruple[0].LT;
+		quadruple[1].RB = quadruple[0].RT;
+		quadruple[1].LT = quadRoot.LT;
+		quadruple[1].RT = quadRoot.RT;
+		quadruple[1].RT.x /= 2;
+
+		//2 - Right Bottom
+		quadruple[2].LB = quadruple[0].RB;
+		quadruple[2].LT = quadruple[0].RT;
+		quadruple[2].RB = quadRoot.RB;
+		quadruple[2].RT = quadRoot.RT;
+		quadruple[2].RT.z /= 2;
+
+		//3 - Right Top
+		quadruple[3].LB = quadruple[0].RT;
+		quadruple[3].LT = quadruple[1].RT;
+		quadruple[3].RB = quadruple[2].RT;
+		quadruple[3].RT = quadRoot.RT;
+	}
+	{
+		//sexdecuple
+		for (UINT i = 0; i < 16; i += 4)
+		{
+			//0 - Left Bottom
+			sexdecuple[i + 0].LB = quadruple[i / 4].LB;
+			sexdecuple[i + 0].LT = quadruple[i / 4].LT / 2;
+			sexdecuple[i + 0].RB = quadruple[i / 4].RB / 2;
+			sexdecuple[i + 0].RT = quadruple[i / 4].RT / 2;
+
+			//1 - Left Top
+			sexdecuple[i + 1].LB = sexdecuple[i + 0].LT;
+			sexdecuple[i + 1].RB = sexdecuple[i + 0].RT;
+			sexdecuple[i + 1].LT = quadruple[i / 4].LT;
+			sexdecuple[i + 1].RT = quadruple[i / 4].RT;
+			sexdecuple[i + 1].RT.x /= 2;
+
+			//2 - Right Bottom
+			sexdecuple[i + 2].LB = sexdecuple[i + 0].RB;
+			sexdecuple[i + 2].RB = quadruple[i / 4].RB;
+			sexdecuple[i + 2].LT = sexdecuple[i + 0].RT;
+			sexdecuple[i + 2].RT = quadruple[i / 4].RT;
+			sexdecuple[i + 2].RT.z /= 2;
+
+			//3 - Right Top
+			sexdecuple[i + 3].LB = sexdecuple[i + 0].RT;
+			sexdecuple[i + 3].RB = sexdecuple[i + 2].RT;
+			sexdecuple[i + 3].LT = sexdecuple[i + 1].RT;
+			sexdecuple[i + 3].RT = quadruple[i / 4].RT;
+		}
+	}
 }

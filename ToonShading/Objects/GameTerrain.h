@@ -1,5 +1,21 @@
 #pragma once
 
+struct QuadStruct
+{
+	D3DXVECTOR3 LB;	//Left Bottom
+	D3DXVECTOR3 RB; //Right Bottom
+	D3DXVECTOR3 LT; //Left Top
+	D3DXVECTOR3 RT; // Right Top
+
+	QuadStruct()
+	{
+		LB = D3DXVECTOR3(0, 0, 0);
+		RB = D3DXVECTOR3(0, 0, 0);
+		LT = D3DXVECTOR3(0, 0, 0);
+		RT = D3DXVECTOR3(0, 0, 0);
+	}
+};
+
 class GameTerrain
 {
 public:
@@ -94,6 +110,8 @@ private:
 	float SplatColor(float origin, float brush, float inten);
 	D3DXCOLOR SplatColor(D3DXCOLOR origin, D3DXCOLOR brush, float inten);
 
+	void QuadTreeUpdate();
+
 private:
 	typedef VertexColorTextureNormal VertexType;
 
@@ -132,7 +150,12 @@ private:
 
 	UINT editType;
 
-	D3DXVECTOR3 intersectCheck[4];
+	QuadStruct quadRoot;
+	QuadStruct quadruple[4];
+
+	QuadStruct sexdecuple[16];
+
+
 	D3DXVECTOR3 selTer;
 
 	bool changed;
@@ -159,4 +182,7 @@ private:
 	//Water
 	class Water* water;
 	bool useWater;
+
+	//Light
+	class PointLight* pointLight;
 };

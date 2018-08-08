@@ -240,6 +240,12 @@
     <ClInclude Include="Objects\Tree.h">
       <Filter>Objects\Models\Terrain</Filter>
     </ClInclude>
+    <ClInclude Include="Lights\PointLight.h">
+      <Filter>Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="Bounding\Frustum.h">
+      <Filter>Bounding</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Executes">
@@ -298,6 +304,9 @@
     </Filter>
     <Filter Include="Objects\Models\Terrain">
       <UniqueIdentifier>{52ec6f5a-3eac-416d-94af-2dbfe2b04759}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lights">
+      <UniqueIdentifier>{f0c2eeed-9c33-4e6d-bcbc-50584ea05a5e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -494,6 +503,12 @@
     </ClCompile>
     <ClCompile Include="Objects\Tree.cpp">
       <Filter>Objects\Models\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Lights\PointLight.cpp">
+      <Filter>Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="Bounding\Frustum.cpp">
+      <Filter>Bounding</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

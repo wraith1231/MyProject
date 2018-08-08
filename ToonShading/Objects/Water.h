@@ -35,12 +35,12 @@ private:
 	public:
 		WaterVSBuffer() : ShaderBuffer(&Data, sizeof(Data))
 		{
-			Data.TextureScale = D3DXVECTOR2(1.0f, 1.0f);
-			Data.WaveFrequancy = 0.4f;
-			Data.WaveAmplitude = 0.3f;
+			Data.TextureScale = D3DXVECTOR2(1.349f, 0.795f);
+			Data.WaveFrequancy = 0.277f;
+			Data.WaveAmplitude = 0.929f;
 
 			Data.Time = 0.0f;
-			Data.BumpScale = 0.5f;
+			Data.BumpScale = 0.353f;
 			Data.BumpSpeed = D3DXVECTOR2(0.01f, 0.01f);
 
 			Data.Height = 5.0f;
@@ -65,17 +65,17 @@ private:
 	public:
 		WaterPSBuffer() : ShaderBuffer(&Data, sizeof(Data))
 		{
-			Data.DeepColor = D3DXCOLOR(0.0f, 0.0f, 0.3f, 1.0f);
-			Data.ShallowColor = D3DXCOLOR(0.4f, 0.5f, 1.0f, 1.0f);
-			Data.ReflectionColor = D3DXCOLOR(0.8f, 0.9f, 0.9f, 1.0f);
+			Data.DeepColor = D3DXCOLOR(0.028f, 0.336f, 0.578f, 1.0f);
+			Data.ShallowColor = D3DXCOLOR(0.552f, 0.583f, 0.740f, 1.0f);
+			Data.ReflectionColor = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
-			Data.ReflectionAmount = 1.3f;
+			Data.ReflectionAmount = 0.582f;
 			Data.ReflectionBlur = 0.5f;
 			Data.FresnelPower = 3.0f;
 			Data.FresnelBias = 0.1f;
 
-			Data.HDRMultiplier = 2.0f;
-			Data.WaterAmount = 2.0f;
+			Data.HDRMultiplier = 1.185f;
+			Data.WaterAmount = 1.487f;
 		}
 
 		struct Struct

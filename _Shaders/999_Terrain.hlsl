@@ -27,6 +27,7 @@ struct PixelInput
     float3 normal : NORMAL0;
     float4 color : COLOR0;
     float alpha : ALPHA0;
+    float3 wPosition : POSITION0;
 };
 
 PixelInput VS(VertexColorTextureNormal input)
@@ -46,6 +47,7 @@ PixelInput VS(VertexColorTextureNormal input)
     output.uv = input.uv;
 
     output.alpha = 0.5f * (1.0f - saturate(1.0f / length(GetViewPosition() - world.xyz)));
+    output.wPosition = world;
 
     return output;
 }
@@ -94,8 +96,18 @@ float4 PS(PixelInput input) : SV_TARGET
     diffuse = lerp(diffuse, color2, input.color.r);
 
     diffuse = GetDiffuseColor(diffuse, _direction, input.normal);
+    
+    float3 color = diffuse.rgb + penCol.rgb;
+    
+    for (int i = 0; i < 16; i++)
+    {
+        if (_pointLight[i].Use == 1)
+        {
+            PointLighting(color, _pointLight[i], input.normal, input.wPosition);
+        }
+    }
 
-    return float4(diffuse.rgb + penCol.rgb, input.alpha);
+    return float4(color, input.alpha);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,7 +135,7 @@ PixelNormalInput VS_Normal(VertexColorTextureNormal input)
 float4 PS_Normal(PixelNormalInput input) : SV_TARGET
 {
     float4 normal = float4(input.normal, 1);
-    normal = abs(normal);
+    normal = (normal + 1.0f) * 0.5f;
 
     return normal;
 }

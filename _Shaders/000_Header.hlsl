@@ -36,6 +36,25 @@ cbuffer PS_Material : register(b1)
     float MaterialPadding[2];
 }
 
+struct PointLight
+{
+    uint Use;
+    float Intensity;
+    float Range;
+    float Padding1;
+
+    float3 Position;
+    float Padding2;
+    
+    float3 Color;
+    float Padding3;
+};
+
+cbuffer PS_PointLight : register(b10)
+{
+    PointLight _pointLight[16];
+}
+
 Texture2D _diffuseMap : register(t0);
 Texture2D _specularMap : register(t1);
 Texture2D _emissiveMap : register(t2);
@@ -93,6 +112,16 @@ struct VertexTextureNormalBlend
     float4 position : POSITION0;
     float2 uv : TEXCOORD0;
     float3 normal : NORMAL0;
+    float4 blendIndices : BLENDINDICES0;
+    float4 blendWeights : BLENDWEIGHTS0;
+};
+
+struct VertexTextureNormalTangentBlend
+{
+    float4 position : POSITION0;
+    float2 uv : TEXCOORD0;
+    float3 normal : NORMAL0;
+    float3 tangent : TANGENT0;
     float4 blendIndices : BLENDINDICES0;
     float4 blendWeights : BLENDWEIGHTS0;
 };
@@ -156,4 +185,12 @@ float4 GetDiffuseColor(float4 color, float3 direction, float3 normal)
 float3 GetWorldNormal(float3 normal, float4x4 world)
 {
     return mul(normal, (float3x3) world);
+}
+
+void PointLighting(inout float3 color, in PointLight light, in float3 normal, in float3 position)
+{
+    float dist = length(light.Position - position);
+    float intensity = pow(saturate((light.Range - dist) / light.Range), light.Intensity);
+
+    color = color + intensity * light.Color;
 }

@@ -29,6 +29,7 @@ GameSettings::GameSettings(ExecuteValues* values)
 	, sceneFile(L"")
 	, values(values)
 {
+
 	CreateEnvironment();
 	CreatePlayer();
 	CreateEnemy();
@@ -311,14 +312,14 @@ void GameSettings::Update()
 
 void GameSettings::Render()
 {
+	if (terrain != NULL)
+		terrain->Render();
 	for (GameUntouchable* untouch : untouchables)
 		untouch->Render();
 	if (skyBox != NULL)
 		skyBox->Render();
 	if (world != NULL)
 		world->Render();
-	if (terrain != NULL)
-		terrain->Render();
 
 	if (enemy != NULL)
 		enemy->Render();
@@ -335,14 +336,14 @@ void GameSettings::Render()
 
 void GameSettings::PreRender()
 {
+	if (terrain != NULL)
+		terrain->PreRender();
 	for (GameUntouchable* untouch : untouchables)
 		untouch->PreRender();
 	if (skyBox != NULL)
 		skyBox->PreRender();
 	if (world != NULL)
 		world->PreRender();
-	if (terrain != NULL)
-		terrain->PreRender();
 
 	if (enemy != NULL)
 		enemy->PreRender();
@@ -358,14 +359,14 @@ void GameSettings::PreRender()
 
 void GameSettings::PreRender2()
 {
+	if (terrain != NULL)
+		terrain->PreRender2();
 	for (GameUntouchable* untouch : untouchables)
 		untouch->PreRender2();
 	if (skyBox != NULL)
 		skyBox->PreRender2();
 	if (world != NULL)
 		world->PreRender2();
-	if (terrain != NULL)
-		terrain->PreRender2();
 
 	if (enemy != NULL)
 		enemy->PreRender2();
@@ -574,6 +575,27 @@ void GameSettings::ImguiRender()
 	}
 
 	ImGui::End();
+
+	if (terrain->EditMode() == true && editMode == true)
+	{
+		if (untoTemp != NULL)
+		{
+			if (disposed == false)
+				SAFE_DELETE(untoTemp);
+			untoTemp = NULL;
+		}
+		for (GameUntouchable* un : untouchables)
+			un->Unselect();
+
+		disposed = false;
+
+		untouchSel = false;
+		enemyDispose = false;
+		terrain->EditMode(true);
+		enemySel = false;
+		playerDispose = false;
+
+	}
 
 	ImGui::Begin("Untouchalbe Status");
 

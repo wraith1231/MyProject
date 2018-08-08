@@ -15,6 +15,8 @@ struct PixelInput
 {
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD0;
+    float3 wPosition : POSITION0;
+    float3 normal : NORMAL0;
 };
 
 PixelInput VS(VertexTextureNormal input)
@@ -47,9 +49,11 @@ PixelInput VS(VertexTextureNormal input)
     if (input.position.y > 0)
         output.position += float4(_windDirection * _windPower, 0);
 
+    output.wPosition = output.position;
     output.position = mul(output.position, _view);
     output.position = mul(output.position, _projection);
 
+    output.normal = mul(float3(0, 0, 1), (float3x3) mat);
     output.uv = input.uv;
 
     return output;
@@ -61,7 +65,18 @@ float4 PS(PixelInput input) : SV_TARGET
 
     clip(diffuseMap.a - 0.9f);
 
-    return GetDiffuseColor(diffuseMap, _direction, float3(0.0f, 1.0f, 0.0f));
+    float4 color = GetDiffuseColor(diffuseMap, _direction, float3(0.0f, 1.0f, 0.0f));
+    
+    for (int i = 0; i < 16; i++)
+    {
+        if (_pointLight[i].Use == 1)
+        {
+            PointLighting(color.rgb, _pointLight[i], input.normal, input.wPosition);
+        }
+
+    }
+
+    return color;
 }
 
 float4 PS_Depth(PixelInput input) : SV_TARGET

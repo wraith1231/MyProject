@@ -16,6 +16,7 @@ struct PixelInput
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD0;
     float3 normal : NORMAL0;
+    float3 wPosition : POSITION0;
 };
 
 struct PixelNormalInput
@@ -43,10 +44,11 @@ PixelInput VS_Bone(VertexTextureNormal input)
 {
     PixelInput output;
     
-    output.position = mul(input.position, _bones[_boneNumber]);
-    output.position = mul(output.position, _view);
+    float4 world = mul(input.position, _bones[_boneNumber]);
+    output.position = mul(world, _view);
     output.position = mul(output.position, _projection);
 
+    output.wPosition = world;
     output.normal = mul(input.normal, (float3x3) _bones[_boneNumber]);
     output.normal = normalize(output.normal);
     output.uv = input.uv;
@@ -61,7 +63,16 @@ float4 PS(PixelInput input) : SV_TARGET
     //이 함수에서 그림자 구하고 바로 끊어버림
     color = GetDiffuseColor(color, _direction, input.normal);
 
-    return color;
+    for (int i = 0; i < 16; i++)
+    {
+        if (_pointLight[i].Use == 1)
+        {
+            PointLighting(color.rgb, _pointLight[i], input.normal, input.wPosition);
+        }
+
+    }
+
+        return color;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,7 +96,7 @@ float4 PS_Normal(PixelNormalInput input) : SV_TARGET
 {
     float3 normal = input.normal;
 
-    normal = abs(normal);
+    normal = (normal + 1.0f) * 0.5f;
 
     return float4(normal, 1);
 }

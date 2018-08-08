@@ -69,6 +69,7 @@ float4 PS(PixelInput input) : SV_TARGET
     float fn = _valueFar * _valueNear;
     //현재 픽셀의 normal, depth, real pixel 값을 가져온다
     float4 normalColor = NormalRT.Sample(NormalRTSampler, input.uv);
+    normalColor.rgb = normalColor.rgb * 2.0f - 1.0f;
     float4 depthColor = DepthRT.Sample(DepthRTSampler, input.uv);
     float4 realColor = RealRT.Sample(RealRTSampler, input.uv);
     
@@ -86,6 +87,7 @@ float4 PS(PixelInput input) : SV_TARGET
     //float2 uv = input.uv;
     uv.y -= hei;
     normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
+    normalColor1.rgb = normalColor1.rgb * 2.0f - 1.0f;
     depthColor1 = DepthRT.Sample(DepthRTSampler, uv);
     //
     ////해당 픽셀과 현재 픽셀의 내적값 
@@ -105,6 +107,7 @@ float4 PS(PixelInput input) : SV_TARGET
     uv.y += hei;
     uv.x -= wid;
     normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
+    normalColor1.rgb = normalColor1.rgb * 2.0f - 1.0f;
     depthColor1 = DepthRT.Sample(DepthRTSampler, uv);
     
     ndot = dot(normalColor, normalColor1);
@@ -119,6 +122,7 @@ float4 PS(PixelInput input) : SV_TARGET
     uv.x += wid;
     uv.x += wid;
     normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
+    normalColor1.rgb = normalColor1.rgb * 2.0f - 1.0f;
     depthColor1 = DepthRT.Sample(DepthRTSampler, uv);
     
     ndot = dot(normalColor, normalColor1);
@@ -134,6 +138,7 @@ float4 PS(PixelInput input) : SV_TARGET
     uv.y += hei;
     //uv.y += hei;
     normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
+    normalColor1.rgb = normalColor1.rgb * 2.0f - 1.0f;
     depthColor1 = DepthRT.Sample(DepthRTSampler, uv);
     
     ndot = dot(normalColor, normalColor1);

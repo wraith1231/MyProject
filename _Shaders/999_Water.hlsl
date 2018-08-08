@@ -42,6 +42,7 @@ struct PixelInput
     float3 eye : VIEW0;
 
     float alpha : ALPHA0;
+    float3 wPosition : POSITION0;
 };
 
 struct Wave
@@ -101,6 +102,7 @@ PixelInput VS(VertexTexture input)
     output.bump[2] = input.uv * _textureScale * 4.0f + _time * _bumpSpeed * 8.0f;
 
     output.alpha = 0.5f * (1.0f - saturate(1.0f / length(GetViewPosition() - world.xyz)));
+    output.wPosition = world;
 
     return output;
 }
@@ -140,5 +142,15 @@ float4 PS(PixelInput input) : SV_TARGET
 
     reflection = lerp(waterColor, reflection * _reflectionColor, fresnel) * _reflectionAmount;
 
-    return float4(waterColor.rgb + reflection.rgb, input.alpha);
+    float3 color = waterColor.rgb + reflection.rgb;
+    
+    for (int i = 0; i < 16; i++)
+    {
+        if (_pointLight[i].Use == 1)
+        {
+            PointLighting(color, _pointLight[i], input.row[2], input.wPosition);
+        }
+    }
+
+    return float4(color, input.alpha);
 }

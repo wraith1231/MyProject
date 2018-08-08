@@ -12,6 +12,7 @@ struct PixelInput
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD0;
     float3 normal : NORMAL0;
+    float3 wPosition : POSITION0;
 };
 
 PixelInput VS(VertexTextureNormalBlend input)
@@ -27,6 +28,7 @@ PixelInput VS(VertexTextureNormalBlend input)
     output.position = mul(input.position, transform);
     output.normal = mul(input.normal, (float3x3) transform);
 
+    output.wPosition = output.position;
     //output.position = mul(output.position, _world);
     output.position = mul(output.position, _view);
     output.position = mul(output.position, _projection);
@@ -42,7 +44,17 @@ PixelInput VS(VertexTextureNormalBlend input)
 float4 PS(PixelInput input) : SV_TARGET
 {
     float4 color = _diffuseMap.Sample(_diffuseSampler, input.uv);
-    return GetDiffuseColor(color, _direction, input.normal);
+    color = GetDiffuseColor(color, _direction, input.normal);
+    
+    for (int i = 0; i < 16; i++)
+    {
+        if (_pointLight[i].Use == 1)
+        {
+            PointLighting(color.rgb, _pointLight[i], input.normal, input.wPosition);
+        }
+
+    }
+    return color;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +90,7 @@ float4 PS_Normal(PixelNormalInput input) : SV_TARGET
 {
     float3 normal = input.normal;
 
-    normal = abs(normal);
+    normal = (normal + 1.0f) * 0.5f;
 
     return float4(normal, 1);
     

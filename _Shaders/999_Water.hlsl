@@ -1,35 +1,5 @@
 #include "000_Header.hlsl"
 
-cbuffer WaterVsBuffer : register(b2)
-{
-    float2 _textureScale;
-    float _waveFrequancy;
-    float _waveAmplitude;
-
-    float _time;
-    float _bumpScale;
-    float2 _bumpSpeed;
-
-    float _height;
-    float3 _vsPadding;
-}
-
-cbuffer WaterPSBuffer : register(b2)
-{
-    float4 _deepColor;
-    float4 _shallowColor;
-    
-    float4 _reflectionColor;
-
-    float _reflectionAmount;
-    float _reflectionBlur;
-    float _fresnelPower;
-    float _fresnelBias;
-
-    float hdrMultiplier;
-    float _waterAmount;
-    float2 _psPadding;
-}
 
 struct PixelInput
 {
@@ -62,14 +32,14 @@ PixelInput VS(VertexTexture input)
         { 2.0, 0.5, 1.7, float2(-0.7, -0.7) }
     };
 
-    wave[0].frequancy = _waveFrequancy;
-    wave[0].amplitude = _waveAmplitude;
+    wave[0].frequancy = _waterWaveFrequancy;
+    wave[0].amplitude = _waterWaveAmplitude;
     
-    wave[1].frequancy = _waveFrequancy * 3.0f;
-    wave[1].amplitude = _waveAmplitude * 0.33f;
+    wave[1].frequancy = _waterWaveFrequancy * 3.0f;
+    wave[1].amplitude = _waterWaveAmplitude * 0.33f;
 
     float4 pos = input.position;
-    pos.y = _height;
+    pos.y = _waterHeight;
 
     float4 world = mul(pos, _world);
 
@@ -80,7 +50,7 @@ PixelInput VS(VertexTexture input)
 
     for (int i = 0; i < 2; i++)
     {
-        angle = dot(wave[i].direction, world.xz) * wave[i].frequancy + _time * wave[i].phase;
+        angle = dot(wave[i].direction, world.xz) * wave[i].frequancy + _waterTime * wave[i].phase;
         world.y += wave[i].amplitude * sin(angle);
         deriv = wave[i].frequancy * wave[i].amplitude * cos(angle);
         ddx -= deriv * wave[i].direction.x;
@@ -93,13 +63,13 @@ PixelInput VS(VertexTexture input)
     output.eye = normalize(GetViewPosition() - world.xyz);
     output.uv = input.uv;
 
-    output.row[0] = _bumpScale * normalize(float3(1, ddy, 0));
-    output.row[1] = _bumpScale * normalize(float3(0, ddx, 1));
+    output.row[0] = _waterBumpScale * normalize(float3(1, ddy, 0));
+    output.row[1] = _waterBumpScale * normalize(float3(0, ddx, 1));
     output.row[2] = normalize(float3(ddx, 1, ddy));
     
-    output.bump[0] = input.uv * _textureScale + _time * _bumpSpeed;
-    output.bump[1] = input.uv * _textureScale * 2.0f + _time * _bumpSpeed * 4.0f;
-    output.bump[2] = input.uv * _textureScale * 4.0f + _time * _bumpSpeed * 8.0f;
+    output.bump[0] = input.uv * _waterTextureScale + _waterTime * _waterBumpSpeed;
+    output.bump[1] = input.uv * _waterTextureScale * 2.0f + _waterTime * _waterBumpSpeed * 4.0f;
+    output.bump[2] = input.uv * _waterTextureScale * 4.0f + _waterTime * _waterBumpSpeed * 8.0f;
 
     output.alpha = 0.5f * (1.0f - saturate(1.0f / length(GetViewPosition() - world.xyz)));
     output.wPosition = world;
@@ -130,24 +100,23 @@ float4 PS(PixelInput input) : SV_TARGET
     r.xyz = reflect(input.eye, n);
 
     r.z = -r.z;
-    r.w = _reflectionBlur;
+    r.w = _waterReflectionBlur;
     int2 offset = int2(0, 1);
     float4 reflection = _specularMap.SampleBias(_specularSampler, r.xy, r.w, offset);
-    reflection.rgb *= (reflection.r + reflection.g + reflection.b) * hdrMultiplier;
+    reflection.rgb *= (reflection.r + reflection.g + reflection.b) * _waterHDRMultiplier;
 
-    float facing = saturate(1.0f - max(dot(-input.eye, n), 0.0f));
-    float fresnel = saturate(_fresnelBias + pow(facing, _fresnelPower));
+    float facing = saturate(1.0f - max(dot(input.eye, n), 0.0f));
+    float fresnel = saturate(_waterFresnelBias + pow(facing, _waterFresnelPower));
 
-    float4 waterColor = lerp(_shallowColor, _deepColor, facing) * _waterAmount;
+    float4 waterColor = lerp(_waterShallowColor, _waterDeepColor, facing) * _waterAmount;
 
-    reflection = lerp(waterColor, reflection * _reflectionColor, fresnel) * _reflectionAmount;
+    reflection = lerp(waterColor, reflection * _waterReflectionColor, fresnel) * _waterReflectionAmount;
 
     float3 color = waterColor.rgb + reflection.rgb;
     
     color = GetDiffuseColor(float4(color, 1), _direction, input.row[2]).rgb;
     PointLightFunc(color, input.wPosition, input.row[2]);
     SpotLightFunc(color.rgb, input.wPosition, input.row[2]);
-
-
+    
     return float4(color, input.alpha);
 }

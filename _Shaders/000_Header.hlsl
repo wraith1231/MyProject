@@ -83,6 +83,37 @@ cbuffer PS_SpotLight : register(b11)
     float3 _spotLightPadding;
 }
 
+cbuffer WaterVsBuffer : register(b12)
+{
+    float2 _waterTextureScale;
+    float _waterWaveFrequancy;
+    float _waterWaveAmplitude;
+
+    float _waterTime;
+    float _waterBumpScale;
+    float2 _waterBumpSpeed;
+
+    float _waterHeight;
+    float3 _waterVSPadding;
+}
+
+cbuffer WaterPSBuffer : register(b12)
+{
+    float4 _waterDeepColor;
+    float4 _waterShallowColor;
+    
+    float4 _waterReflectionColor;
+
+    float _waterReflectionAmount;
+    float _waterReflectionBlur;
+    float _waterFresnelPower;
+    float _waterFresnelBias;
+
+    float _waterHDRMultiplier;
+    float _waterAmount;
+    float2 _waterPSPadding;
+}
+
 Texture2D _diffuseMap : register(t0);
 Texture2D _specularMap : register(t1);
 Texture2D _emissiveMap : register(t2);

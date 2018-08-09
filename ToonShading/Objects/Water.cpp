@@ -29,8 +29,8 @@ Water::Water(UINT width, UINT height)
 
 		//desc.AlphaToCoverageEnable = true;
 		desc.RenderTarget[0].BlendEnable = true;
-		//desc.RenderTarget[0].DestBlend = D3D11_BLEND_DEST_COLOR;
-		//desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
+		desc.RenderTarget[0].DestBlend = D3D11_BLEND_DEST_ALPHA;
+		desc.RenderTarget[0].SrcBlend = D3D11_BLEND_INV_DEST_ALPHA;
 		//desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_MAX;
 		States::CreateBlend(&desc, &blendState[1]);
 	}
@@ -134,8 +134,8 @@ void Water::Render()
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	material->SetShader(shader);
 	worldBuffer->SetVSBuffer(1);
-	vsBuffer->SetVSBuffer(2);
-	psBuffer->SetPSBuffer(2);
+	vsBuffer->SetVSBuffer(12);
+	psBuffer->SetPSBuffer(12);
 	material->SetBuffer();
 
 	D3D::GetDC()->DrawIndexed(indexSize, 0, 0);

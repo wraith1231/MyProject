@@ -47,6 +47,19 @@ PixelInput VS(VertexColorTextureNormal input)
     output.uv = input.uv;
 
     output.alpha = 0.5f * (1.0f - saturate(1.0f / length(GetViewPosition() - world.xyz)));
+    float4 temp = world;
+    
+    [branch]
+    if (_waterHeight == 0)
+    {
+        temp.y++;
+        float4 tempw = _waterHeight;
+        tempw.y += 1;
+        output.alpha = 1.0f - saturate((tempw - temp.y) / tempw - 0.4f);
+    }
+    else
+        output.alpha = 1.0f - saturate((_waterHeight - world.y) / _waterHeight - 0.4f);
+
     output.wPosition = world;
 
     return output;

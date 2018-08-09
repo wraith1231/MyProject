@@ -42,6 +42,7 @@
     <ClInclude Include="Fbx\XmlToAnim.h" />
     <ClInclude Include="Interfaces\ICloneable.h" />
     <ClInclude Include="Lights\PointLight.h" />
+    <ClInclude Include="Lights\SpotLight.h" />
     <ClInclude Include="Model\Model.h" />
     <ClInclude Include="Model\ModelAnimation.h" />
     <ClInclude Include="Model\ModelAnimationClip.h" />
@@ -121,6 +122,7 @@
     <ClCompile Include="Fbx\Utility.cpp" />
     <ClCompile Include="Fbx\XmlToAnim.cpp" />
     <ClCompile Include="Lights\PointLight.cpp" />
+    <ClCompile Include="Lights\SpotLight.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Model\Model.cpp" />
     <ClCompile Include="Model\ModelAnimation.cpp" />

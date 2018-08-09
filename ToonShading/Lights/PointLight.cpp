@@ -33,6 +33,8 @@ UINT PointLight::AddPointLight(D3DXVECTOR3 position, D3DXVECTOR3 color, float in
 			buffer->Data.Light[i].Intensity = intensity;
 			buffer->Data.Light[i].Range = range;
 
+			buffer->Data.Count++;
+
 			return i;
 		}
 	}
@@ -42,7 +44,7 @@ UINT PointLight::AddPointLight(D3DXVECTOR3 position, D3DXVECTOR3 color, float in
 
 UINT PointLight::PointLightSize()
 {
-	return POINTLIGHTSIZE;
+	return buffer->Data.Count;
 }
 
 void PointLight::Render()
@@ -81,7 +83,17 @@ void PointLight::ImGuiRender()
 		ImGui::Begin("Point Light");
 
 		{
+			ImGui::Text("Count : %d", buffer->Data.Count);
+			UINT b = buffer->Data.Light[selectNum].Use;
 			ImGui::Checkbox("Use", (bool*)&buffer->Data.Light[selectNum].Use);
+			if (b != buffer->Data.Light[selectNum].Use)
+			{
+				if (b == 1)
+					buffer->Data.Count--;
+				else
+					buffer->Data.Count++;
+			}
+
 			ImGui::InputFloat3("Position", buffer->Data.Light[selectNum].Position);
 			ImGui::ColorEdit3("Color", buffer->Data.Light[selectNum].Color);
 			ImGui::InputFloat("Intensity", &buffer->Data.Light[selectNum].Intensity);
@@ -91,6 +103,19 @@ void PointLight::ImGuiRender()
 		ImGui::End();
 	}
 
+}
+
+bool PointLight::LightUse(UINT num, PointLightSave& data)
+{
+	if (buffer->Data.Light[num].Use == false)
+		return false;
+
+	data.Color = buffer->Data.Light[num].Color;
+	data.Position = buffer->Data.Light[num].Position;
+	data.intenstiy = buffer->Data.Light[num].Intensity;
+	data.range = buffer->Data.Light[num].Range;
+
+	return buffer->Data.Light[num].Use == 1;
 }
 
 void PointLight::LightSelect(Objects::Ray* ray)

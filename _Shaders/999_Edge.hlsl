@@ -72,7 +72,7 @@ float4 PS(PixelInput input) : SV_TARGET
     normalColor.rgb = normalColor.rgb * 2.0f - 1.0f;
     float4 depthColor = DepthRT.Sample(DepthRTSampler, input.uv);
     float4 realColor = RealRT.Sample(RealRTSampler, input.uv);
-    
+
     float4 depthColor1, normalColor1;
     float2 uv = input.uv;
 

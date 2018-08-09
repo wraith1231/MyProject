@@ -4,9 +4,11 @@
 #include "Tree.h"
 #include "Water.h"
 
+#include "../Bounding/BoundingBox.h"
 #include "../Bounding/ObjectsRay.h"
 
 #include "../Lights/PointLight.h"
+#include "../Lights/SpotLight.h"
 
 #include "../Utilities/BinaryFile.h"
 
@@ -24,7 +26,6 @@ GameTerrain::GameTerrain()
 	Init();
 	CreateNormal();
 	CreateBuffer();
-
 }
 
 GameTerrain::~GameTerrain()
@@ -147,6 +148,48 @@ void GameTerrain::SaveTerrain(wstring saveFile)
 		{
 			WaterStruct temp = water->GetWaterParameter();
 			w->Byte(&temp, sizeof(WaterStruct));
+		}
+	}
+
+	//Point Light
+	{
+		w->UInt(pointLight->PointLightSize());
+		if (pointLight->PointLightSize() > 0)
+		{
+			UINT count = 0;
+			for (UINT i = 0; i < pointLight->PointLightMaxSize(); i++)
+			{
+				PointLightSave temp;
+				if (pointLight->LightUse(i, temp) == true)
+				{
+					count++;
+					w->Byte(&temp, sizeof(PointLightSave));
+				}
+
+				if (count > pointLight->PointLightSize())
+					break;
+			}
+		}
+	}
+
+	//Spot Light
+	{
+		w->UInt(spotLight->SpotLightSize());
+		if (spotLight->SpotLightSize() > 0)
+		{
+			UINT count = 0;
+			for (UINT i = 0; i < spotLight->SpotLightMaxSize(); i++)
+			{
+				SpotLightSave temp;
+				if (spotLight->LightUse(i, temp) == true)
+				{
+					count++;
+					w->Byte(&temp, sizeof(SpotLightSave));
+				}
+
+				if (count > spotLight->SpotLightSize())
+					break;
+			}
 		}
 	}
 
@@ -295,6 +338,31 @@ void GameTerrain::LoadTerrain(wstring saveFile)
 			water->SetWaterParameter(*temp);
 		}
 	}
+
+	//Point Light
+	{
+		UINT size = r->UInt();
+		for (UINT i = 0; i < size; i++)
+		{
+			PointLightSave* temp = new PointLightSave;
+			r->Byte((void**)&temp, sizeof(PointLightSave));
+
+			pointLight->AddPointLight(temp->Position, temp->Color, temp->intenstiy, temp->range);
+		}
+	}
+
+	//Spot Light
+	{
+		UINT size = r->UInt();
+		for (UINT i = 0; i < size; i++)
+		{
+			SpotLightSave* temp = new SpotLightSave;
+			r->Byte((void**)&temp, sizeof(SpotLightSave));
+
+			spotLight->AddSpotLight(temp->Position, temp->Color, temp->Direction, temp->InnerAngle, temp->OuterAngle);
+		}
+	}
+
 	r->Close();
 	SAFE_DELETE(r);
 
@@ -359,7 +427,7 @@ void GameTerrain::Update()
 {
 	terrainBuffer->Data.On = (UINT)editMode;
 
-	if (editMode == true && pointLightDispose == false && pointLightSelect == false)
+	if (editMode == true && pointLightDispose == false && pointLightSelect == false && spotLightDispose == false && spotLightSelect == false)
 	{
 		terrainBuffer->Data.Point = selTer;
 	}
@@ -394,6 +462,8 @@ void GameTerrain::Render()
 {
 	if (pointLight != NULL)
 		pointLight->Render(pointLightSelect);
+	if (spotLight != NULL)
+		spotLight->Render(spotLightSelect);
 
 	if (tex1 != NULL)
 		tex1->SetShaderResource(5);
@@ -504,6 +574,9 @@ void GameTerrain::ImGuiRender()
 				editMode = !editMode;
 				pointLightDispose = false;
 			}
+
+			ImGui::Separator();
+
 			if (ImGui::MenuItem("Point Light Dispose"))
 			{
 				if(editMode == false)
@@ -513,6 +586,8 @@ void GameTerrain::ImGuiRender()
 				{
 					pointLightDispose = !pointLightDispose;
 					pointLightSelect = false;
+					spotLightDispose = false;
+					spotLightSelect = false;
 				}
 				else
 				{
@@ -528,6 +603,41 @@ void GameTerrain::ImGuiRender()
 				{
 					pointLightDispose = false;
 					pointLightSelect = !pointLightSelect;
+					spotLightDispose = false;
+					spotLightSelect = false;
+				}
+				else
+					pointLightSelect = false;
+			}
+
+			if (ImGui::MenuItem("Spot Light Dispose"))
+			{
+				if (editMode == false)
+					editMode = true;
+
+				if (editMode == true)
+				{
+					pointLightDispose = false;
+					pointLightSelect = false;
+					spotLightDispose = !spotLightDispose;
+					spotLightSelect = false;
+				}
+				else
+				{
+					pointLightDispose = false;
+				}
+			}
+			if (ImGui::MenuItem("Spot Light Select"))
+			{
+				if (editMode == false)
+					editMode = true;
+
+				if (editMode == true)
+				{
+					pointLightDispose = false;
+					pointLightSelect = false;
+					spotLightDispose = false;
+					spotLightSelect = !spotLightSelect;
 				}
 				else
 					pointLightSelect = false;
@@ -567,11 +677,12 @@ void GameTerrain::ImGuiRender()
 	ImGui::EndMainMenuBar();
 
 	//imgui
-	if (editMode == true && pointLightDispose == false)
+	if (editMode == true && pointLightDispose == false && spotLightDispose == false && pointLightSelect == false && spotLightSelect == false)
 	{
 		ImGui::Begin("Terrain Edit");
 
 		{
+			ImGui::Text("Cam : %.3f, %.3f, %.3f", selTer.x, selTer.y, selTer.z);
 			ImGui::Checkbox("Use Water", &useWater);
 			if (useWater == true && water == NULL)
 			{
@@ -632,6 +743,9 @@ void GameTerrain::ImGuiRender()
 			water->ImGuiRender();
 	}
 
+	if (spotLightSelect == true)
+		spotLight->ImGuiRender();
+
 	if (pointLightSelect == true)
 		pointLight->ImGuiRender();
 }
@@ -639,71 +753,138 @@ void GameTerrain::ImGuiRender()
 bool GameTerrain::Intersect(D3DXVECTOR3 cam, D3DXVECTOR3 camDir, float & dis)
 {
 	//root
-	D3DXVECTOR3 lb, lt, rb, rt;
-	lb = quadRoot.LB;
-	lt = quadRoot.LT;
-	rb = quadRoot.RB;
-	rt = quadRoot.RT;
-	
-	if (D3DXIntersectTri(&lb, &lt, &rb, &cam, &camDir, NULL, NULL, &dis) == TRUE || D3DXIntersectTri(&rb, &lt, &rt, &cam, &camDir, NULL, NULL, &dis) == TRUE)
+	D3DXVECTOR3 LB, LT, RB, RT;
+	if (quadTreeRoot->FindQuad(cam, camDir, dis, LB, LT, RB, RT) == true)
 	{
-		//quadruple
-		for (size_t i = 0; i < 4; i++)
+		for (int z = (int)LB.z - 1; z <= (int)LT.z + 1; z++)
 		{
-			lb = quadruple[i].LB;
-			lt = quadruple[i].LT;
-			rb = quadruple[i].RB;
-			rt = quadruple[i].RT;
-	
-			if (D3DXIntersectTri(&lb, &lt, &rb, &cam, &camDir, NULL, NULL, &dis) == TRUE || D3DXIntersectTri(&rb, &lt, &rt, &cam, &camDir, NULL, NULL, &dis) == TRUE)
+			if (z < 0 || z >= (int)height) continue;
+			for (int x = (int)LB.x - 1; x <= (int)RB.x + 1; x++)
 			{
-				//sexdecuple
-				for (size_t j = i * 4; j < i * 4 + 4; j++)
+				if (x <0 || x >= (int)width) continue;
+		
+				UINT ind0 = (width + 1) * z + x;
+				UINT ind1 = (width + 1) * (z+ 1) + x;
+				UINT ind2 = (width + 1) * z + x + 1;
+				UINT ind3 = (width + 1) * (z + 1) + (x + 1);
+				
+				D3DXVECTOR3 pos0 = vertices[ind0].position;
+				D3DXVECTOR3 pos1 = vertices[ind1].position;
+				D3DXVECTOR3 pos2 = vertices[ind2].position;
+				D3DXVECTOR3 pos3 = vertices[ind3].position;
+				
+				if (D3DXIntersectTri(&pos0, &pos1, &pos2, &cam, &camDir, NULL, NULL, &dis))
 				{
-					lb = sexdecuple[j].LB;
-					lt = sexdecuple[j].LT;
-					rb = sexdecuple[j].RB;
-					rt = sexdecuple[j].RT;
-	
-					if (D3DXIntersectTri(&lb, &lt, &rb, &cam, &camDir, NULL, NULL, &dis) == TRUE || D3DXIntersectTri(&rb, &lt, &rt, &cam, &camDir, NULL, NULL, &dis) == TRUE)
-					{
-						for (int z = (int)lb.z; z <= (int)lt.z; z++)
-						{
-							if (z < 0 || z >= (int)height) continue;
-							for (int x = (int)lb.x; x <= (int)rb.x; x++)
-							{
-								if (x <0 || x >= (int)width) continue;
-	
-								UINT ind0 = (width + 1) * z + x;
-								UINT ind1 = (width + 1) * (z+ 1) + x;
-								UINT ind2 = (width + 1) * z + x + 1;
-								UINT ind3 = (width + 1) * (z + 1) + (x + 1);
-								
-								D3DXVECTOR3 pos0 = vertices[ind0].position;
-								D3DXVECTOR3 pos1 = vertices[ind1].position;
-								D3DXVECTOR3 pos2 = vertices[ind2].position;
-								D3DXVECTOR3 pos3 = vertices[ind3].position;
-								
-								if (D3DXIntersectTri(&pos0, &pos1, &pos2, &cam, &camDir, NULL, NULL, &dis))
-								{
-									selTer = cam + camDir*dis;
-									return true;
-								}
-								
-								if (D3DXIntersectTri(&pos2, &pos1, &pos3, &cam, &camDir, NULL, NULL, &dis))
-								{
-									selTer = cam + camDir*dis;
-									return true;
-								}
-							}	//for x
-						}	//for z
-					}	//sexdecuple Intersect
-				}	//for sexdecuple
-			}	//quadruple Intersect
-		}	//for quadruple
-	}	//quadRoot Intersect
-	
+					selTer = cam + camDir*dis;
+					return true;
+				}
+				
+				if (D3DXIntersectTri(&pos2, &pos1, &pos3, &cam, &camDir, NULL, NULL, &dis))
+				{
+					selTer = cam + camDir*dis;
+					return true;
+				}
+			}	//for x
+		}	//for z
+	}
+
+	//for (int z = 0; z <= (int)height; z++)
+	//{
+	//	if (z < 0 || z >= (int)height) continue;
+	//	for (int x = 0; x <= width; x++)
+	//	{
+	//		if (x <0 || x >= (int)width) continue;
+	//
+	//		UINT ind0 = (width + 1) * z + x;
+	//		UINT ind1 = (width + 1) * (z + 1) + x;
+	//		UINT ind2 = (width + 1) * z + x + 1;
+	//		UINT ind3 = (width + 1) * (z + 1) + (x + 1);
+	//
+	//		D3DXVECTOR3 pos0 = vertices[ind0].position;
+	//		D3DXVECTOR3 pos1 = vertices[ind1].position;
+	//		D3DXVECTOR3 pos2 = vertices[ind2].position;
+	//		D3DXVECTOR3 pos3 = vertices[ind3].position;
+	//
+	//		if (D3DXIntersectTri(&pos0, &pos1, &pos2, &cam, &camDir, NULL, NULL, &dis))
+	//		{
+	//			selTer = cam + camDir*dis;
+	//			return true;
+	//		}
+	//
+	//		if (D3DXIntersectTri(&pos2, &pos1, &pos3, &cam, &camDir, NULL, NULL, &dis))
+	//		{
+	//			selTer = cam + camDir*dis;
+	//			return true;
+	//		}
+	//	}	//for x
+	//}	//for z
+
 	return false;
+	//D3DXVECTOR3 lb, lt, rb, rt;
+	//lb = quadRoot.LB;
+	//lt = quadRoot.LT;
+	//rb = quadRoot.RB;
+	//rt = quadRoot.RT;
+	//
+	//if (D3DXIntersectTri(&lb, &lt, &rb, &cam, &camDir, NULL, NULL, &dis) == TRUE || D3DXIntersectTri(&rb, &lt, &rt, &cam, &camDir, NULL, NULL, &dis) == TRUE)
+	//{
+	//	//quadruple
+	//	for (size_t i = 0; i < 4; i++)
+	//	{
+	//		lb = quadruple[i].LB;
+	//		lt = quadruple[i].LT;
+	//		rb = quadruple[i].RB;
+	//		rt = quadruple[i].RT;
+	//
+	//		if (D3DXIntersectTri(&lb, &lt, &rb, &cam, &camDir, NULL, NULL, &dis) == TRUE || D3DXIntersectTri(&rb, &lt, &rt, &cam, &camDir, NULL, NULL, &dis) == TRUE)
+	//		{
+	//			//sexdecuple
+	//			for (size_t j = i * 4; j < i * 4 + 4; j++)
+	//			{
+	//				lb = sexdecuple[j].LB;
+	//				lt = sexdecuple[j].LT;
+	//				rb = sexdecuple[j].RB;
+	//				rt = sexdecuple[j].RT;
+	//
+	//				if (D3DXIntersectTri(&lb, &lt, &rb, &cam, &camDir, NULL, NULL, &dis) == TRUE || D3DXIntersectTri(&rb, &lt, &rt, &cam, &camDir, NULL, NULL, &dis) == TRUE)
+	//				{
+	//					for (int z = (int)lb.z; z <= (int)lt.z; z++)
+	//					{
+	//						if (z < 0 || z >= (int)height) continue;
+	//						for (int x = (int)lb.x; x <= (int)rb.x; x++)
+	//						{
+	//							if (x <0 || x >= (int)width) continue;
+	//
+	//							UINT ind0 = (width + 1) * z + x;
+	//							UINT ind1 = (width + 1) * (z+ 1) + x;
+	//							UINT ind2 = (width + 1) * z + x + 1;
+	//							UINT ind3 = (width + 1) * (z + 1) + (x + 1);
+	//							
+	//							D3DXVECTOR3 pos0 = vertices[ind0].position;
+	//							D3DXVECTOR3 pos1 = vertices[ind1].position;
+	//							D3DXVECTOR3 pos2 = vertices[ind2].position;
+	//							D3DXVECTOR3 pos3 = vertices[ind3].position;
+	//							
+	//							if (D3DXIntersectTri(&pos0, &pos1, &pos2, &cam, &camDir, NULL, NULL, &dis))
+	//							{
+	//								selTer = cam + camDir*dis;
+	//								return true;
+	//							}
+	//							
+	//							if (D3DXIntersectTri(&pos2, &pos1, &pos3, &cam, &camDir, NULL, NULL, &dis))
+	//							{
+	//								selTer = cam + camDir*dis;
+	//								return true;
+	//							}
+	//						}	//for x
+	//					}	//for z
+	//				}	//sexdecuple Intersect
+	//			}	//for sexdecuple
+	//		}	//quadruple Intersect
+	//	}	//for quadruple
+	//}	//quadRoot Intersect
+	//
+	//return false;
 }
 
 void GameTerrain::EditMode(bool val)
@@ -724,7 +905,7 @@ void GameTerrain::EditMode(bool val)
 
 void GameTerrain::EditTerrain()
 {
-	if (pointLightDispose == true || pointLightSelect == true)
+	if (pointLightDispose == true || pointLightSelect == true || spotLightDispose == true || spotLightSelect == true)
 		return;
 
 	if (terrainBuffer->Data.Type == 0)
@@ -975,7 +1156,7 @@ void GameTerrain::PointLightDispose(D3DXVECTOR3 pos)
 	if (pointLightDispose == true)
 	{
 		UINT num = pointLight->AddPointLight(pos);
-		if (num < pointLight->PointLightSize())
+		if (num < pointLight->PointLightMaxSize())
 		{
 			pointLightDispose = false;
 			pointLightSelect = true;
@@ -989,6 +1170,28 @@ void GameTerrain::PointLightSelect(Objects::Ray* ray)
 	if (pointLightSelect == true)
 	{
 		pointLight->LightSelect(ray);
+	}
+}
+
+void GameTerrain::SpotLightDispose(D3DXVECTOR3 pos)
+{
+	if (spotLightDispose == true)
+	{
+		UINT num = spotLight->AddSpotLight(pos);
+		if (num < spotLight->SpotLightMaxSize())
+		{
+			spotLightDispose = false;
+			spotLightSelect = true;
+			spotLight->LightSelect(true, num);
+		}
+	}
+}
+
+void GameTerrain::SpotLightSelect(Objects::Ray * ray)
+{
+	if (spotLightSelect == true)
+	{
+		spotLight->LightSelect(ray);
 	}
 }
 
@@ -1040,10 +1243,13 @@ void GameTerrain::FirstInit(UINT width, UINT height)
 	shader = shader2 = shader3 = NULL;
 	vertexBuffer = indexBuffer = NULL;
 	pointLight = NULL;
+	spotLight = NULL;
+	quadTreeRoot = NULL;
 
 	terrainFile = L"";
 	editMode = changed = treeDisposed = useWater = false;
 	pointLightDispose = pointLightSelect = false;
+	spotLightDispose = spotLightSelect = false;
 	heightSet = treeDelay = offset = windPower = 0.0f;
 	widthEdit = width;
 	heightEdit = height;
@@ -1065,6 +1271,9 @@ void GameTerrain::FirstInit(UINT width, UINT height)
 	treeBuffer = new TreeBuffer();
 	D3DXMatrixRotationY(&treeBuffer->Data.Rotate, (float)D3DX_PI);
 	pointLight = new PointLight();
+	spotLight = new SpotLight();
+
+	QuadTreeMake(widthEdit, heightEdit);
 
 	material = new Material;
 	material->SetShader(shader);
@@ -1176,8 +1385,105 @@ void GameTerrain::CreateBuffer()
 	}
 }
 
+void GameTerrain::QuadTreeMake(UINT width, UINT height)
+{
+	quadTreeRoot = new QuadTree();
+
+	quadTreeRoot->LB = D3DXVECTOR3(0, 0, 0);
+	quadTreeRoot->LT = D3DXVECTOR3(0, 0, (float)height);
+	quadTreeRoot->RB = D3DXVECTOR3((float)width, 0, 0);
+	quadTreeRoot->RT = D3DXVECTOR3((float)width, 0, (float)height);
+
+	QuadTree* temp = quadTreeRoot;
+	QuadTree* parent = quadTreeRoot;
+
+	temp->ChildMake();
+
+	//Root-Child
+	{
+		//0 -> Left Bottom
+		temp = parent->child[0];
+		temp->LB = parent->LB;
+		temp->LT = parent->LT;
+		temp->LT.z -= (parent->LT.z - parent->LB.z) / 2;
+		temp->RB = parent->RB;
+		temp->RB.x -= (parent->RB.x - parent->LB.x) / 2;
+		temp->RT = parent->RT;
+		temp->RT.x = temp->RB.x;
+		temp->RT.z = temp->LT.z;
+
+		//1 -> Left Top
+		temp = parent->child[1];
+		temp->LB = parent->child[0]->LT;
+		temp->LT = parent->LT;
+		temp->RB = parent->child[0]->RT;
+		temp->RT = parent->RT;
+		temp->RT.x = temp->RB.x;
+
+		//2 -> Right Bottom
+		temp = parent->child[2];
+		temp->LB = parent->child[0]->RB;
+		temp->LT = parent->child[0]->RT;
+		temp->RB = parent->RB;
+		temp->RT = parent->RT;
+		temp->RT.z = temp->LT.z;
+
+		//3 -> Right Top
+		temp = parent->child[3];
+		temp->LB = parent->child[0]->RT;
+		temp->LT = parent->child[1]->RT;
+		temp->RB = parent->child[2]->RT;
+		temp->RT = parent->RT;
+	}
+
+	for (size_t i = 0; i < 4; i++)
+		quadTreeRoot->child[i]->ChildMake();
+
+	for (size_t i = 0; i < 4; i++)
+	{
+		parent = quadTreeRoot->child[i];
+
+		{
+			//0 -> Left Bottom
+			temp = parent->child[0];
+			temp->LB = parent->LB;
+			temp->LT = parent->LT;
+			temp->LT.z -= (parent->LT.z - parent->LB.z) / 2;
+			temp->RB = parent->RB;
+			temp->RB.x -=  (parent->RB.x - parent->LB.x) / 2;
+			temp->RT = parent->RT;
+			temp->RT.x = temp->RB.x;
+			temp->RT.z = temp->LT.z;
+
+			//1 -> Left Top
+			temp = parent->child[1];
+			temp->LB = parent->child[0]->LT;
+			temp->LT = parent->LT;
+			temp->RB = parent->child[0]->RT;
+			temp->RT = parent->RT;
+			temp->RT.x = temp->RB.x;
+
+			//2 -> Right Bottom
+			temp = parent->child[2];
+			temp->LB = parent->child[0]->RB;
+			temp->LT = parent->child[0]->RT;
+			temp->RB = parent->RB;
+			temp->RT = parent->RT;
+			temp->RT.z = temp->LT.z;
+
+			//3 -> Right Top
+			temp = parent->child[3];
+			temp->LB = parent->child[0]->RT;
+			temp->LT = parent->child[1]->RT;
+			temp->RB = parent->child[2]->RT;
+			temp->RT = parent->RT;
+		}
+	}
+}
+
 void GameTerrain::Clear()
 {
+	SAFE_DELETE(spotLight);
 	SAFE_DELETE(pointLight);
 
 	SAFE_DELETE(water);
@@ -1262,68 +1568,167 @@ D3DXCOLOR GameTerrain::SplatColor(D3DXCOLOR origin, D3DXCOLOR brush, float inten
 void GameTerrain::QuadTreeUpdate()
 {
 	//root
-	quadRoot.LB = vertices[0].position;
-	quadRoot.LT = vertices[(width + 1) * height].position;
-	quadRoot.RB = vertices[width].position;
-	quadRoot.RT = vertices[(width + 1) * height + width].position;
+	quadTreeRoot->LB = vertices[0].position;
+	quadTreeRoot->LT = vertices[(width + 1) * height].position;
+	quadTreeRoot->RB = vertices[width].position;
+	quadTreeRoot->RT = vertices[(width + 1) * height + width].position;
 
+	QuadTree* temp;
+	QuadTree* parent = quadTreeRoot;
+
+	//Root-Child
 	{
-		//quadruple
-		//0 - Left Bottom
-		quadruple[0].LB = quadRoot.LB;
-		quadruple[0].LT = quadRoot.LT / 2;
-		quadruple[0].RB = quadRoot.RB / 2;
-		quadruple[0].RT = quadRoot.RT / 2;
+		//0 -> Left Bottom
+		temp = parent->child[0];
+		temp->LB = parent->LB;
+		temp->LT = parent->LT;
+		temp->LT.z -= (parent->LT.z - parent->LB.z) / 2;
+		temp->RB = parent->RB;
+		temp->RB.x -= (parent->RB.x - parent->LB.x) / 2;
+		temp->RT = parent->RT;
+		temp->RT.x = temp->RB.x;
+		temp->RT.z = temp->LT.z;
 
-		//1 - Left Top
-		quadruple[1].LB = quadruple[0].LT;
-		quadruple[1].RB = quadruple[0].RT;
-		quadruple[1].LT = quadRoot.LT;
-		quadruple[1].RT = quadRoot.RT;
-		quadruple[1].RT.x /= 2;
+		//1 -> Left Top
+		temp = parent->child[1];
+		temp->LB = parent->child[0]->LT;
+		temp->LT = parent->LT;
+		temp->RB = parent->child[0]->RT;
+		temp->RT = parent->RT;
+		temp->RT.x = temp->RB.x;
 
-		//2 - Right Bottom
-		quadruple[2].LB = quadruple[0].RB;
-		quadruple[2].LT = quadruple[0].RT;
-		quadruple[2].RB = quadRoot.RB;
-		quadruple[2].RT = quadRoot.RT;
-		quadruple[2].RT.z /= 2;
+		//2 -> Right Bottom
+		temp = parent->child[2];
+		temp->LB = parent->child[0]->RB;
+		temp->LT = parent->child[0]->RT;
+		temp->RB = parent->RB;
+		temp->RT = parent->RT;
+		temp->RT.z = temp->LT.z;
 
-		//3 - Right Top
-		quadruple[3].LB = quadruple[0].RT;
-		quadruple[3].LT = quadruple[1].RT;
-		quadruple[3].RB = quadruple[2].RT;
-		quadruple[3].RT = quadRoot.RT;
+		//3 -> Right Top
+		temp = parent->child[3];
+		temp->LB = parent->child[0]->RT;
+		temp->LT = parent->child[1]->RT;
+		temp->RB = parent->child[2]->RT;
+		temp->RT = parent->RT;
 	}
+
+	for (size_t i = 0; i < 4; i++)
 	{
-		//sexdecuple
-		for (UINT i = 0; i < 16; i += 4)
+		parent = quadTreeRoot->child[i];
+
 		{
-			//0 - Left Bottom
-			sexdecuple[i + 0].LB = quadruple[i / 4].LB;
-			sexdecuple[i + 0].LT = quadruple[i / 4].LT / 2;
-			sexdecuple[i + 0].RB = quadruple[i / 4].RB / 2;
-			sexdecuple[i + 0].RT = quadruple[i / 4].RT / 2;
+			//0 -> Left Bottom
+			temp = parent->child[0];
+			temp->LB = parent->LB;
+			temp->LT = parent->LT;
+			temp->LT.z -= (parent->LT.z - parent->LB.z) / 2;
+			temp->RB = parent->RB;
+			temp->RB.x -= (parent->RB.x - parent->LB.x) / 2;
+			temp->RT = parent->RT;
+			temp->RT.x = temp->RB.x;
+			temp->RT.z = temp->LT.z;
 
-			//1 - Left Top
-			sexdecuple[i + 1].LB = sexdecuple[i + 0].LT;
-			sexdecuple[i + 1].RB = sexdecuple[i + 0].RT;
-			sexdecuple[i + 1].LT = quadruple[i / 4].LT;
-			sexdecuple[i + 1].RT = quadruple[i / 4].RT;
-			sexdecuple[i + 1].RT.x /= 2;
+			//1 -> Left Top
+			temp = parent->child[1];
+			temp->LB = parent->child[0]->LT;
+			temp->LT = parent->LT;
+			temp->RB = parent->child[0]->RT;
+			temp->RT = parent->RT;
+			temp->RT.x = temp->RB.x;
 
-			//2 - Right Bottom
-			sexdecuple[i + 2].LB = sexdecuple[i + 0].RB;
-			sexdecuple[i + 2].RB = quadruple[i / 4].RB;
-			sexdecuple[i + 2].LT = sexdecuple[i + 0].RT;
-			sexdecuple[i + 2].RT = quadruple[i / 4].RT;
-			sexdecuple[i + 2].RT.z /= 2;
+			//2 -> Right Bottom
+			temp = parent->child[2];
+			temp->LB = parent->child[0]->RB;
+			temp->LT = parent->child[0]->RT;
+			temp->RB = parent->RB;
+			temp->RT = parent->RT;
+			temp->RT.z = temp->LT.z;
 
-			//3 - Right Top
-			sexdecuple[i + 3].LB = sexdecuple[i + 0].RT;
-			sexdecuple[i + 3].RB = sexdecuple[i + 2].RT;
-			sexdecuple[i + 3].LT = sexdecuple[i + 1].RT;
-			sexdecuple[i + 3].RT = quadruple[i / 4].RT;
+			//3 -> Right Top
+			temp = parent->child[3];
+			temp->LB = parent->child[0]->RT;
+			temp->LT = parent->child[1]->RT;
+			temp->RB = parent->child[2]->RT;
+			temp->RT = parent->RT;
 		}
+	}
+}
+
+bool QuadTree::FindQuad(D3DXVECTOR3 cam, D3DXVECTOR3 camDir, float & dis, D3DXVECTOR3 & LB, D3DXVECTOR3& LT, D3DXVECTOR3& RB, D3DXVECTOR3& RT)
+{
+	D3DXVECTOR3 v0, v1, v2, v3;
+	v0 = this->LB;
+	v1 = this->LT;
+	v2 = this->RB;
+	v3 = this->RT;
+
+	if (D3DXIntersectTri(&v0, &v1, &v2, &cam, &camDir, NULL, NULL, &dis) == TRUE)
+	{
+		if (child[0] != NULL)
+		{
+			if (child[0]->FindQuad(cam, camDir, dis, LB, LT, RB, RT) == true)
+				return true;
+		}
+		if (child[1] != NULL)
+		{
+			if (child[1]->FindQuad(cam, camDir, dis, LB, LT, RB, RT) == true)
+				return true;
+		}
+		if (child[2] != NULL)
+		{
+			if (child[2]->FindQuad(cam, camDir, dis, LB, LT, RB, RT) == true)
+				return true;
+		}
+
+		if (child[0] == NULL && child[1] == NULL && child[2] == NULL)
+		{
+			LB = v0;
+			LT = v1;
+			RB = v2;
+			RT = v3;
+			return true;
+		}
+	}
+	else if (D3DXIntersectTri(&v2, &v1, &v3, &cam, &camDir, NULL, NULL, &dis) == TRUE)
+	{
+		if (child[1] != NULL)
+		{
+			if (child[1]->FindQuad(cam, camDir, dis, LB, LT, RB, RT) == true)
+				return true;
+		}
+		if (child[2] != NULL)
+		{
+			if (child[2]->FindQuad(cam, camDir, dis, LB, LT, RB, RT) == true)
+				return true;
+		}
+		if (child[3] != NULL)
+		{
+			if (child[3]->FindQuad(cam, camDir, dis, LB, LT, RB, RT) == true)
+				return true;
+		}
+
+		if (child[1] == NULL && child[2] == NULL && child[3] == NULL)
+		{
+			LB = v0;
+			LT = v1;
+			RB = v2;
+			RT = v3;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void QuadTree::ChildMake()
+{
+	for (size_t i = 0; i < 4; i++)
+		SAFE_DELETE(child[i]);
+
+	for (size_t i = 0; i < 4; i++)
+	{
+		child[i] = new QuadTree;
+		child[i]->root = this;
 	}
 }

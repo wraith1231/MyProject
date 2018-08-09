@@ -31,14 +31,9 @@ float4 PS(PixelInput input) : SV_TARGET
     float4 color = _diffuseMap.Sample(_diffuseSampler, input.uv);
     
     color = GetDiffuseColor(color, _direction, input.normal);
-    for (int i = 0; i < 16; i++)
-    {
-        if (_pointLight[i].Use == 1)
-        {
-            PointLighting(color.rgb, _pointLight[i], input.normal, input.wPosition);
-        }
+    PointLightFunc(color.rgb, input.wPosition, input.normal);
+    SpotLightFunc(color.rgb, input.wPosition, input.normal);
 
-    }
 
     return color;
 }

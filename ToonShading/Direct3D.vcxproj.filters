@@ -246,6 +246,9 @@
     <ClInclude Include="Bounding\Frustum.h">
       <Filter>Bounding</Filter>
     </ClInclude>
+    <ClInclude Include="Lights\SpotLight.h">
+      <Filter>Lights</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Executes">
@@ -509,6 +512,9 @@
     </ClCompile>
     <ClCompile Include="Bounding\Frustum.cpp">
       <Filter>Bounding</Filter>
+    </ClCompile>
+    <ClCompile Include="Lights\SpotLight.cpp">
+      <Filter>Lights</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

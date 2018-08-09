@@ -144,13 +144,10 @@ float4 PS(PixelInput input) : SV_TARGET
 
     float3 color = waterColor.rgb + reflection.rgb;
     
-    for (int i = 0; i < 16; i++)
-    {
-        if (_pointLight[i].Use == 1)
-        {
-            PointLighting(color, _pointLight[i], input.row[2], input.wPosition);
-        }
-    }
+    color = GetDiffuseColor(float4(color, 1), _direction, input.row[2]).rgb;
+    PointLightFunc(color, input.wPosition, input.row[2]);
+    SpotLightFunc(color.rgb, input.wPosition, input.row[2]);
+
 
     return float4(color, input.alpha);
 }

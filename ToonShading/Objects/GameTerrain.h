@@ -21,29 +21,27 @@ class QuadTree
 public:
 	QuadTree()
 	{
+		root = NULL;
+		for (size_t i = 0; i < 4; i++)
+			child[i] = NULL;
 		LB = LT = RB = RT = D3DXVECTOR3(0, 0, 0);
 	}
 	~QuadTree()
 	{
-		if (child0 != NULL)
-			SAFE_DELETE(child0);
-		if (child1 != NULL)
-			SAFE_DELETE(child1);
-		if (child2 != NULL)
-			SAFE_DELETE(child2);
-		if (child3 != NULL)
-			SAFE_DELETE(child3);
-
-		child0 = child1 = child2 = child3 = NULL;
+		for (size_t i = 0; i < 4; i++)
+		{
+			SAFE_DELETE(child[i]);
+			child[i] = NULL;
+		}
 	}
+
+	bool FindQuad(D3DXVECTOR3 cam, D3DXVECTOR3 camDir, float& dis, D3DXVECTOR3& LB, D3DXVECTOR3& LT, D3DXVECTOR3& RB, D3DXVECTOR3& RT);
+	void ChildMake();
 
 	D3DXVECTOR3 LB, LT, RB, RT;
 
 	QuadTree* root;
-	QuadTree* child0;
-	QuadTree* child1;
-	QuadTree* child2;
-	QuadTree* child3;
+	QuadTree* child[4];
 };
 
 namespace Objects
@@ -128,9 +126,14 @@ public:
 	void EditMode(bool val);
 
 	void EditTerrain();
+
 	bool PointLightDispose() { return pointLightDispose; }
 	void PointLightDispose(D3DXVECTOR3 pos);
 	void PointLightSelect(Objects::Ray* ray);
+
+	bool SpotLightDispose() { return spotLightDispose; }
+	void SpotLightDispose(D3DXVECTOR3 pos);
+	void SpotLightSelect(Objects::Ray* ray);
 
 	bool GetHeight(float x, float z, float& y);
 	bool GetHeight(D3DXVECTOR3& pos);
@@ -140,6 +143,8 @@ private:
 	void Init(UINT width = 255, UINT height = 255);
 	void CreateNormal();
 	void CreateBuffer();
+
+	void QuadTreeMake(UINT width = 255, UINT height = 255);
 
 	void Clear();
 
@@ -188,11 +193,7 @@ private:
 
 	UINT editType;
 
-	QuadStruct quadRoot;
-	QuadStruct quadruple[4];
-
-	QuadStruct sexdecuple[16];
-
+	QuadTree* quadTreeRoot;
 
 	D3DXVECTOR3 selTer;
 
@@ -222,9 +223,12 @@ private:
 	bool useWater;
 
 	//Light
-	bool pointLightDispose;
-	bool pointLightSelect;
+	bool pointLightDispose, spotLightDispose;
+	bool pointLightSelect, spotLightSelect;
+
 	class PointLight* pointLight;
+	class SpotLight* spotLight;
+
 };
 
 //물까지가 초급, 깊이~알파가 중급, 지연 렌더링이 고급

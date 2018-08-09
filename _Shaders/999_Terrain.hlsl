@@ -98,14 +98,9 @@ float4 PS(PixelInput input) : SV_TARGET
     diffuse = GetDiffuseColor(diffuse, _direction, input.normal);
     
     float3 color = diffuse.rgb + penCol.rgb;
-    
-    for (int i = 0; i < 16; i++)
-    {
-        if (_pointLight[i].Use == 1)
-        {
-            PointLighting(color, _pointLight[i], input.normal, input.wPosition);
-        }
-    }
+    PointLightFunc(color.rgb, input.wPosition, input.normal);
+    SpotLightFunc(color.rgb, input.wPosition, input.normal);
+
 
     return float4(color, input.alpha);
 }

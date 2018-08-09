@@ -226,8 +226,10 @@ void GameSettings::Update()
 			else
 			{
 				terrain->PointLightDispose(cam + camDir * dis);
+				terrain->SpotLightDispose(cam + camDir * dis);
 				Objects::Ray* ray = new Objects::Ray(cam, camDir);
 				terrain->PointLightSelect(ray);
+				terrain->SpotLightSelect(ray);
 				SAFE_DELETE(ray);
 			}
 		}

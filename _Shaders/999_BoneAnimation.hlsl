@@ -63,16 +63,11 @@ float4 PS(PixelInput input) : SV_TARGET
     //이 함수에서 그림자 구하고 바로 끊어버림
     color = GetDiffuseColor(color, _direction, input.normal);
 
-    for (int i = 0; i < 16; i++)
-    {
-        if (_pointLight[i].Use == 1)
-        {
-            PointLighting(color.rgb, _pointLight[i], input.normal, input.wPosition);
-        }
+    PointLightFunc(color.rgb, input.wPosition, input.normal);
+    SpotLightFunc(color.rgb, input.wPosition, input.normal);
 
-    }
 
-        return color;
+    return color;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

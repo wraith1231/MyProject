@@ -264,6 +264,7 @@ void D3D::CreateBackBuffer(float width, float height)
 
 		SetRenderTarget(renderTargetView, depthStencilView);
 	}
+
 }
 
 void D3D::DeleteBackBuffer()

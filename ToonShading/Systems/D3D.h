@@ -68,6 +68,10 @@ private:
 	static ID3D11Device* device;
 	static ID3D11DeviceContext* deviceContext;
 	static IDXGISwapChain* swapChain;
+	ID3D11DepthStencilView* depthStencilView;
+
+	ID3D11Texture2D* backBuffer;
+	ID3D11RenderTargetView* renderTargetView;
 
 	ID3D11Debug* debugDevice;
 
@@ -77,7 +81,4 @@ private:
 	UINT numerator;
 	UINT denominator;
 
-	ID3D11Texture2D* backBuffer;
-	ID3D11DepthStencilView* depthStencilView;
-	ID3D11RenderTargetView* renderTargetView;
 };

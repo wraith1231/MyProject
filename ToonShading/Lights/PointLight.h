@@ -1,11 +1,20 @@
 #pragma once
 
-#define POINTLIGHTSIZE 16
+#define POINTLIGHTSIZE 32
 namespace Objects
 {
 	class BoundingBox;
 	class Ray;
 }
+
+struct PointLightSave
+{
+	float intenstiy;
+	float range;
+
+	D3DXVECTOR3 Position;
+	D3DXVECTOR3 Color;
+};
 
 class PointLight
 {
@@ -15,11 +24,14 @@ public:
 
 	UINT AddPointLight(D3DXVECTOR3 position = D3DXVECTOR3(0, 0, 0), D3DXVECTOR3 color = D3DXVECTOR3(1, 1, 1), float intensity =  1.0f, float range = 1.0f);
 	UINT PointLightSize();
+	UINT PointLightMaxSize() { return POINTLIGHTSIZE; }
 
 	void Render();
 	void Render(bool val);
 
 	void ImGuiRender();
+
+	bool LightUse(UINT num, PointLightSave& data);
 
 	bool LightSelect() { return lightSelect; }
 	void LightSelect(bool val, UINT num) { lightSelect = val; selectNum = num; }
@@ -31,7 +43,17 @@ private:
 	public:
 		Buffer() : ShaderBuffer(&Data, sizeof(Data))
 		{
+			for (Lights light : Data.Light)
+			{
+				light.Use = 0;
+				light.Intensity = 2.0f;
+				light.Range = 10.0f;
 
+				light.Position = D3DXVECTOR3(0, 0, 0);
+				light.Color = D3DXVECTOR3(0, 0, 0);
+			}
+
+			Data.Count = 0;
 		}
 
 		struct Lights
@@ -50,6 +72,9 @@ private:
 		struct Struct
 		{
 			Lights Light[POINTLIGHTSIZE];
+
+			int Count;
+			float Padding[3];
 		} Data;
 	};
 public:

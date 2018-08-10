@@ -114,6 +114,15 @@ cbuffer WaterPSBuffer : register(b12)
     float2 _waterPSPadding;
 }
 
+cbuffer PS_Fog : register(b13)
+{
+    float4 _fogColor;
+
+    float _fogStart;
+    float _fogEnd;
+    float2 _fogPadding;
+}
+
 Texture2D _diffuseMap : register(t0);
 Texture2D _specularMap : register(t1);
 Texture2D _emissiveMap : register(t2);

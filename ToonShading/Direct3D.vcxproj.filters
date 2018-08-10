@@ -249,6 +249,9 @@
     <ClInclude Include="Lights\SpotLight.h">
       <Filter>Lights</Filter>
     </ClInclude>
+    <ClInclude Include="Lights\Fog.h">
+      <Filter>Lights</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Executes">
@@ -514,6 +517,9 @@
       <Filter>Bounding</Filter>
     </ClCompile>
     <ClCompile Include="Lights\SpotLight.cpp">
+      <Filter>Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="Lights\Fog.cpp">
       <Filter>Lights</Filter>
     </ClCompile>
   </ItemGroup>

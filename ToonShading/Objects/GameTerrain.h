@@ -228,7 +228,7 @@ private:
 
 	class PointLight* pointLight;
 	class SpotLight* spotLight;
-
+	class Fog* fog;
 };
 
 //물까지가 초급, 깊이~알파가 중급, 지연 렌더링이 고급

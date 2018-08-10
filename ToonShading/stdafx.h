@@ -23,8 +23,8 @@ using namespace std;
 #include <d3d11.h>
 #include <d3dx10math.h>
 #include <d3dx11async.h>
-#include <d3dxGlobal.h>
-#include <d3dx11effect.h>
+//#include <d3dxGlobal.h>
+//#include <d3dx11effect.h>
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")

@@ -81,11 +81,18 @@ float4 PS(PixelInput input) : SV_TARGET
     nordot = dot(normalColor, normalColor);
     //depth는 원래 z / w로 구해야함, depth 맵의 값은 r, g에다 해놓은 관계로 이렇게 연산
     depth = depthColor.r / depthColor.g;
+    
     depth *= fn;
+    
+    float factor = saturate((_fogEnd - depth) / (_fogEnd - _fogStart));
+    [branch]
+    if (factor > 0.5f)
+        return lerp(_fogColor, realColor, factor);
 
+    
     //윗픽셀
     //float2 uv = input.uv;
-    uv.y -= hei;
+        uv.y -= hei;
     normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
     normalColor1.rgb = normalColor1.rgb * 2.0f - 1.0f;
     depthColor1 = DepthRT.Sample(DepthRTSampler, uv);
@@ -150,6 +157,7 @@ float4 PS(PixelInput input) : SV_TARGET
         return float4(0, 0, 0, 1);
     
     //검사결과 이상없으면 원래 그려질 색을 그린다
-    return realColor;
+
+    return lerp(realColor, _fogColor, factor);
     
 }

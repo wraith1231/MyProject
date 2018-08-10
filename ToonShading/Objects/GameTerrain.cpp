@@ -9,6 +9,7 @@
 
 #include "../Lights/PointLight.h"
 #include "../Lights/SpotLight.h"
+#include "../Lights/Fog.h"
 
 #include "../Utilities/BinaryFile.h"
 
@@ -26,10 +27,13 @@ GameTerrain::GameTerrain()
 	Init();
 	CreateNormal();
 	CreateBuffer();
+
+	fog = new Fog;
 }
 
 GameTerrain::~GameTerrain()
 {
+	SAFE_DELETE(fog);
 	Clear();
 }
 
@@ -464,6 +468,8 @@ void GameTerrain::Render()
 		pointLight->Render(pointLightSelect);
 	if (spotLight != NULL)
 		spotLight->Render(spotLightSelect);
+	if (fog != NULL)
+		fog->Render();
 
 	if (tex1 != NULL)
 		tex1->SetShaderResource(5);
@@ -738,6 +744,9 @@ void GameTerrain::ImGuiRender()
 		}
 
 		ImGui::End();
+
+		if (fog != NULL)
+			fog->ImGuiRender();
 
 		if (water != NULL)
 			water->ImGuiRender();

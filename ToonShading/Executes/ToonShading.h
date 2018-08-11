@@ -60,6 +60,4 @@ private:
 	Buffer* buffer;
 
 	float xplus, yplus, zplus;
-
-	ID3D11DepthStencilView* depth;
 };

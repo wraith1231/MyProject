@@ -47,6 +47,7 @@ namespace Objects
 
 		bool Intersects(Objects::BoundingBox* box);
 		bool Intersects(Objects::Plane* plane);
+		bool Intersects(D3DXPLANE plane);
 		bool Intersects(Objects::Ray* ray);
 
 	private:

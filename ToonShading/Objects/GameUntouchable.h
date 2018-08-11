@@ -6,18 +6,21 @@ namespace Objects
 	class Ray;
 }
 
+struct ExecuteValues;
 struct ModelStruct
 {
 	D3DXVECTOR3 Scale;
 	D3DXVECTOR3 Rotate;
 	D3DXVECTOR3 Translation;
 	D3DXMATRIX Transforms;
+
+	bool Visible;
 };
 
 class GameUntouchable
 {
 public:
-	GameUntouchable(wstring file);
+	GameUntouchable(wstring file, ExecuteValues* value = NULL);
 	~GameUntouchable();
 
 	void AddTransforms(D3DXVECTOR3 scale, D3DXVECTOR3 rotate, D3DXVECTOR3 trans);

@@ -8,11 +8,12 @@
 그리고 GameModel에서 GameAnimation을 만들었음, 거기서 상속받는 GameUnit이 나올 것
 unit이 전반 관리 - 이제 거기서 player랑 enemy로 갈림, 현재 grund는 적이 4종류 정도 됨
 */
+struct ExecuteValues;
 
 class GameAnimationModel : public GameModel
 {
 public:
-	GameAnimationModel(wstring matFile, wstring meshFile);
+	GameAnimationModel(wstring matFile, wstring meshFile, ExecuteValues* value = NULL);
 	virtual ~GameAnimationModel();
 
 	UINT AddClip(wstring file);

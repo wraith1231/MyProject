@@ -4,8 +4,8 @@
 #include "GameWeapon.h"
 #include "GameData.h"
 
-GameUnit::GameUnit(wstring matFile, wstring meshFile)
-	: GameAnimationModel(matFile, meshFile)
+GameUnit::GameUnit(wstring matFile, wstring meshFile, ExecuteValues* value)
+	: GameAnimationModel(matFile, meshFile, value)
 	, currentWeapon(NULL)
 {
 	life = 0;

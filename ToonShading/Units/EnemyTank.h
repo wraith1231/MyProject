@@ -1,13 +1,14 @@
 #pragma once
 #include "GameEnemy.h"
 
+struct ExecuteValues;
 class EnemyTank : public GameEnemy
 {
 private:
 	enum class Action;
 
 public:
-	EnemyTank(wstring matFile, wstring meshFile);// , wstring animPath);
+	EnemyTank(wstring matFile, wstring meshFile, ExecuteValues* value = NULL);// , wstring animPath);
 	~EnemyTank();
 
 	void Update();

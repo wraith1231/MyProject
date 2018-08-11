@@ -233,6 +233,27 @@ bool Objects::BoundingBox::Intersects(Objects::Plane * plane)
 	return true;
 }
 
+bool Objects::BoundingBox::Intersects(D3DXPLANE plane)
+{
+	D3DXVECTOR3 vec3 = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 vec31 = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
+	vec31.x = plane.a >= 0.0f ? min.x : max.x;
+	vec31.y = plane.b >= 0.0f ? min.y : max.y;
+	vec31.z = plane.c >= 0.0f ? min.z : max.z;
+
+	vec3.x = plane.a >= 0.0f ? max.x : min.x;
+	vec3.y = plane.b >= 0.0f ? max.y : min.y;
+	vec3.z = plane.c >= 0.0f ? max.z : min.z;
+
+	if (plane.a * vec31.x + plane.b * vec31.y + plane.c * vec31.z + plane.d > 0.01f)
+		return false;
+	if (plane.a * vec3.x + plane.b * vec3.y + plane.c * vec3.z + plane.d < -0.01f)
+		return false;
+
+	return true;
+}
+
 bool Objects::BoundingBox::Intersects(Objects::Ray * ray)
 {
 	float single = 0.0f;

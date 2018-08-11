@@ -1,6 +1,7 @@
 #pragma once
 #include "GameRender.h"
 
+struct ExecuteValues;
 class GameModel : public GameRender
 {
 private:
@@ -46,7 +47,7 @@ private:
 	};
 
 public:
-	GameModel(wstring materialFile, wstring meshFile);
+	GameModel(wstring materialFile, wstring meshFile, ExecuteValues* value = NULL);
 	virtual ~GameModel();
 
 	virtual void Update();

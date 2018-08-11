@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "Tree.h"
 
-Tree::Tree(wstring fileName)
+Tree::Tree(wstring fileName, ExecuteValues* values)
 	: fileName(fileName)
 {
 	model = new Model();
 	model->ReadMaterial(Models + L"Mesh/Quad.material");
 	model->ReadMesh(Models + L"Mesh/Quad.mesh");
+	model->SetExecuteValue(values);
 	
 	for (Material* material : model->Materials())
 		material->SetDiffuseMap(fileName);
@@ -35,24 +36,30 @@ void Tree::AddTree(float scale, D3DXVECTOR3 Position)
 	D3DXMatrixScaling(&S, tree.Scale, tree.Scale, 1.0f);
 	D3DXMatrixTranslation(&T, tree.Position.x, tree.Position.y, tree.Position.z);
 	tree.Transform = S * T;
+	tree.Visible = true;
 
 	trees.push_back(tree);
 }
 
 void Tree::Update()
 {
-
 }
 
 void Tree::PostRender2()
 {
-
 	for (Material* mat : model->Materials())
 		mat->SetShader(shader3);
+
 
 	for (TreeStruct tree : trees)
 	{
 		model->SetWorld(tree.Transform);
+		model->VisibleUpdate();
+		tree.Visible = model->GetVisible();
+
+		if (tree.Visible == false)
+			continue;
+
 		for (ModelMesh* mesh : model->Meshes())
 			mesh->Render();
 	}
@@ -65,6 +72,9 @@ void Tree::Render()
 
 	for (TreeStruct tree : trees)
 	{
+		if (tree.Visible == false)
+			continue;
+
 		model->SetWorld(tree.Transform);
 		for (ModelMesh* mesh : model->Meshes())
 			mesh->Render();

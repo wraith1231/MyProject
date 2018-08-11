@@ -8,23 +8,88 @@
 #include "ObjectsRay.h"
 
 Objects::BoundingFrustum::BoundingFrustum()
+	: buffer(NULL), shader(NULL), worldBuffer(NULL), vertexBuffer(NULL), indexBuffer(NULL)
 {
-	worldBuffer = new WorldBuffer;
 }
 
 Objects::BoundingFrustum::BoundingFrustum(D3DXMATRIX matrix)
+	: buffer(NULL), shader(NULL), worldBuffer(NULL), vertexBuffer(NULL), indexBuffer(NULL)
 {
 	SetMatrix(matrix);
-	worldBuffer = new WorldBuffer;
 }
 
 Objects::BoundingFrustum::~BoundingFrustum()
 {
+	SAFE_DELETE(worldBuffer);
 	SAFE_DELETE(shader);
 	SAFE_DELETE(buffer);
 
 	SAFE_RELEASE(vertexBuffer);
 	SAFE_RELEASE(indexBuffer);
+}
+
+void Objects::BoundingFrustum::RenderFrustum()
+{
+	buffer = new FruBuffer();
+	worldBuffer = new WorldBuffer;
+	shader = new Shader(Shaders + L"040_Objects.hlsl");
+
+	for (UINT i = 0; i < 8; i++)
+	{
+		VertexColor temp;
+		temp.color = D3DXCOLOR(0, 0, 0, 0);
+		temp.position = cornerArray[i];
+		vertex.push_back(temp);
+	}
+
+	index.push_back(0); index.push_back(1);
+	index.push_back(1); index.push_back(2);
+	index.push_back(2); index.push_back(3);
+	index.push_back(3); index.push_back(0);
+
+	index.push_back(4); index.push_back(5);
+	index.push_back(5); index.push_back(6);
+	index.push_back(6); index.push_back(7);
+	index.push_back(7); index.push_back(4);
+
+	index.push_back(0); index.push_back(4);
+	index.push_back(1); index.push_back(5);
+	index.push_back(2); index.push_back(6);
+	index.push_back(3); index.push_back(7);
+
+	UINT vertexCount = vertex.size();
+	UINT indexCount = index.size();
+
+	HRESULT hr;
+	D3D11_BUFFER_DESC desc;
+	D3D11_SUBRESOURCE_DATA data;
+	//1. Vertex Buffer
+	{
+		ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.ByteWidth = sizeof(VertexColor) * vertexCount;
+		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+		ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+		data.pSysMem = &vertex[0];
+
+		hr = D3D::GetDevice()->CreateBuffer(&desc, &data, &vertexBuffer);
+		assert(SUCCEEDED(hr));
+	}
+
+	//2. Index Buffer
+	{
+		ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.ByteWidth = sizeof(UINT) * indexCount;
+		desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+		ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+		data.pSysMem = &index[0];
+
+		hr = D3D::GetDevice()->CreateBuffer(&desc, &data, &indexBuffer);
+		assert(SUCCEEDED(hr));
+	}
 }
 
 void Objects::BoundingFrustum::Update()
@@ -33,6 +98,9 @@ void Objects::BoundingFrustum::Update()
 
 void Objects::BoundingFrustum::Render()
 {
+	if (shader == NULL)
+		return;
+
 	buffer->SetPSBuffer(2);
 
 	UINT stride = sizeof(VertexColor);
@@ -51,6 +119,9 @@ void Objects::BoundingFrustum::Render()
 
 void Objects::BoundingFrustum::Render(D3DXMATRIX mat)
 {
+	if (shader == NULL)
+		return;
+
 	worldBuffer->SetMatrix(mat);
 	Render();
 }
@@ -70,15 +141,12 @@ Objects::Ray* Objects::BoundingFrustum::ComputeIntersection(Objects::Plane* p1, 
 	D3DXVECTOR3 t1 = (-p1->D * p2->Normal) + (p2->D * p1->Normal);
 	D3DXVec3Cross(&ray->Position, &t1, &ray->Direction);
 	ray->Position /= single;
-
+	
 	return ray;
 }
 
 void Objects::BoundingFrustum::SetMatrix(D3DXMATRIX value)
 {
-	buffer = new FruBuffer();
-	shader = new Shader(Shaders + L"040_Objects.hlsl");
-
 	matrix = value;
 	
 	for (UINT i = 0; i < 6; i++)
@@ -138,62 +206,6 @@ void Objects::BoundingFrustum::SetMatrix(D3DXMATRIX value)
 	cornerArray[5] = ComputeIntersection(plane[4], ray);
 	cornerArray[6] = ComputeIntersection(plane[5], ray);
 	
-	for (UINT i = 0; i < 8; i++)
-	{
-		VertexColor temp;
-		temp.color = D3DXCOLOR(0, 0, 0, 0);
-		temp.position = cornerArray[i];
-		vertex.push_back(temp);
-	}
-
-	index.push_back(0); index.push_back(1);
-	index.push_back(1); index.push_back(2);
-	index.push_back(2); index.push_back(3);
-	index.push_back(3); index.push_back(0);
-
-	index.push_back(4); index.push_back(5);
-	index.push_back(5); index.push_back(6);
-	index.push_back(6); index.push_back(7);
-	index.push_back(7); index.push_back(4);
-
-	index.push_back(0); index.push_back(4);
-	index.push_back(1); index.push_back(5);
-	index.push_back(2); index.push_back(6);
-	index.push_back(3); index.push_back(7);
-
-	UINT vertexCount = vertex.size();
-	UINT indexCount = index.size();
-
-	HRESULT hr;
-	D3D11_BUFFER_DESC desc;
-	D3D11_SUBRESOURCE_DATA data;
-	//1. Vertex Buffer
-	{
-		ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.ByteWidth = sizeof(VertexColor) * vertexCount;
-		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
-		ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
-		data.pSysMem = &vertex[0];
-
-		hr = D3D::GetDevice()->CreateBuffer(&desc, &data, &vertexBuffer);
-		assert(SUCCEEDED(hr));
-	}
-
-	//2. Index Buffer
-	{
-		ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.ByteWidth = sizeof(UINT) * indexCount;
-		desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-
-		ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
-		data.pSysMem = &index[0];
-
-		hr = D3D::GetDevice()->CreateBuffer(&desc, &data, &indexBuffer);
-		assert(SUCCEEDED(hr));
-	}
 }
 
 bool Objects::BoundingFrustum::Contain(Objects::BoundingBox * box)

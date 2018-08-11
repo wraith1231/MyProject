@@ -124,7 +124,7 @@ void Water::Update()
 
 void Water::Render()
 {
-
+	material->SetShader(shader);
 	D3D::GetDC()->OMSetBlendState(blendState[1], NULL, 0xFF);
 	UINT stride = sizeof(VertexType);
 	UINT offset = 0;

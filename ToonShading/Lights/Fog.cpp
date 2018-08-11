@@ -8,8 +8,6 @@ Fog::Fog()
 	buffer = new Buffer;
 
 	buffer->Data.Color = D3DXCOLOR(0.75f, 0.75f, 0.75f, 1.0f);
-	buffer->Data.Start = 0.0f;
-	buffer->Data.End = 1.0f;
 }
 
 Fog::~Fog()
@@ -33,9 +31,34 @@ void Fog::ImGuiRender()
 
 	{
 		ImGui::ColorEdit3("Color", buffer->Data.Color);
-		ImGui::SliderFloat("Start", &buffer->Data.Start, 0, 1);
-		ImGui::SliderFloat("End", &buffer->Data.End, 0, 1);
+		ImGui::SliderFloat("Start", &buffer->Data.Start, 0, 0.3f);
+		ImGui::SliderFloat("End", &buffer->Data.End, 0, 0.3f);
 	}
+
 	ImGui::End();
 
+}
+
+void Fog::SetUse(bool val)
+{
+	buffer->Data.Use = (UINT)val;
+}
+
+FogSave Fog::GetFogData()
+{
+	FogSave temp;
+	temp.Color = buffer->Data.Color;
+	temp.Start = buffer->Data.Start;
+	temp.End = buffer->Data.End;
+	temp.Use = buffer->Data.Use;
+
+	return temp;
+}
+
+void Fog::SetFogData(FogSave fog)
+{
+	buffer->Data.Color = fog.Color;
+	buffer->Data.Start = fog.Start;
+	buffer->Data.End = fog.End;
+	buffer->Data.Use = fog.Use;
 }

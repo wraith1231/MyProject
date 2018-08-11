@@ -120,7 +120,8 @@ cbuffer PS_Fog : register(b13)
 
     float _fogStart;
     float _fogEnd;
-    float2 _fogPadding;
+    uint _fogUse;
+    float _fogPadding;
 }
 
 Texture2D _diffuseMap : register(t0);

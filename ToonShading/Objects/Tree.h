@@ -5,13 +5,15 @@ struct TreeStruct
 	float Scale;
 	D3DXVECTOR3 Position;
 	D3DXMATRIX Transform;
+
+	bool Visible;
 };
 
+struct ExecuteValues;
 class Tree
 {
 public:
-public:
-	Tree(wstring fileName);
+	Tree(wstring fileName, ExecuteValues* values = NULL);
 	~Tree();
 
 	void AddTree(float scale, D3DXVECTOR3 Position);

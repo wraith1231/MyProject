@@ -35,7 +35,7 @@ GamePlayer::GamePlayer(wstring matFile, wstring meshFile, wstring animPath, Exec
 	boneWaist = model->Bone(L"Spine");
 	boneWaistSrc = boneWaist->Transform();
 
-	bullet = new Bullet;
+	bullet = new Bullet(values);
 
 	weaponDelay = 0.0f;
 	weaponTime = 1.0f;
@@ -51,6 +51,7 @@ GamePlayer::GamePlayer(wstring matFile, wstring meshFile, wstring animPath, Exec
 
 GamePlayer::~GamePlayer()
 {
+	SAFE_DELETE(bullet);
 	SAFE_DELETE(specData);
 	SAFE_DELETE(input);
 	SAFE_DELETE(bullet);
@@ -91,11 +92,13 @@ void GamePlayer::Render()
 
 void GamePlayer::PreRender()
 {
+	bullet->PreRender();
 	GameUnit::PreRender();
 }
 
 void GamePlayer::PreRender2()
 {
+	bullet->PreRender2();
 	GameUnit::PreRender2();
 }
 

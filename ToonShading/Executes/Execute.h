@@ -3,6 +3,7 @@
 #include "../Viewer/Camera.h"
 #include "../Viewer/Perspective.h"
 #include "../Viewer/Viewport.h"
+#include "../Bounding/Frustum.h"
 
 struct ExecuteValues
 {
@@ -12,6 +13,7 @@ struct ExecuteValues
 	class Viewport* Viewport;
 	class Camera* MainCamera;
 	class LightBuffer* GlobalLight;
+	class Objects::Frustum* ViewFrustum;
 
 	struct GuiSettings* GuiSettings;
 

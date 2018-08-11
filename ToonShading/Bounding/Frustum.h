@@ -10,8 +10,9 @@ namespace Objects
 		Frustum(const Frustum&);
 		~Frustum();
 
-		void ConstructFrustum(float, D3DXMATRIX, D3DXMATRIX);
+		void ConstructFrustum(float screenFar, D3DXMATRIX projection, D3DXMATRIX view);
 
+		bool CheckBox(Objects::BoundingBox* box);
 		bool CheckPoint(float, float, float);
 		bool CheckCube(float, float, float, float);
 		bool CheckSphere(float, float, float, float);

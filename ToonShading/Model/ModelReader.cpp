@@ -8,6 +8,7 @@
 #include "ModelCapsule.h"
 
 #include "../Utilities/BinaryFile.h"
+#include "../Bounding/BoundingBox.h"
 
 void Model::ReadMaterial(wstring file)
 {
@@ -63,6 +64,10 @@ void Model::BindMeshData()
 	}
 
 	capsule = new ModelCapsule(maxVer, minVer);
+	//box = new Objects::BoundingBox(maxVer, minVer);
+	cullingCenter = cullingOCenter = (maxVer + minVer) * 0.5f;
+	cullingRadian = D3DXVec3Length(&(maxVer - minVer));
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

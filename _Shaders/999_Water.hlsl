@@ -11,7 +11,7 @@ struct PixelInput
 
     float3 eye : VIEW0;
 
-    float alpha : ALPHA0;
+    //float alpha : ALPHA0;
     float3 wPosition : POSITION0;
 };
 
@@ -71,13 +71,11 @@ PixelInput VS(VertexTexture input)
     output.bump[1] = input.uv * _waterTextureScale * 2.0f + _waterTime * _waterBumpSpeed * 4.0f;
     output.bump[2] = input.uv * _waterTextureScale * 4.0f + _waterTime * _waterBumpSpeed * 8.0f;
 
-    output.alpha = 0.5f * (1.0f - saturate(1.0f / length(GetViewPosition() - world.xyz)));
+    //output.alpha = 0.5f * (1.0f - saturate(1.0f / length(GetViewPosition() - world.xyz)));
     output.wPosition = world;
 
     return output;
 }
-
-
 
 float4 PS(PixelInput input) : SV_TARGET
 {
@@ -92,10 +90,7 @@ float4 PS(PixelInput input) : SV_TARGET
     mat[2] = input.row[2];
 
     n = normalize(mul(n, mat));
-
-    //float4 reflection = (float4) 0;
-    //Specular(reflection.rgb, _direction, n, input.eye);
-    //reflection.rgb *= _reflectionBlur;
+    
     float4 r;
     r.xyz = reflect(input.eye, n);
 
@@ -118,5 +113,6 @@ float4 PS(PixelInput input) : SV_TARGET
     PointLightFunc(color, input.wPosition, input.row[2]);
     SpotLightFunc(color.rgb, input.wPosition, input.row[2]);
     
-    return float4(color, input.alpha);
+    return float4(color, 1);
+    //input.alpha);
 }

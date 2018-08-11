@@ -21,19 +21,18 @@
 //terrainBuffer -> type : 0 = 원형 브러쉬, 1 = 사각형 브러쉬
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-GameTerrain::GameTerrain()
+GameTerrain::GameTerrain(ExecuteValues* value)
+	: values(value)
 {
 	FirstInit();
 	Init();
 	CreateNormal();
 	CreateBuffer();
 
-	fog = new Fog;
 }
 
 GameTerrain::~GameTerrain()
 {
-	SAFE_DELETE(fog);
 	Clear();
 }
 
@@ -66,6 +65,8 @@ void GameTerrain::SaveTerrain(wstring saveFile)
 	}
 
 	terrainFile = file;
+
+	//material - texture1234 - vertex&index - water - Point Light - Spot Light - Fog - Tree 순 로드
 
 	BinaryWriter* w = new BinaryWriter();
 	w->Open(file);
@@ -133,18 +134,6 @@ void GameTerrain::SaveTerrain(wstring saveFile)
 		w->Byte(indices, sizeof(UINT) * indexSize);
 	}
 
-	//Tree
-	{
-		w->Float(windPower);
-		w->UInt(trees.size());
-		for (Tree* tree : trees)
-		{
-			w->String(String::ToString(tree->FileName()));
-			w->UInt(tree->Trees().size());
-			w->Byte(&tree->Trees()[0], sizeof(TreeStruct) * tree->Trees().size());
-		}
-	}
-
 	//Water
 	{
 		w->Bool(useWater);
@@ -197,6 +186,29 @@ void GameTerrain::SaveTerrain(wstring saveFile)
 		}
 	}
 
+	//Fog
+	{
+		w->Bool(useFog);
+		if (useFog == true)
+		{
+			FogSave temp = fog->GetFogData();
+			w->Byte(&temp, sizeof(FogSave));
+		}
+	}
+
+	//Tree
+	{
+		w->Float(windPower);
+		w->UInt(trees.size());
+		for (Tree* tree : trees)
+		{
+			w->String(String::ToString(tree->FileName()));
+			w->UInt(tree->Trees().size());
+			w->Byte(&tree->Trees()[0], sizeof(TreeStruct) * tree->Trees().size());
+		}
+	}
+
+
 	w->Close();
 	SAFE_DELETE(w);
 }
@@ -218,6 +230,7 @@ void GameTerrain::LoadTerrain(wstring saveFile)
 
 	Clear();
 
+	//material - texture1234 - vertex&index - water - Point Light - Spot Light - Fog - Tree 순 로드
 	BinaryReader* r = new BinaryReader();
 
 	wstring fileName = Path::GetFileLocalPath(saveFile);
@@ -308,6 +321,61 @@ void GameTerrain::LoadTerrain(wstring saveFile)
 	if(tex4Map.length() > 0)
 		tex4 = new Texture(tex4Map);
 
+	//Water
+	{
+		useWater = r->Bool();
+		if (useWater == true)
+		{
+			WaterStruct* temp = new WaterStruct();
+			r->Byte((void**)&temp, sizeof(WaterStruct));
+
+			water = new Water(width, height);
+			water->SetWaterParameter(*temp);
+
+			SAFE_DELETE(temp);
+		}
+	}
+
+	//Point Light
+	{
+		UINT size = r->UInt();
+		for (UINT i = 0; i < size; i++)
+		{
+			PointLightSave* temp = new PointLightSave;
+			r->Byte((void**)&temp, sizeof(PointLightSave));
+
+			pointLight->AddPointLight(temp->Position, temp->Color, temp->intenstiy, temp->range);
+			SAFE_DELETE(temp);
+		}
+	}
+
+	//Spot Light
+	{
+		UINT size = r->UInt();
+		for (UINT i = 0; i < size; i++)
+		{
+			SpotLightSave* temp = new SpotLightSave;
+			r->Byte((void**)&temp, sizeof(SpotLightSave));
+
+			spotLight->AddSpotLight(temp->Position, temp->Color, temp->Direction, temp->InnerAngle, temp->OuterAngle);
+			SAFE_DELETE(temp);
+		}
+	}
+
+	//Fog
+	{
+		useFog = r->Bool();
+		if (useFog == true)
+		{
+			FogSave* temp = new FogSave;
+			r->Byte((void**)&temp, sizeof(FogSave));
+	
+			fog = new Fog;
+			fog->SetFogData(*temp);
+			SAFE_DELETE(temp);
+		}
+	}
+
 	//tree
 	{
 		windPower = r->Float();
@@ -328,43 +396,6 @@ void GameTerrain::LoadTerrain(wstring saveFile)
 			trees.push_back(tree);
 		}
 
-	}
-
-	//Water
-	{
-		useWater = r->Bool();
-		if (useWater == true)
-		{
-			WaterStruct* temp = new WaterStruct();
-			r->Byte((void**)&temp, sizeof(WaterStruct));
-
-			water = new Water(width, height);
-			water->SetWaterParameter(*temp);
-		}
-	}
-
-	//Point Light
-	{
-		UINT size = r->UInt();
-		for (UINT i = 0; i < size; i++)
-		{
-			PointLightSave* temp = new PointLightSave;
-			r->Byte((void**)&temp, sizeof(PointLightSave));
-
-			pointLight->AddPointLight(temp->Position, temp->Color, temp->intenstiy, temp->range);
-		}
-	}
-
-	//Spot Light
-	{
-		UINT size = r->UInt();
-		for (UINT i = 0; i < size; i++)
-		{
-			SpotLightSave* temp = new SpotLightSave;
-			r->Byte((void**)&temp, sizeof(SpotLightSave));
-
-			spotLight->AddSpotLight(temp->Position, temp->Color, temp->Direction, temp->InnerAngle, temp->OuterAngle);
-		}
 	}
 
 	r->Close();
@@ -496,7 +527,7 @@ void GameTerrain::Render()
 
 	D3D::GetDC()->DrawIndexed(indexSize, 0, 0);
 
-	if (water != NULL && useWater == true)
+	if (water != NULL)
 		water->Render();
 
 	treeBuffer->SetVSBuffer(2);
@@ -694,6 +725,19 @@ void GameTerrain::ImGuiRender()
 			{
 				water = new Water(width, height);
 			}
+
+			bool b = useFog;
+			ImGui::Checkbox("Use Fog", &useFog);
+			if (useFog == true && fog == NULL)
+			{
+				fog = new Fog;
+			}
+			if (b != useFog)
+			{
+				if (b == true) fog->SetUse(false);
+				else fog->SetUse(true);
+			}
+
 			ImGui::InputInt("Width", (int*)&widthEdit);
 			ImGui::SameLine();
 			ImGui::InputInt("Height", (int*)&heightEdit);
@@ -745,10 +789,10 @@ void GameTerrain::ImGuiRender()
 
 		ImGui::End();
 
-		if (fog != NULL)
+		if (fog != NULL && useFog == true)
 			fog->ImGuiRender();
 
-		if (water != NULL)
+		if (water != NULL && useWater == true)
 			water->ImGuiRender();
 	}
 
@@ -797,103 +841,7 @@ bool GameTerrain::Intersect(D3DXVECTOR3 cam, D3DXVECTOR3 camDir, float & dis)
 		}	//for z
 	}
 
-	//for (int z = 0; z <= (int)height; z++)
-	//{
-	//	if (z < 0 || z >= (int)height) continue;
-	//	for (int x = 0; x <= width; x++)
-	//	{
-	//		if (x <0 || x >= (int)width) continue;
-	//
-	//		UINT ind0 = (width + 1) * z + x;
-	//		UINT ind1 = (width + 1) * (z + 1) + x;
-	//		UINT ind2 = (width + 1) * z + x + 1;
-	//		UINT ind3 = (width + 1) * (z + 1) + (x + 1);
-	//
-	//		D3DXVECTOR3 pos0 = vertices[ind0].position;
-	//		D3DXVECTOR3 pos1 = vertices[ind1].position;
-	//		D3DXVECTOR3 pos2 = vertices[ind2].position;
-	//		D3DXVECTOR3 pos3 = vertices[ind3].position;
-	//
-	//		if (D3DXIntersectTri(&pos0, &pos1, &pos2, &cam, &camDir, NULL, NULL, &dis))
-	//		{
-	//			selTer = cam + camDir*dis;
-	//			return true;
-	//		}
-	//
-	//		if (D3DXIntersectTri(&pos2, &pos1, &pos3, &cam, &camDir, NULL, NULL, &dis))
-	//		{
-	//			selTer = cam + camDir*dis;
-	//			return true;
-	//		}
-	//	}	//for x
-	//}	//for z
-
 	return false;
-	//D3DXVECTOR3 lb, lt, rb, rt;
-	//lb = quadRoot.LB;
-	//lt = quadRoot.LT;
-	//rb = quadRoot.RB;
-	//rt = quadRoot.RT;
-	//
-	//if (D3DXIntersectTri(&lb, &lt, &rb, &cam, &camDir, NULL, NULL, &dis) == TRUE || D3DXIntersectTri(&rb, &lt, &rt, &cam, &camDir, NULL, NULL, &dis) == TRUE)
-	//{
-	//	//quadruple
-	//	for (size_t i = 0; i < 4; i++)
-	//	{
-	//		lb = quadruple[i].LB;
-	//		lt = quadruple[i].LT;
-	//		rb = quadruple[i].RB;
-	//		rt = quadruple[i].RT;
-	//
-	//		if (D3DXIntersectTri(&lb, &lt, &rb, &cam, &camDir, NULL, NULL, &dis) == TRUE || D3DXIntersectTri(&rb, &lt, &rt, &cam, &camDir, NULL, NULL, &dis) == TRUE)
-	//		{
-	//			//sexdecuple
-	//			for (size_t j = i * 4; j < i * 4 + 4; j++)
-	//			{
-	//				lb = sexdecuple[j].LB;
-	//				lt = sexdecuple[j].LT;
-	//				rb = sexdecuple[j].RB;
-	//				rt = sexdecuple[j].RT;
-	//
-	//				if (D3DXIntersectTri(&lb, &lt, &rb, &cam, &camDir, NULL, NULL, &dis) == TRUE || D3DXIntersectTri(&rb, &lt, &rt, &cam, &camDir, NULL, NULL, &dis) == TRUE)
-	//				{
-	//					for (int z = (int)lb.z; z <= (int)lt.z; z++)
-	//					{
-	//						if (z < 0 || z >= (int)height) continue;
-	//						for (int x = (int)lb.x; x <= (int)rb.x; x++)
-	//						{
-	//							if (x <0 || x >= (int)width) continue;
-	//
-	//							UINT ind0 = (width + 1) * z + x;
-	//							UINT ind1 = (width + 1) * (z+ 1) + x;
-	//							UINT ind2 = (width + 1) * z + x + 1;
-	//							UINT ind3 = (width + 1) * (z + 1) + (x + 1);
-	//							
-	//							D3DXVECTOR3 pos0 = vertices[ind0].position;
-	//							D3DXVECTOR3 pos1 = vertices[ind1].position;
-	//							D3DXVECTOR3 pos2 = vertices[ind2].position;
-	//							D3DXVECTOR3 pos3 = vertices[ind3].position;
-	//							
-	//							if (D3DXIntersectTri(&pos0, &pos1, &pos2, &cam, &camDir, NULL, NULL, &dis))
-	//							{
-	//								selTer = cam + camDir*dis;
-	//								return true;
-	//							}
-	//							
-	//							if (D3DXIntersectTri(&pos2, &pos1, &pos3, &cam, &camDir, NULL, NULL, &dis))
-	//							{
-	//								selTer = cam + camDir*dis;
-	//								return true;
-	//							}
-	//						}	//for x
-	//					}	//for z
-	//				}	//sexdecuple Intersect
-	//			}	//for sexdecuple
-	//		}	//quadruple Intersect
-	//	}	//for quadruple
-	//}	//quadRoot Intersect
-	//
-	//return false;
 }
 
 void GameTerrain::EditMode(bool val)
@@ -1254,9 +1202,10 @@ void GameTerrain::FirstInit(UINT width, UINT height)
 	pointLight = NULL;
 	spotLight = NULL;
 	quadTreeRoot = NULL;
+	fog = NULL;
 
 	terrainFile = L"";
-	editMode = changed = treeDisposed = useWater = false;
+	editMode = changed = treeDisposed = useWater = useFog = false;
 	pointLightDispose = pointLightSelect = false;
 	spotLightDispose = spotLightSelect = false;
 	heightSet = treeDelay = offset = windPower = 0.0f;
@@ -1492,6 +1441,12 @@ void GameTerrain::QuadTreeMake(UINT width, UINT height)
 
 void GameTerrain::Clear()
 {
+	if (fog != NULL)
+	{
+		fog->SetUse(false);
+		fog->Render();
+	}
+	SAFE_DELETE(fog);
 	SAFE_DELETE(spotLight);
 	SAFE_DELETE(pointLight);
 
@@ -1541,7 +1496,7 @@ void GameTerrain::TreeFile(wstring file)
 	if (treeDisposed == false && treeSet != NULL)
 		SAFE_DELETE(treeSet);
 
-	treeSet = new Tree(file);
+	treeSet = new Tree(file, values);
 	treeDisposed = false;
 }
 

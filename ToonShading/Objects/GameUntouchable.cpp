@@ -3,7 +3,7 @@
 
 #include "../Bounding/BoundingBox.h"
 
-GameUntouchable::GameUntouchable(wstring file)
+GameUntouchable::GameUntouchable(wstring file, ExecuteValues* value)
 {
 	model = new Model;
 	wstring local = Path::GetFileLocalPathDirectory(file);
@@ -12,6 +12,7 @@ GameUntouchable::GameUntouchable(wstring file)
 	this->file = local;
 	model->ReadMaterial(local + L".material");
 	model->ReadMesh(local + L".mesh");
+	model->SetExecuteValue(value);
 
 	shader = new Shader(Shaders + L"999_Mesh.hlsl");
 	shader2 = new Shader(Shaders + L"999_Mesh.hlsl", "VS_Normal", "PS_Normal");
@@ -47,6 +48,7 @@ void GameUntouchable::AddTransforms(D3DXVECTOR3 scale, D3DXVECTOR3 rotate, D3DXV
 	mod->Scale = scale;
 	mod->Rotate = rotate;
 	mod->Translation = trans;
+	mod->Visible = true;
 
 	transforms.push_back(mod);
 }
@@ -91,15 +93,18 @@ void GameUntouchable::Update()
 	if (selected == true)
 	{
 		SelectObjectUpdate();
-
 	}
 
 	for (ModelStruct* mod : transforms)
 	{
+		model->SetWorld(mod->Transforms);
+		//model->VisibleUpdate();
+		//if (model->GetVisible() == false)
+		//	continue;
+
 		D3DXMATRIX S, R;
 		D3DXMatrixScaling(&S, mod->Scale.x, mod->Scale.y, mod->Scale.z);
 		D3DXMatrixRotationYawPitchRoll(&R, mod->Rotate.y, mod->Rotate.x, mod->Rotate.z);
-		//D3DXMatrixRotationQuaternion(&R, &mod->Rotate);
 		R._41 = mod->Translation.x;
 		R._42 = mod->Translation.y;
 		R._43 = mod->Translation.z;
@@ -233,11 +238,14 @@ void GameUntouchable::PreRender()
 
 	for (ModelStruct* mod : transforms)
 	{
-		for (ModelMesh* mesh : model->Meshes())
-		{
-			mesh->SetWorld(mod->Transforms);
-			mesh->Render();
-		}
+		model->SetWorld(mod->Transforms);
+		model->VisibleUpdate();
+		mod->Visible = model->GetVisible();
+
+		if (mod->Visible == false)
+			continue;
+
+		model->PreRender();
 	}
 }
 
@@ -248,11 +256,10 @@ void GameUntouchable::PreRender2()
 
 	for (ModelStruct* mod : transforms)
 	{
-		for (ModelMesh* mesh : model->Meshes())
-		{
-			mesh->SetWorld(mod->Transforms);
-			mesh->Render();
-		}
+		if (mod->Visible == false)
+			continue;
+		model->SetWorld(mod->Transforms);
+		model->PreRender2();
 	}
 }
 
@@ -263,11 +270,10 @@ void GameUntouchable::Render()
 
 	for (ModelStruct* mod : transforms)
 	{
-		for (ModelMesh* mesh : model->Meshes())
-		{
-			mesh->SetWorld(mod->Transforms);
-			mesh->Render();
-		}
+		if (mod->Visible == false)
+			continue;
+		model->SetWorld(mod->Transforms);
+		model->Render();
 	}
 }
 

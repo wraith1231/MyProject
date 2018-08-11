@@ -1,6 +1,12 @@
 #pragma once
 
 class GizmoAxis;
+struct ExecuteValues;
+
+namespace Objects
+{
+	class BoundingBox;
+}
 
 class ModelBuffer : public ShaderBuffer
 {
@@ -104,10 +110,15 @@ public:
 
 	void TransformsCopy();
 
+	void SetExecuteValue(ExecuteValues* values) { this->values = values; }
+	void VisibleUpdate();
+	bool GetVisible() { return visible; }
+
 private:
 	void BindMeshData();
 
 private:
+	ExecuteValues* values;
 	class ModelBone* root;
 
 	ModelBuffer* buffer;
@@ -127,11 +138,17 @@ private:
 	UINT selectIndex;
 
 	class ModelCapsule* capsule;
+	//Objects::BoundingBox* box;
+	D3DXVECTOR3 cullingCenter, cullingOCenter;
+	float cullingRadian;
 	//vector<class ModelAnimation*> animes;
 	Shader* shader2;
 	Shader* shader3;
 
 	vector<D3DXMATRIX> transforms;
+	D3DXMATRIX worldMat;
+
+	bool visible;
 };
 
 class Models

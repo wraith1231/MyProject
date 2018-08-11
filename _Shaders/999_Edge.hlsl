@@ -81,14 +81,19 @@ float4 PS(PixelInput input) : SV_TARGET
     nordot = dot(normalColor, normalColor);
     //depth는 원래 z / w로 구해야함, depth 맵의 값은 r, g에다 해놓은 관계로 이렇게 연산
     depth = depthColor.r / depthColor.g;
-    
-    depth *= fn;
-    
-    float factor = saturate((_fogEnd - depth) / (_fogEnd - _fogStart));
-    [branch]
-    if (factor > 0.5f)
-        return lerp(_fogColor, realColor, factor);
+    //return float4(depth, depth, depth, 1);
 
+    float factor = 0;
+    [branch]
+    if (_fogUse == 1)
+    {
+        factor = saturate((_fogEnd - depth) / (_fogEnd - _fogStart));
+    
+        if (factor > 0.6f)
+            return lerp(realColor, _fogColor, factor) * (_sunColor * _sunIntensity);
+    }
+
+    depth *= fn;
     
     //윗픽셀
     //float2 uv = input.uv;
@@ -158,6 +163,9 @@ float4 PS(PixelInput input) : SV_TARGET
     
     //검사결과 이상없으면 원래 그려질 색을 그린다
 
-    return lerp(realColor, _fogColor, factor);
+    if(_fogUse == 1)
+        return lerp(realColor, _fogColor, factor) * (_sunColor * _sunIntensity);
+    else
+        return realColor * (_sunColor * _sunIntensity);
     
 }

@@ -174,27 +174,3 @@ float4 PS_Depth(PixelDepthInput input) : SV_TARGET
     return float4(input.position.zw, 1, 1);
     return float4(input.zw.x, input.zw.y, 0, 1);
 }
-
-/*
-struct PointLight
-{
-float3 Position;
-float Padding1;
-float3 Color;
-float Padding2;
-
-float Intensity;
-float Range;
-}
-
-cbuffer PS_PointLights : register(b10)
-{
-PointLight _lights[16];
-}
-
-void PointLighting(inout float3 color, in PointLight light, in float3 position, in float3 normal) 
-{
-float dist = length(light.Position, position);
-float intensity = pow(saturate((light.Range - dist) / light.Range), light.Intensity);
-}
-*/

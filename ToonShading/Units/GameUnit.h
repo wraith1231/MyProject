@@ -1,11 +1,12 @@
 #pragma once
 #include "../Objects/GameAnimationModel.h"
 
+struct ExecuteValues;
 class GameWeapon;
 class GameUnit : public GameAnimationModel
 {
 public:
-	GameUnit(wstring matFile, wstring meshFile);
+	GameUnit(wstring matFile, wstring meshFile, ExecuteValues* value = NULL);
 	virtual ~GameUnit();
 
 	virtual void Update();

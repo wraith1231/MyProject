@@ -5,6 +5,7 @@ namespace Objects
 	class BoundingSphere;
 	class BoundingBox;
 }
+struct ExecuteValues;
 
 struct BulletStruct
 {
@@ -21,12 +22,13 @@ struct BulletStruct
 
 	float Speed;
 	D3DXMATRIX World;
+	bool Visible;
 };
 
 class Bullet
 {
 public:
-	Bullet();
+	Bullet(ExecuteValues* values = NULL);
 	~Bullet();
 
 	void AddBullet(D3DXVECTOR3 pos, D3DXVECTOR3 dir, float speed = 3.0f, float range = 50.0f, bool useGravity = false, D3DXVECTOR3 gravity = D3DXVECTOR3(0, 0, 0), float gravityPower = 9.8f);

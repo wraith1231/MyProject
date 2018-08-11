@@ -29,7 +29,6 @@ GameSettings::GameSettings(ExecuteValues* values)
 	, sceneFile(L"")
 	, values(values)
 {
-
 	CreateEnvironment();
 	CreatePlayer();
 	CreateEnemy();
@@ -696,7 +695,7 @@ void GameSettings::DisposeUnTouchable(wstring file)
 	}
 	disposed = false;
 
-	untoTemp = new GameUntouchable(file);
+	untoTemp = new GameUntouchable(file, values);
 
 	return;
 }
@@ -827,7 +826,7 @@ void GameSettings::LoadScene()
 		Json::Value va = (*tem)["Structs"];
 	
 		Json::GetValue(va, "File Name", s);
-		untoTemp = new GameUntouchable(String::ToWString(s));
+		untoTemp = new GameUntouchable(String::ToWString(s), values);
 
 		int qu;
 		Json::GetValue(va, "Quantity", qu);
@@ -925,7 +924,7 @@ void GameSettings::CreateEnvironment()
 	//
 	//skyBox->SetBasisPosition({ 0, 0, 0 });
 
-	terrain = new GameTerrain();
+	terrain = new GameTerrain(values);
 }
 
 void GameSettings::CreatePlayer()
@@ -955,7 +954,7 @@ void GameSettings::DisposeEnemy(D3DXVECTOR3 position)
 {
 	wstring matFile = Models + L"Enemies/Tiger.material";
 	wstring meshFile = Models + L"Enemies/Tiger.mesh";
-	GameEnemy* ene = new EnemyTank(matFile, meshFile);
+	GameEnemy* ene = new EnemyTank(matFile, meshFile, values);
 	
 	ene->StartAi(GameEnemy::AiType::Move, Math::Random(0.0f, 1.0f));
 	ene->StartPoint(position);

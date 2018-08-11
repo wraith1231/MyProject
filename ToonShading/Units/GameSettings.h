@@ -1,6 +1,7 @@
 #pragma once
 #include "GamePlayer.h"
 
+struct ExecuteValues;
 class GameSettings
 {
 public:

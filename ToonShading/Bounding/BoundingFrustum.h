@@ -14,6 +14,7 @@ namespace Objects
 		BoundingFrustum(D3DXMATRIX matrix);
 		~BoundingFrustum();
 
+		void RenderFrustum();
 		void SetColor(D3DXCOLOR color) { buffer->Data.Color = color; }
 		void Update();
 		void Render();

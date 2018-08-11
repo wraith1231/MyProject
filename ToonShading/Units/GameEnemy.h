@@ -4,6 +4,7 @@
 enum class UnitClassId;
 struct GameEnemySpec;
 struct AiState;
+struct ExecuteValues;
 class AiContext;
 
 namespace Objects
@@ -18,7 +19,7 @@ public:
 	enum class AiType;
 
 public:
-	GameEnemy(wstring matFile, wstring meshFile);
+	GameEnemy(wstring matFile, wstring meshFile, ExecuteValues* value = NULL);
 	virtual ~GameEnemy();
 
 	virtual void Update();

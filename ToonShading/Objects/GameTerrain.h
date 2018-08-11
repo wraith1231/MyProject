@@ -15,6 +15,7 @@ struct QuadStruct
 		RT = D3DXVECTOR3(0, 0, 0);
 	}
 };
+struct ExecuteValues;
 
 class QuadTree
 {
@@ -99,7 +100,7 @@ public:
 
 
 public:
-	GameTerrain();
+	GameTerrain(ExecuteValues* value = NULL);
 	~GameTerrain();
 
 	void SaveTerrain(wstring saveFile = L"");
@@ -159,6 +160,8 @@ private:
 	typedef VertexColorTextureNormal VertexType;
 
 	//base
+	ExecuteValues* values;
+
 	UINT width, height;
 
 	VertexType* vertices;
@@ -228,6 +231,9 @@ private:
 
 	class PointLight* pointLight;
 	class SpotLight* spotLight;
+
+	//Fog
+	bool useFog;
 	class Fog* fog;
 };
 

@@ -98,4 +98,6 @@ const wstring Jsons = L"../_Json/";
 #include "./Utilities/String.h"
 #include "./Utilities/Path.h"
 
+#include "./Bounding/Frustum.h"
+
 typedef VertexTextureNormalBlend ModelVertexType;

@@ -8,8 +8,8 @@
 #include "GameWeapon.h"
 #include "Bullet.h"
 
-EnemyTank::EnemyTank(wstring matFile, wstring meshFile)
-	: GameEnemy(matFile, meshFile)
+EnemyTank::EnemyTank(wstring matFile, wstring meshFile, ExecuteValues* value)
+	: GameEnemy(matFile, meshFile, value)
 {
 	currentAction = Action::Unknown;
 	engageAction = Action::Unknown;

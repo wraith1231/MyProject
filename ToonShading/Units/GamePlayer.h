@@ -2,6 +2,7 @@
 #include "GameUnit.h"
 
 class Bullet;
+struct ExecuteValues;
 
 namespace Objects
 {

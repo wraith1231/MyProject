@@ -3,8 +3,8 @@
 
 #include "AnimationBlender.h"
 
-GameAnimationModel::GameAnimationModel(wstring matFile, wstring meshFile)
-	: GameModel(matFile, meshFile)
+GameAnimationModel::GameAnimationModel(wstring matFile, wstring meshFile, ExecuteValues* value)
+	: GameModel(matFile, meshFile, value)
 {
 	for (UINT i = 0; i < model->BoneCount(); i++)
 	{

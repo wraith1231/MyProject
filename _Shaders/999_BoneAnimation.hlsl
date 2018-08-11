@@ -104,9 +104,9 @@ PixelDepthInput VS_Depth(VertexTextureNormal input)
     
     output.position = mul(input.position, _bones[_boneNumber]);
     output.position = mul(output.position, _view);
+    output.depth = output.position.zw;
     output.position = mul(output.position, _projection);
     
-    output.depth = output.position.zw;
 
     return output;
 }

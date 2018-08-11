@@ -4,12 +4,14 @@
 #include "../Bounding/BoundingSphere.h"
 #include "../Bounding/BoundingBox.h"
 
-Bullet::Bullet()
+Bullet::Bullet(ExecuteValues* values)
 {
 
 	model = new Model();
 	model->ReadMaterial(Models + L"Bullets/Bullet.material");
 	model->ReadMesh(Models + L"Bullets/Bullet.mesh");
+	model->SetExecuteValue(values);
+
 	D3DXVECTOR3 max, min;
 	model->CheckMaxMinVer(max, min);
 	float rad = max.y - min.y;
@@ -121,13 +123,17 @@ void Bullet::PreRender()
 
 	for (BulletStruct* bullet : bullets)
 	{
+		model->SetWorld(bullet->World);
+
+		model->VisibleUpdate();
+		bullet->Visible = model->GetVisible();
+
+		if (bullet->Visible == false) 
+			continue;
+
 		for (ModelMesh* mesh : model->Meshes())
-		{
-			mesh->SetWorld(bullet->World);
 			mesh->Render();
-		}
-		//model->SetWorld(bullet->World);
-		//model->Render();
+		//model->PreRender();
 	}
 }
 
@@ -138,13 +144,13 @@ void Bullet::PreRender2()
 
 	for (BulletStruct* bullet : bullets)
 	{
+		if (bullet->Visible == false) 
+			continue;
+
+		model->SetWorld(bullet->World);
 		for (ModelMesh* mesh : model->Meshes())
-		{
-			mesh->SetWorld(bullet->World);
 			mesh->Render();
-		}
-		//model->SetWorld(bullet->World);
-		//model->Render();
+		//model->PreRender2();
 	}
 }
 
@@ -155,12 +161,12 @@ void Bullet::Render()
 
 	for (BulletStruct* bullet : bullets)
 	{
+		if (bullet->Visible == false) 
+			continue;
+
+		model->SetWorld(bullet->World);
 		for (ModelMesh* mesh : model->Meshes())
-		{
-			mesh->SetWorld(bullet->World);
 			mesh->Render();
-		}
-		//model->SetWorld(bullet->World);
 		//model->Render();
 	}
 }

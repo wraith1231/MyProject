@@ -8,13 +8,18 @@
 #include "ModelCapsule.h"
 
 #include "../Bounding/GizmoAxis.h"
+#include "../Bounding/BoundingBox.h"
 
 Model::Model()
 {
 	gizmo = new GizmoAxis();
 	buffer = new ModelBuffer();
 	selectIndex = 0;
+	visible = true;
 	capsule = NULL;
+	//box = NULL;
+	values = NULL;
+	D3DXMatrixIdentity(&worldMat);
 	maxVer = D3DXVECTOR3(-9999, -9999, -9999);
 	minVer = D3DXVECTOR3(9999, 9999, 9999);
 }
@@ -49,7 +54,12 @@ void Model::Update()
 void Model::PreRender()
 {
 	transforms.clear();
-	CopyAbsoluteBoneTo(transforms);
+	CopyAbsoluteBoneTo(worldMat, transforms);
+
+	//VisibleUpdate();
+
+	//if (visible == false)
+	//	return;
 
 	for (ModelMesh* mesh : meshes)
 	{
@@ -63,6 +73,10 @@ void Model::PreRender()
 
 void Model::PreRender2()
 {
+	//VisibleUpdate();
+	//if (visible == false)
+	//	return;
+
 	for (ModelMesh* mesh : meshes)
 	{
 		int index = mesh->ParentBoneIndex();
@@ -75,6 +89,9 @@ void Model::PreRender2()
 
 void Model::Render()
 {
+	//if (visible == false)
+	//	return;
+
 	for (ModelMesh* mesh : meshes)
 	{
 		int index = mesh->ParentBoneIndex();
@@ -216,12 +233,6 @@ GizmoAxis * Model::GetSelectedGizmo()
 
 void Model::SelectBoneUpdate()
 {
-	//for (size_t i = 1; i < bones.size(); i++)
-	//{
-	//	bones[i]->gizmo->Update();
-	//	
-	//		//SetWorld(bones[i]->absoluteTransform * bones[i]->gizmo->GetWorld() * buffer->GetBoneMatrix(i - 1));
-	//}
 	for (size_t i = 1; i < bones.size(); i++)
 	{
 		ModelBone* bone = bones[i];
@@ -229,21 +240,13 @@ void Model::SelectBoneUpdate()
 		bone->transform = bone->absoluteTransform * bone->gizmo->GetTempWorld();
 
 	}
-	//for (ModelBone* bone : bones)
-	//{
-	//	bone->gizmo->Update();
-	//	bone->transform = bone->absoluteTransform * bone->gizmo->GetTempWorld();
-	//}
 }
 
 void Model::SetWorld(D3DXMATRIX& mat)
 {
+	worldMat = mat;
 	for (ModelMesh* mesh : meshes)
 		mesh->SetWorld(mat);
-	//for (size_t i = 1; i < bones.size(); i++)
-	//{
-	//	bones[i]->gizmo->SetWorld(bones[i]->gizmo->GetWorld() * mat);
-	//}
 }
 void Model::CheckMaxMinVer(D3DXVECTOR3 & max, D3DXVECTOR3 & min)
 {
@@ -258,7 +261,21 @@ void Model::CheckMaxMinVer(D3DXVECTOR3 & max, D3DXVECTOR3 & min)
 void Model::TransformsCopy()
 {
 	transforms.clear();
-	CopyAbsoluteBoneTo(transforms);
+	CopyAbsoluteBoneTo(worldMat, transforms);
+}
+void Model::VisibleUpdate()
+{
+	if (values != NULL)
+	{
+		visible = false;
+
+		//box->Update(transforms[0]);
+		D3DXVec3TransformCoord(&cullingCenter, &cullingOCenter, &worldMat);
+		visible = values->ViewFrustum->CheckSphere(cullingCenter.x, cullingCenter.y, cullingCenter.z, cullingRadian);
+		
+		//if (values->ViewFrustum->Contain(box) == true)
+		//	visible = true;
+	}
 }
 //skin 있는 애들은 이거 안씀
 void Model::CopyAbsoluteBoneTo(vector<D3DXMATRIX>& transforms)
@@ -314,20 +331,6 @@ void Model::GizmoTransformMatchToBuffer()
 		bones[i]->gizmo->SetWorld(bones[i]->absoluteTransform * bones[i]->gizmo->GetWorld() * buffer->GetBoneMatrix(i - 1));
 	}
 }
-//
-//void Model::AnimationMake(bool loop, wstring name, vector<float> times, vector<D3DXVECTOR3> scale, vector<D3DXVECTOR3> rotate, vector<D3DXVECTOR3> trans)
-//{
-//	ModelAnimation* temp = new ModelAnimation(loop, name, times, scale, rotate, trans);
-//
-//	animes.push_back(temp);
-//}
-//
-//void Model::AnimeUpdate()
-//{
-//	for (ModelAnimation* ani : animes)
-//		ani->Update();
-//}
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //Models

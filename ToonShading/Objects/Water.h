@@ -26,6 +26,7 @@ struct WaterStruct
 	float HDRMultiplier;
 	float WaterAmount;
 };
+struct ExecuteValues;
 
 class Water
 {

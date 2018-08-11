@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "GameModel.h"
 
-GameModel::GameModel(wstring materialFile, wstring meshFile)
+GameModel::GameModel(wstring materialFile, wstring meshFile, ExecuteValues* value)
 	: velocity(0.0f, 0.0f, 0.0f)
 {
 	model = new Model();
 	model->ReadMaterial(materialFile);
 	model->ReadMesh(meshFile);
+	model->SetExecuteValue(value);
 
 	shader = new Shader(Shaders + L"999_BoneAnimation.hlsl", "VS_Bone");
 	shader2 = new Shader(Shaders + L"999_BoneAnimation.hlsl", "VS_Normal", "PS_Normal");
@@ -89,10 +90,11 @@ void GameModel::Render()
 {
 	if (Visible() == false) return;
 
+	if (model->GetVisible() == false) return;
+
 	for (Material* material : model->Materials())
 		material->SetShader(shader);
 	
-	//boneBuffer->SetBones(&boneTransforms[0], boneTransforms.size());
 	boneBuffer->SetVSBuffer(2);
 
 	for (ModelMesh* mesh : model->Meshes())
@@ -110,11 +112,17 @@ void GameModel::PreRender()
 {
 	if (Visible() == false) return;
 
-	for (Material* material : model->Materials())
-		material->SetShader(shader2);
-
 	boneBuffer->SetBones(&boneTransforms[0], boneTransforms.size());
 	boneBuffer->SetVSBuffer(2);
+
+	model->SetWorld(boneTransforms[0]);
+	//model->TransformsCopy();
+	model->VisibleUpdate();
+	//
+	if (model->GetVisible() == false) return;
+
+	for (Material* material : model->Materials())
+		material->SetShader(shader2);
 
 
 	for (ModelMesh* mesh : model->Meshes())
@@ -132,12 +140,14 @@ void GameModel::PreRender2()
 {
 	if (Visible() == false) return;
 
+	if (model->GetVisible() == false) return;
+
 	for (Material* material : model->Materials())
 		material->SetShader(shader3);
 	
-	//boneBuffer->SetBones(&boneTransforms[0], boneTransforms.size());
 	boneBuffer->SetVSBuffer(2);
-	
+
+
 	for (ModelMesh* mesh : model->Meshes())
 	{
 		int index = mesh->ParentBoneIndex();

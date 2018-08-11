@@ -1,5 +1,13 @@
 #pragma once
 
+struct FogSave
+{
+	D3DXCOLOR Color;
+	float Start;
+	float End;
+	UINT Use;
+};
+
 class Fog
 {
 public:
@@ -10,6 +18,11 @@ public:
 	void Render();
 	void ImGuiRender();
 
+	void SetUse(bool val);
+
+	FogSave GetFogData();
+	void SetFogData(FogSave fog);
+
 private:
 	class Buffer : public ShaderBuffer
 	{
@@ -18,8 +31,8 @@ private:
 		{
 			Data.Color = D3DXCOLOR(0, 0, 0, 1);
 
-			Data.Start = 0.5f;
-			Data.End = 10.0f;
+			Data.Start = 0.0f;
+			Data.End = 0.02f;
 		}
 
 		struct Struct
@@ -28,7 +41,8 @@ private:
 
 			float Start;
 			float End;
-			float Padding[2];
+			UINT Use;
+			float Padding;
 		} Data;
 	};
 

@@ -9,8 +9,8 @@
 #include "../Bounding/BoundingBox.h"
 #include "../Bounding/ObjectsRay.h"
 
-GameEnemy::GameEnemy(wstring matFile, wstring meshFile)
-	: GameUnit(matFile, meshFile)
+GameEnemy::GameEnemy(wstring matFile, wstring meshFile, ExecuteValues* value)
+	: GameUnit(matFile, meshFile, value)
 	, unitClass(UnitClassId::Unknown)
 	, startAi(AiType::Search)
 	, specData(NULL)
@@ -62,6 +62,7 @@ GameEnemy::GameEnemy(wstring matFile, wstring meshFile)
 
 GameEnemy::~GameEnemy()
 {
+	SAFE_DELETE(bullet);
 }
 
 void GameEnemy::Update()

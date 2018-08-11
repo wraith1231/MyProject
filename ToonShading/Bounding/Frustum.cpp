@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Frustum.h"
 
+#include "BoundingBox.h"
+
 Objects::Frustum::Frustum()
 {
 }
@@ -61,6 +63,31 @@ void Objects::Frustum::ConstructFrustum(float screenFar, D3DXMATRIX projection, 
 	planes[5].c = mat._34 + mat._32;
 	planes[5].d = mat._44 + mat._42;
 	D3DXPlaneNormalize(&planes[5], &planes[5]);
+}
+
+bool Objects::Frustum::CheckBox(Objects::BoundingBox * box)
+{
+	bool flag = false;
+
+	for (int i = 0; i < 6; i++)
+	{
+		bool c = box->Intersects(planes[i]);
+
+		if (c == false)
+		{
+			return false;
+		}
+
+		if (c == true)
+		{
+			flag = true;
+		}
+	}
+
+	if (flag == false)
+		return false;
+
+	return true;
 }
 
 bool Objects::Frustum::CheckPoint(float x, float y, float z)

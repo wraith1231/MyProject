@@ -34,138 +34,106 @@ PixelInput VS(VertexTextureNormal input)
     return output;
 }
 
-//float mask[9] =
-//{
-//    -1, -1, -1,
-//    -1, 8, -1,
-//    -1, -1, -1
-//};  //Laplacian Filter
-//
-//float coord[3] = { -1, 0, 1 };
+half3 decodeNormal(half2 enc)
+{
+    half2 fenc = enc * 4 - 2;
+    half f = dot(fenc, fenc);
+    half g = sqrt(1 - f / 4);
+    half3 n;
+    n.xy = fenc * g;
+    n.z = 1 - f / 2;
+    return n;
+}
+
 
 float4 PS(PixelInput input) : SV_TARGET
 {
-
-    //연산 순서는 노멀~뎁스순으로 갑시다
-    //노멀은 dot 값 비교 - 1도단위(pi / 180) 비교로
-    //깊이는 적당한 값으로...
-
-    //혼란을 막기 위해 미리 정의
-    //normal 비교를 위한 값
-    //너무 크면 어지간히 normal값이 확 바뀌지 않는 이상 외곽선 안그려짐
-    //너무 작으면 원같은 경우는 사실상 까맣게만 그려짐
     float nor = (3.141592f / 180.0f) * 5.0f;
-    //depth 비교를 위한 값
-    //너무 크면 깊이가 거리에 따라서 어느정도는 차이가 없다고 보고 외곽선 안그리는 경우 발생
-    //너무 작으면 그냥 다 깊이 차이난다고 보고 외곽선을 덕지덕지 그림
-    float dep = 0.2f;
+    float dep = 0.002f;
 
-    float nordot, depth, ndot, de;  //nordot-현재 픽셀 dot값, depth-현재 픽셀 depth값, ndot-비교 픽셀 dot값, de-비교 픽셀 depth값 
+    float nordot, ndot;
     bool bd = true;
-    //uv값을 pixel에 맞게 조정하기 위함
     float hei = 1.0f / _valueHeight;
     float wid = 1.0f / _valueWidth;
-    //depth용 좀 더 수월하게 계산하기 위함
-    float fn = _valueFar * _valueNear;
-    //현재 픽셀의 normal, depth, real pixel 값을 가져온다
-    float4 normalColor = NormalRT.Sample(NormalRTSampler, input.uv);
-    normalColor.rgb = normalColor.rgb * 2.0f - 1.0f;
-    float4 depthColor = DepthRT.Sample(DepthRTSampler, input.uv);
+
+    float fn = 1;// / (_valueFar - _valueNear);
+
+    half4 normalColor = NormalRT.Sample(NormalRTSampler, input.uv);
+    normalColor.rgb = decodeNormal(normalColor.rg);
+    float depthColor = DepthRT.Sample(DepthRTSampler, input.uv).r;
     float4 realColor = RealRT.Sample(RealRTSampler, input.uv);
 
-    float4 depthColor1, normalColor1;
+    float depthColor1;
+    half4 normalColor1;
     float2 uv = input.uv;
-
-    //depth 값을 near-far 값이랑 비례해서 좀 더 잘보이게 분화
-    //normal에서 자기 자신에 대한 내적값을 구한다
+   
     nordot = dot(normalColor, normalColor);
-    //depth는 원래 z / w로 구해야함, depth 맵의 값은 r, g에다 해놓은 관계로 이렇게 연산
-    depth = depthColor.r / depthColor.g;
-    //return float4(depth, depth, depth, 1);
 
     float factor = 0;
     [branch]
     if (_fogUse == 1)
     {
-        factor = saturate((_fogEnd - depth) / (_fogEnd - _fogStart));
+        factor = saturate((_fogEnd - depthColor) / (_fogEnd - _fogStart));
     
         if (factor > 0.6f)
             return lerp(realColor, _fogColor, factor) * (_sunColor * _sunIntensity);
     }
-
-    depth *= fn;
     
-    //윗픽셀
-    //float2 uv = input.uv;
-        uv.y -= hei;
+    depthColor *= fn;
+
+    uv.y -= hei;
     normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
-    normalColor1.rgb = normalColor1.rgb * 2.0f - 1.0f;
-    depthColor1 = DepthRT.Sample(DepthRTSampler, uv);
-    //
-    ////해당 픽셀과 현재 픽셀의 내적값 
+    normalColor1.rgb = decodeNormal(normalColor1.rg);
+    depthColor1 = DepthRT.Sample(DepthRTSampler, uv).r;
+
     ndot = dot(normalColor, normalColor1);
-    //현재 픽셀의 depth값
-    de = depthColor1.r / depthColor1.g;
-    //depth값 보정
-    de *= fn;
-    //normal 비교
+    depthColor1 *= fn;
     if (abs(nordot - ndot) > nor)
         return float4(0, 0, 0, 1);
-    //depth 비교
-    if (abs(depth - de) > dep)
+    if (abs(depthColor - depthColor1) > dep)
         return float4(0, 0, 0, 1);
     
-    //왼쪽 픽셀
     uv.y += hei;
     uv.x -= wid;
     normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
-    normalColor1.rgb = normalColor1.rgb * 2.0f - 1.0f;
-    depthColor1 = DepthRT.Sample(DepthRTSampler, uv);
+    normalColor1.rgb = decodeNormal(normalColor1.rg);
+    depthColor1 = DepthRT.Sample(DepthRTSampler, uv).r;
     
     ndot = dot(normalColor, normalColor1);
-    de = depthColor1.r / depthColor1.g;
-    de *= fn;
+    depthColor1 *= fn;
     if (abs(nordot - ndot) > nor)
         return float4(0, 0, 0, 1);
-    if (abs(depth - de) > dep)
+    if (abs(depthColor - depthColor1) > dep)
         return float4(0, 0, 0, 1);
     
-    //오른쪽 픽셀
     uv.x += wid;
     uv.x += wid;
     normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
-    normalColor1.rgb = normalColor1.rgb * 2.0f - 1.0f;
-    depthColor1 = DepthRT.Sample(DepthRTSampler, uv);
+    normalColor1.rgb = decodeNormal(normalColor1.rg);
+    depthColor1 = DepthRT.Sample(DepthRTSampler, uv).r;
     
     ndot = dot(normalColor, normalColor1);
-    de = depthColor1.r / depthColor1.g;
-    de *= fn;
+    depthColor1 *= fn;
     if (abs(nordot - ndot) > nor)
         return float4(0, 0, 0, 1);
-    if (abs(depth - de) > dep)
+    if (abs(depthColor - depthColor1) > dep)
         return float4(0, 0, 0, 1);
     
-    //아래쪽 픽셀
     uv.x -= wid;
     uv.y += hei;
-    //uv.y += hei;
     normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
-    normalColor1.rgb = normalColor1.rgb * 2.0f - 1.0f;
-    depthColor1 = DepthRT.Sample(DepthRTSampler, uv);
+    normalColor1.rgb = decodeNormal(normalColor1.rg);
+    depthColor1 = DepthRT.Sample(DepthRTSampler, uv).r;
     
     ndot = dot(normalColor, normalColor1);
-    de = depthColor1.r / depthColor1.g;
-    de *= fn;
+    depthColor1 *= fn;
     if (abs(nordot - ndot) > nor)
         return float4(0, 0, 0, 1);
-    if (abs(depth - de) > dep)
+    if (abs(depthColor - depthColor1) > dep)
         return float4(0, 0, 0, 1);
     
-    //검사결과 이상없으면 원래 그려질 색을 그린다
-
     if(_fogUse == 1)
         return lerp(realColor, _fogColor, factor) * (_sunColor * _sunIntensity);
     else
         return realColor * (_sunColor * _sunIntensity);
-    
 }

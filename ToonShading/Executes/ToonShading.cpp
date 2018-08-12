@@ -27,11 +27,11 @@ ToonShading::ToonShading(ExecuteValues* values)
 
 	D3DXMatrixIdentity(&view);
 
-	normalRT = new RenderTarget(desc.Width, desc.Height);
-	depthRT = new RenderTarget(desc.Width, desc.Height);
-	realRT = new RenderTarget(desc.Width, desc.Height);
-	lightRT = new RenderTarget(desc.Width, desc.Height);
-	AART = new RenderTarget(desc.Width, desc.Height);
+	normalRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height, DXGI_FORMAT_R32G32_FLOAT);
+	depthRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height, DXGI_FORMAT_R32_FLOAT);
+	realRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
+	lightRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
+	AART = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 
 	{
 		D3DDesc desc;
@@ -161,14 +161,14 @@ void ToonShading::ResizeScreen()
 	buffer->Data.Near = values->Perspective->GetNearZ();
 	buffer->Data.Far = values->Perspective->GetFarZ();
 
-	normalRT->Create(desc.Width, desc.Height);
+	normalRT->Create((UINT)desc.Width, (UINT)desc.Height);
 
-	depthRT->Create(desc.Width, desc.Height);
+	depthRT->Create((UINT)desc.Width, (UINT)desc.Height);
 
-	realRT->Create(desc.Width, desc.Height);
+	realRT->Create((UINT)desc.Width, (UINT)desc.Height);
 
-	lightRT->Create(desc.Width, desc.Height);
+	lightRT->Create((UINT)desc.Width, (UINT)desc.Height);
 
-	AART->Create(desc.Width, desc.Height);
+	AART->Create((UINT)desc.Width, (UINT)desc.Height);
 
 }

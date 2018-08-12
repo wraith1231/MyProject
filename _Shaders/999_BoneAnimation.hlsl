@@ -87,13 +87,15 @@ PixelNormalInput VS_Normal(VertexTextureNormal input)
 }
 
 
-float4 PS_Normal(PixelNormalInput input) : SV_TARGET
+half4 PS_Normal(PixelNormalInput input) : SV_TARGET
 {
-    float3 normal = input.normal;
-
-    normal = (normal + 1.0f) * 0.5f;
-
-    return float4(normal, 1);
+    half p = sqrt(input.normal.z * 8 + 8);
+    return half4(input.normal.xy / p + 0.5, 0, 0);
+    //float3 normal = input.normal;
+    //
+    //normal = (normal + 1.0f) * 0.5f;
+    //
+    //return float4(normal, 1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,13 +114,14 @@ PixelDepthInput VS_Depth(VertexTextureNormal input)
 }
 
 
-float4 PS_Depth(PixelDepthInput input) : SV_TARGET
+float PS_Depth(PixelDepthInput input) : SV_TARGET
 {
-    return float4(input.position.z, input.position.w, 1, 1);
-    return float4(input.depth.x, input.depth.y, 1, 1);
-    float depth = input.depth.x / input.depth.y;
-
-    return float4(depth,depth, depth, 1);
+    return input.position.z / input.position.w;
+    //return float4(input.position.z, input.position.w, 1, 1);
+    //return float4(input.depth.x, input.depth.y, 1, 1);
+    //float depth = input.depth.x / input.depth.y;
+    //
+    //return float4(depth,depth, depth, 1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -73,12 +73,17 @@ float4 PS(PixelInput input) : SV_TARGET
     return color;
 }
 
-float4 PS_Depth(PixelInput input) : SV_TARGET
+float PS_Depth(PixelInput input) : SV_TARGET
 {
     float4 diffuseMap = _diffuseMap.Sample(_diffuseSampler, input.uv);
-
+    
     clip(diffuseMap.a - 0.9f);
-
-    return float4(input.position.zw, 1, 1);
+    
+    return input.position.z / input.position.w;
+    //float4 diffuseMap = _diffuseMap.Sample(_diffuseSampler, input.uv);
+    //
+    //clip(diffuseMap.a - 0.9f);
+    //
+    //return float4(input.position.zw, 1, 1);
 
 }

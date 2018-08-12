@@ -65,12 +65,12 @@ float4 PS(PixelInput input) : SV_TARGET
 
     clip(diffuseMap.a - 0.9f);
 
-    float4 color = GetDiffuseColor(diffuseMap, _direction, float3(0.0f, 1.0f, 0.0f));
+    //float4 color = GetDiffuseColor(diffuseMap, _direction, float3(0.0f, 1.0f, 0.0f));
     
-    PointLightFunc(color.rgb, input.wPosition, input.normal);
-    SpotLightFunc(color.rgb, input.wPosition, input.normal);
+    //PointLightFunc(color.rgb, input.wPosition, input.normal);
+    //SpotLightFunc(color.rgb, input.wPosition, input.normal);
 
-    return color;
+    return diffuseMap;
 }
 
 float PS_Depth(PixelInput input) : SV_TARGET

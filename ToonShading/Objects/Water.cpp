@@ -9,6 +9,7 @@ Water::Water(UINT width, UINT height)
 	, vsBuffer(NULL), psBuffer(NULL), worldBuffer(NULL)
 {
 	diffuseShader = new Shader(Shaders + L"999_Water.hlsl");
+	depthShader = new Shader(Shaders + L"999_Water.hlsl", "VS", "PS_Depth");
 
 	worldBuffer = new WorldBuffer();
 	vsBuffer = new WaterVSBuffer();
@@ -124,6 +125,7 @@ void Water::Update()
 
 void Water::DiffuseRender()
 {
+	material->SetShader(diffuseShader);
 	D3D::GetDC()->OMSetBlendState(blendState[1], NULL, 0xFF);
 	UINT stride = sizeof(VertexType);
 	UINT offset = 0;
@@ -139,6 +141,24 @@ void Water::DiffuseRender()
 
 	D3D::GetDC()->DrawIndexed(indexSize, 0, 0);
 	D3D::GetDC()->OMSetBlendState(blendState[0], NULL, 0xFF);
+}
+
+void Water::DepthRender()
+{
+	material->SetShader(depthShader);
+	UINT stride = sizeof(VertexType);
+	UINT offset = 0;
+
+	D3D::GetDC()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+	D3D::GetDC()->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	worldBuffer->SetVSBuffer(1);
+	vsBuffer->SetVSBuffer(12);
+	psBuffer->SetPSBuffer(12);
+	material->SetBuffer();
+
+	D3D::GetDC()->DrawIndexed(indexSize, 0, 0);
 }
 
 void Water::ImGuiRender()

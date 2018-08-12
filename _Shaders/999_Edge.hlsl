@@ -11,9 +11,12 @@ cbuffer PS_Value : register(b2)
 Texture2D NormalRT : register(t5);
 Texture2D DepthRT : register(t6);
 Texture2D RealRT : register(t7);
+Texture2D LightRT : register(t8);
+
 SamplerState NormalRTSampler : register(s5);
 SamplerState DepthRTSampler : register(s6);
 SamplerState RealRTSampler : register(s7);
+SamplerState LightRTSampler : register(s8);
 
 struct PixelInput
 {
@@ -48,6 +51,13 @@ half3 decodeNormal(half2 enc)
 
 float4 PS(PixelInput input) : SV_TARGET
 {
+    float4 realColor = RealRT.Sample(RealRTSampler, input.uv);
+    float4 light = LightRT.Sample(LightRTSampler, input.uv);
+    float3 NLATTColor = light.xyz;// * realColor.rgb;
+    float3 Lighting = NLATTColor * light.www;
+
+    return float4(Lighting, 1.0f);
+
     float nor = (3.141592f / 180.0f) * 5.0f;
     float dep = 0.002f;
 
@@ -61,7 +71,6 @@ float4 PS(PixelInput input) : SV_TARGET
     half4 normalColor = NormalRT.Sample(NormalRTSampler, input.uv);
     normalColor.rgb = decodeNormal(normalColor.rg);
     float depthColor = DepthRT.Sample(DepthRTSampler, input.uv).r;
-    float4 realColor = RealRT.Sample(RealRTSampler, input.uv);
 
     float depthColor1;
     half4 normalColor1;

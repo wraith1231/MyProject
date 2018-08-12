@@ -109,10 +109,14 @@ float4 PS(PixelInput input) : SV_TARGET
 
     float3 color = waterColor.rgb + reflection.rgb;
     
-    color = GetDiffuseColor(float4(color, 1), _direction, input.row[2]).rgb;
-    PointLightFunc(color, input.wPosition, input.row[2]);
-    SpotLightFunc(color.rgb, input.wPosition, input.row[2]);
+    //color = GetDiffuseColor(float4(color, 1), _direction, input.row[2]).rgb;
+    //PointLightFunc(color, input.wPosition, input.row[2]);
+    //SpotLightFunc(color.rgb, input.wPosition, input.row[2]);
     
     return float4(color, 1);
-    //input.alpha);
+}
+
+float PS_Depth(PixelInput input) : SV_TARGET
+{
+    return input.position.z / input.position.w;
 }

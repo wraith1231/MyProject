@@ -24,6 +24,22 @@ public:
 			float Far;
 		}Data;
 	};
+	class LightBuffer : public ShaderBuffer
+	{
+	public:
+		LightBuffer() : ShaderBuffer(&Data, sizeof(Struct))
+		{
+			Data.Attenuation = 10.0f;
+			Data.Power = 0.01f;
+		}
+
+		struct Struct
+		{
+			float Attenuation;
+			float Power;
+			float Padding[2];
+		} Data;
+	};
 
 public:
 	ToonShading(ExecuteValues* values);
@@ -45,6 +61,7 @@ public:
 private:
 	class Model* edgeModel;
 	class Model* aaModel;
+	class Model* lightModel;
 	D3DXMATRIX view;
 
 	RenderTarget* normalRT;
@@ -62,6 +79,7 @@ private:
 	Shader* aaShader;
 
 	Buffer* buffer;
+	LightBuffer* lightBuffer;
 
 	float xplus, yplus, zplus;
 };

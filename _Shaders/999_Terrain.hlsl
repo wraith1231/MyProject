@@ -108,11 +108,11 @@ float4 PS(PixelInput input) : SV_TARGET
     color2 = _texture4.Sample(_samplerState, input.uv);
     diffuse = lerp(diffuse, color2, input.color.r);
 
-    diffuse = GetDiffuseColor(diffuse, _direction, input.normal);
+    //diffuse = GetDiffuseColor(diffuse, _direction, input.normal);
     
     float3 color = diffuse.rgb + penCol.rgb;
-    PointLightFunc(color.rgb, input.wPosition, input.normal);
-    SpotLightFunc(color.rgb, input.wPosition, input.normal);
+    //PointLightFunc(color.rgb, input.wPosition, input.normal);
+    //SpotLightFunc(color.rgb, input.wPosition, input.normal);
 
 
     return float4(color, input.alpha);

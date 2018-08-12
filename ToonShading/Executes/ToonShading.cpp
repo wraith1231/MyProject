@@ -12,16 +12,25 @@ ToonShading::ToonShading(ExecuteValues* values)
 	edgeModel = new Model();
 	edgeModel->ReadMaterial(Models + L"Mesh/Quad.material");
 	edgeModel->ReadMesh(Models + L"Mesh/Quad.mesh");
+
 	aaModel = new Model();
 	aaModel->ReadMaterial(Models + L"Mesh/Quad.material");
 	aaModel->ReadMesh(Models + L"Mesh/Quad.mesh");
 
+	lightModel = new Model();
+	lightModel->ReadMaterial(Models + L"Mesh/Quad.material");
+	lightModel->ReadMesh(Models + L"Mesh/Quad.mesh");
+
 	edgeShader = new Shader(Shaders + L"999_Edge.hlsl");
+	lightShader = new Shader(Shaders + L"999_Light.hlsl");
 	aaShader = new Shader(Shaders + L"999_FXAA.hlsl");
+
 	for (Material* material : edgeModel->Materials())
 		material->SetShader(edgeShader);
 	for (Material* material : aaModel->Materials())
 		material->SetShader(aaShader);
+	for (Material* material : lightModel->Materials())
+		material->SetShader(lightShader);
 
 	worldBuffer = new WorldBuffer();
 
@@ -43,6 +52,7 @@ ToonShading::ToonShading(ExecuteValues* values)
 	buffer = new Buffer;
 	buffer->Data.Near = values->Perspective->GetNearZ();
 	buffer->Data.Far = values->Perspective->GetFarZ();
+	lightBuffer = new LightBuffer;
 
 	xplus = yplus = zplus = 0.0f;
 
@@ -51,7 +61,10 @@ ToonShading::ToonShading(ExecuteValues* values)
 	D3DXMatrixRotationY(&R, (float)D3DX_PI);
 	D3DXMatrixTranslation(&T, desc.Width / 2, desc.Height / 2, 0.5f);
 
-	edgeModel->Bone(0)->Transform(S*R*T);
+	edgeModel->Bone(0)->Transform(S*R*T); 
+
+	D3DXMatrixTranslation(&T, desc.Width / 2, desc.Height / 2, 0.5f);
+	lightModel->Bone(0)->Transform(S*R*T);
 
 	D3DXMatrixTranslation(&T, desc.Width / 2, desc.Height / 2, 0.4f);
 	aaModel->Bone(0)->Transform(S*R*T);
@@ -59,9 +72,14 @@ ToonShading::ToonShading(ExecuteValues* values)
 
 ToonShading::~ToonShading()
 {
+	SAFE_DELETE(lightBuffer);
+	SAFE_DELETE(buffer);
+
+	SAFE_DELETE(lightShader);
 	SAFE_DELETE(aaShader);
 	SAFE_DELETE(edgeShader);
 
+	SAFE_DELETE(lightModel);
 	SAFE_DELETE(aaModel);
 	SAFE_DELETE(edgeModel);
 
@@ -97,6 +115,27 @@ void ToonShading::DiffuseRender()
 void ToonShading::LightRender()
 {
 	lightRT->Set();
+	values->ViewProjection->SetView(view);
+
+	D3DXMATRIX pro;
+	projection->GetMatrix(&pro);
+
+	values->ViewProjection->SetProjection(pro);
+	values->ViewProjection->SetVSBuffer(0);
+
+	ID3D11ShaderResourceView* normalView = normalRT->GetSRV();
+	D3D::GetDC()->PSSetShaderResources(5, 1, &normalView);
+	ID3D11ShaderResourceView* depthView = depthRT->GetSRV();
+	D3D::GetDC()->PSSetShaderResources(6, 1, &depthView);
+	ID3D11ShaderResourceView* realView = realRT->GetSRV();
+	D3D::GetDC()->PSSetShaderResources(7, 1, &realView);
+
+	buffer->Data.Width = static_cast<float>(normalRT->GetWidth());
+	buffer->Data.Height = static_cast<float>(normalRT->GetHeight());
+	buffer->SetPSBuffer(2);
+	lightBuffer->SetPSBuffer(3);
+	lightModel->TransformsCopy();
+	lightModel->Render();
 }
 
 void ToonShading::EdgeRender()
@@ -117,6 +156,8 @@ void ToonShading::EdgeRender()
 	D3D::GetDC()->PSSetShaderResources(6, 1, &depthView);
 	ID3D11ShaderResourceView* realView = realRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(7, 1, &realView);
+	ID3D11ShaderResourceView* lightView = lightRT->GetSRV();
+	D3D::GetDC()->PSSetShaderResources(8, 1, &lightView);
 
 	buffer->Data.Width = static_cast<float>(normalRT->GetWidth());
 	buffer->Data.Height = static_cast<float>(normalRT->GetHeight());
@@ -148,7 +189,14 @@ void ToonShading::AARender()
 
 void ToonShading::ImGuiRender()
 {
+	ImGui::Begin("Light");
 
+	{
+		ImGui::InputFloat("Attenuation", &lightBuffer->Data.Attenuation);
+		ImGui::InputFloat("Power", &lightBuffer->Data.Power);
+	}
+
+	ImGui::End();
 }
 
 void ToonShading::ResizeScreen()

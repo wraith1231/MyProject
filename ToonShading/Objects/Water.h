@@ -104,6 +104,7 @@ public:
 
 	void Update();
 	void DiffuseRender();
+	void DepthRender();
 	void ImGuiRender();
 
 	WaterStruct GetWaterParameter();
@@ -123,6 +124,7 @@ private:
 	ID3D11Buffer* vertexBuffer, *indexBuffer;
 
 	Shader* diffuseShader;
+	Shader* depthShader;
 	Material* material;
 
 	WaterVSBuffer* vsBuffer;	//2¹ø

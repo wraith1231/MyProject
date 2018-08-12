@@ -590,6 +590,8 @@ void GameTerrain::DepthRender()
 
 	D3D::GetDC()->DrawIndexed(indexSize, 0, 0);
 
+	if (water != NULL)
+		water->DepthRender();
 	treeBuffer->SetVSBuffer(2);
 	for (Tree* tree : trees)
 		tree->DepthRender();

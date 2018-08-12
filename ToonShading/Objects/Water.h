@@ -103,7 +103,7 @@ public:
 	~Water();
 
 	void Update();
-	void Render();
+	void DiffuseRender();
 	void ImGuiRender();
 
 	WaterStruct GetWaterParameter();
@@ -122,7 +122,7 @@ private:
 	UINT vertexSize, indexSize;
 	ID3D11Buffer* vertexBuffer, *indexBuffer;
 
-	Shader* shader;
+	Shader* diffuseShader;
 	Material* material;
 
 	WaterVSBuffer* vsBuffer;	//2¹ø

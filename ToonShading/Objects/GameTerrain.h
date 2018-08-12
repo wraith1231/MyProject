@@ -110,9 +110,9 @@ public:
 
 	void Update();
 
-	void Render();
-	void PreRender();
-	void PreRender2();
+	void NormalRender();
+	void DepthRender();
+	void DiffuseRender();
 
 	void ImGuiRender();
 
@@ -176,9 +176,9 @@ private:
 	Texture* tex3;
 	Texture* tex4;
 
-	Shader* shader;
-	Shader* shader2;
-	Shader* shader3;
+	Shader* diffuseShader;
+	Shader* normalShader;
+	Shader* depthShader;
 
 	Material* material;
 

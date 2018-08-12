@@ -10,9 +10,11 @@ public:
 	virtual ~GameUnit();
 
 	virtual void Update();
-	virtual void Render();
-	virtual void PreRender();
-	virtual void PreRender2();
+
+	virtual void NormalRender();
+	virtual void DepthRender();
+	virtual void DiffuseRender();
+
 	virtual void ImGuiRender();
 
 	void Life(float val) { life = val; }

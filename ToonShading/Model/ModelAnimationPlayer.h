@@ -15,8 +15,8 @@ public:
 	//이건 아마 clip쪽에 뺄듯
 	void Update();
 
-	void PreRender();
-	void PreRender2();
+	void NormalRender();
+	void DepthRender();
 	void Render();
 
 	Mode GetMode() { return mode; }

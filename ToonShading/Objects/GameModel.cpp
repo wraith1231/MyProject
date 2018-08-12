@@ -9,12 +9,12 @@ GameModel::GameModel(wstring materialFile, wstring meshFile, ExecuteValues* valu
 	model->ReadMesh(meshFile);
 	model->SetExecuteValue(value);
 
-	shader = new Shader(Shaders + L"999_BoneAnimation.hlsl", "VS_Bone");
-	shader2 = new Shader(Shaders + L"999_BoneAnimation.hlsl", "VS_Normal", "PS_Normal");
+	diffuseShader = new Shader(Shaders + L"999_BoneAnimation.hlsl", "VS_Bone");
+	normalShader = new Shader(Shaders + L"999_BoneAnimation.hlsl", "VS_Normal", "PS_Normal");
 	//shader3 = NULL;
-	shader3 = new Shader(Shaders + L"999_BoneAnimation.hlsl", "VS_Depth", "PS_Depth");
+	depthShader = new Shader(Shaders + L"999_BoneAnimation.hlsl", "VS_Depth", "PS_Depth");
 	for (Material* material : model->Materials())
-		material->SetShader(shader);
+		material->SetShader(diffuseShader);
 
 	boneBuffer = new BoneBuffer();
 	renderBuffer = new RenderBuffer();
@@ -26,9 +26,9 @@ GameModel::~GameModel()
 {
 	SAFE_DELETE(renderBuffer);
 	SAFE_DELETE(boneBuffer);
-	SAFE_DELETE(shader3);
-	SAFE_DELETE(shader2);
-	SAFE_DELETE(shader);
+	SAFE_DELETE(depthShader);
+	SAFE_DELETE(normalShader);
+	SAFE_DELETE(diffuseShader);
 	SAFE_DELETE(model);
 }
 
@@ -86,29 +86,7 @@ void GameModel::Update()
 	model->CopyAbsoluteBoneTo(transform, boneTransforms);
 }
 
-void GameModel::Render()
-{
-	if (Visible() == false) return;
-
-	if (model->GetVisible() == false) return;
-
-	for (Material* material : model->Materials())
-		material->SetShader(shader);
-	
-	boneBuffer->SetVSBuffer(2);
-
-	for (ModelMesh* mesh : model->Meshes())
-	{
-		int index = mesh->ParentBoneIndex();
-		
-		renderBuffer->Data.BoneNumber = index;
-		renderBuffer->SetVSBuffer(3);
-
-		mesh->Render();
-	}
-}
-
-void GameModel::PreRender()
+void GameModel::NormalRender()
 {
 	if (Visible() == false) return;
 
@@ -122,7 +100,7 @@ void GameModel::PreRender()
 	if (model->GetVisible() == false) return;
 
 	for (Material* material : model->Materials())
-		material->SetShader(shader2);
+		material->SetShader(normalShader);
 
 
 	for (ModelMesh* mesh : model->Meshes())
@@ -136,25 +114,47 @@ void GameModel::PreRender()
 	}
 }
 
-void GameModel::PreRender2()
+void GameModel::DepthRender()
 {
 	if (Visible() == false) return;
 
 	if (model->GetVisible() == false) return;
 
 	for (Material* material : model->Materials())
-		material->SetShader(shader3);
-	
+		material->SetShader(depthShader);
+
 	boneBuffer->SetVSBuffer(2);
 
 
 	for (ModelMesh* mesh : model->Meshes())
 	{
 		int index = mesh->ParentBoneIndex();
-	
+
 		renderBuffer->Data.BoneNumber = index;
 		renderBuffer->SetVSBuffer(3);
-	
+
+		mesh->Render();
+	}
+}
+
+void GameModel::DiffuseRender()
+{
+	if (Visible() == false) return;
+
+	if (model->GetVisible() == false) return;
+
+	for (Material* material : model->Materials())
+		material->SetShader(diffuseShader);
+
+	boneBuffer->SetVSBuffer(2);
+
+	for (ModelMesh* mesh : model->Meshes())
+	{
+		int index = mesh->ParentBoneIndex();
+
+		renderBuffer->Data.BoneNumber = index;
+		renderBuffer->SetVSBuffer(3);
+
 		mesh->Render();
 	}
 }

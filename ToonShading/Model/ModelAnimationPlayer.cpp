@@ -71,7 +71,7 @@ void ModelAnimPlayer::Update()
 
 }
 
-void ModelAnimPlayer::PreRender()
+void ModelAnimPlayer::NormalRender()
 {
 	model->Buffer()->SetVSBuffer(2);
 
@@ -82,7 +82,7 @@ void ModelAnimPlayer::PreRender()
 		mesh->Render();
 }
 
-void ModelAnimPlayer::PreRender2()
+void ModelAnimPlayer::DepthRender()
 {
 	model->Buffer()->SetVSBuffer(2);
 

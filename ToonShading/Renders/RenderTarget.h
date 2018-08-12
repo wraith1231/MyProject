@@ -3,7 +3,7 @@
 class RenderTarget
 {
 public:
-	RenderTarget();
+	RenderTarget(UINT width = 1280, UINT height = 720, DXGI_FORMAT format = DXGI_FORMAT_R32G32B32A32_FLOAT);
 	~RenderTarget();
 	
 	ID3D11RenderTargetView* GetRTV()
@@ -26,7 +26,7 @@ public:
 
 	void Set();
 
-	void Create(UINT width = 1280, UINT height = 720);
+	void Create(UINT width = 1280, UINT height = 720, DXGI_FORMAT format = DXGI_FORMAT_R32G32B32A32_FLOAT);
 private:
 	void Delete();
 

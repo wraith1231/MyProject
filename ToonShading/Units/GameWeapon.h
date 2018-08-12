@@ -11,9 +11,11 @@ public:
 	~GameWeapon();
 
 	void Update();
-	void Render();
-	void PreRender();
-	void PreRender2();
+
+	void NormalRender();
+	void DepthRender();
+	void DiffuseRender();
+
 	void ImGuiRender();
 
 	struct GameWeaponSpec* SpecData() { return specData; }

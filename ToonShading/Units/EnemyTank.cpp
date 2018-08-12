@@ -106,11 +106,9 @@ void EnemyTank::Update()
 	GameEnemy::Update();
 }
 
-void EnemyTank::Render()
+void EnemyTank::DiffuseRender()
 {
-	GameEnemy::Render();
-
-	ImGui::Text("Tank State : %d, %d", (int)engageAction, (int)currentAction);
+	GameEnemy::DiffuseRender();
 }
 
 void EnemyTank::ActionIdle()

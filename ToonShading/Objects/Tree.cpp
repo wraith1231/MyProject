@@ -13,16 +13,16 @@ Tree::Tree(wstring fileName, ExecuteValues* values)
 		material->SetDiffuseMap(fileName);
 
 
-	shader = new Shader(Shaders + L"999_Tree.hlsl");
-	shader3 = new Shader(Shaders + L"999_Tree.hlsl", "VS", "PS_Depth");
+	diffuseShader = new Shader(Shaders + L"999_Tree.hlsl");
+	depthShader = new Shader(Shaders + L"999_Tree.hlsl", "VS", "PS_Depth");
 }
 
 Tree::~Tree()
 {
 	SAFE_DELETE(model);
 
-	SAFE_DELETE(shader);
-	SAFE_DELETE(shader3);
+	SAFE_DELETE(diffuseShader);
+	SAFE_DELETE(depthShader);
 }
 
 void Tree::AddTree(float scale, D3DXVECTOR3 Position)
@@ -45,10 +45,10 @@ void Tree::Update()
 {
 }
 
-void Tree::PostRender2()
+void Tree::DepthRender()
 {
 	for (Material* mat : model->Materials())
-		mat->SetShader(shader3);
+		mat->SetShader(depthShader);
 
 
 	for (TreeStruct tree : trees)
@@ -65,10 +65,10 @@ void Tree::PostRender2()
 	}
 }
 
-void Tree::Render()
+void Tree::DiffuseRender()
 {
 	for (Material* mat : model->Materials())
-		mat->SetShader(shader);
+		mat->SetShader(diffuseShader);
 
 	for (TreeStruct tree : trees)
 	{

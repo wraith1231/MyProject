@@ -88,22 +88,22 @@ void GameEnemy::EditUpdate()
 	model->CopyAbsoluteBoneTo(transformed, boneTransforms);
 }
 
-void GameEnemy::PreRender()
+void GameEnemy::NormalRender()
 {
-	bullet->PreRender();
-	GameUnit::PreRender();
+	bullet->NormalRender();
+	GameUnit::NormalRender();
 }
 
-void GameEnemy::PreRender2()
+void GameEnemy::DepthRender()
 {
-	bullet->PreRender2();
-	GameUnit::PreRender2();
+	bullet->DepthRender();
+	GameUnit::DepthRender();
 }
 
-void GameEnemy::Render()
+void GameEnemy::DiffuseRender()
 {
-	bullet->Render();
-	GameUnit::Render();
+	bullet->DiffuseRender();
+	GameUnit::DiffuseRender();
 }
 
 void GameEnemy::ImGuiRender()

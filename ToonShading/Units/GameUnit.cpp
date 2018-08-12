@@ -26,19 +26,19 @@ void GameUnit::Update()
 	GameAnimationModel::Update();
 }
 
-void GameUnit::Render()
+void GameUnit::NormalRender()
 {
-	GameAnimationModel::Render();
+	GameAnimationModel::NormalRender();
 }
 
-void GameUnit::PreRender()
+void GameUnit::DepthRender()
 {
-	GameAnimationModel::PreRender();
+	GameAnimationModel::DepthRender();
 }
 
-void GameUnit::PreRender2()
+void GameUnit::DiffuseRender()
 {
-	GameAnimationModel::PreRender2();
+	GameAnimationModel::DiffuseRender();
 }
 
 void GameUnit::ImGuiRender()

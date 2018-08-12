@@ -47,7 +47,7 @@ UINT PointLight::PointLightSize()
 	return buffer->Data.Count;
 }
 
-void PointLight::Render()
+void PointLight::DiffuseRender()
 {
 	buffer->SetPSBuffer(10);
 
@@ -59,7 +59,7 @@ void PointLight::Render()
 	}
 }
 
-void PointLight::Render(bool val)
+void PointLight::DiffuseRender(bool val)
 {
 	buffer->SetPSBuffer(10);
 

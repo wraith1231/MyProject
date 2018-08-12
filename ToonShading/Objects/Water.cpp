@@ -5,17 +5,17 @@ Water::Water(UINT width, UINT height)
 	: width(width), height(height)
 	, vertexBuffer(NULL), indexBuffer(NULL)
 	, vertices(NULL), indices(NULL)
-	, material(NULL), shader(NULL)
+	, material(NULL), diffuseShader(NULL)
 	, vsBuffer(NULL), psBuffer(NULL), worldBuffer(NULL)
 {
-	shader = new Shader(Shaders + L"999_Water.hlsl");
+	diffuseShader = new Shader(Shaders + L"999_Water.hlsl");
 
 	worldBuffer = new WorldBuffer();
 	vsBuffer = new WaterVSBuffer();
 	psBuffer = new WaterPSBuffer();
 
 	material = new Material;
-	material->SetShader(shader);
+	material->SetShader(diffuseShader);
 
 	//material->SetDiffuseMap(Textures + L"Water.png");
 	material->SetSpecularMap(Textures + L"WaveSpecular.png");
@@ -103,7 +103,7 @@ Water::~Water()
 {
 	for (int i = 0; i < 2; i++)
 		SAFE_RELEASE(blendState[i]);
-	SAFE_DELETE(shader);
+	SAFE_DELETE(diffuseShader);
 	SAFE_DELETE(material);
 
 	SAFE_DELETE_ARRAY(vertices);
@@ -122,9 +122,8 @@ void Water::Update()
 	vsBuffer->Data.Time += Time::Delta();
 }
 
-void Water::Render()
+void Water::DiffuseRender()
 {
-	material->SetShader(shader);
 	D3D::GetDC()->OMSetBlendState(blendState[1], NULL, 0xFF);
 	UINT stride = sizeof(VertexType);
 	UINT offset = 0;
@@ -132,7 +131,7 @@ void Water::Render()
 	D3D::GetDC()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
 	D3D::GetDC()->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	material->SetShader(shader);
+
 	worldBuffer->SetVSBuffer(1);
 	vsBuffer->SetVSBuffer(12);
 	psBuffer->SetPSBuffer(12);
@@ -225,4 +224,8 @@ void Water::SetWaterParameter(WaterStruct param)
 	psBuffer->Data.FresnelBias = param.FresnelBias;
 	psBuffer->Data.HDRMultiplier = param.HDRMultiplier;
 	psBuffer->Data.WaterAmount = param.WaterAmount;
+}
+
+void Water::Init()
+{
 }

@@ -6,28 +6,32 @@
 ToonShading::ToonShading(ExecuteValues* values)
 	: Execute(values)
 {
-	model = new Model();
-	model->ReadMaterial(Models + L"Mesh/Quad.material");
-	model->ReadMesh(Models + L"Mesh/Quad.mesh");
-	model2 = new Model();
-	model2->ReadMaterial(Models + L"Mesh/Quad.material");
-	model2->ReadMesh(Models + L"Mesh/Quad.mesh");
+	D3DDesc desc;
+	D3D::GetDesc(&desc);
 
-	shader = new Shader(Shaders + L"999_Edge.hlsl");
-	shaderaa = new Shader(Shaders + L"999_FXAA.hlsl");
-	for (Material* material : model->Materials())
-		material->SetShader(shader);
-	for (Material* material : model2->Materials())
-		material->SetShader(shaderaa);
+	edgeModel = new Model();
+	edgeModel->ReadMaterial(Models + L"Mesh/Quad.material");
+	edgeModel->ReadMesh(Models + L"Mesh/Quad.mesh");
+	aaModel = new Model();
+	aaModel->ReadMaterial(Models + L"Mesh/Quad.material");
+	aaModel->ReadMesh(Models + L"Mesh/Quad.mesh");
+
+	edgeShader = new Shader(Shaders + L"999_Edge.hlsl");
+	aaShader = new Shader(Shaders + L"999_FXAA.hlsl");
+	for (Material* material : edgeModel->Materials())
+		material->SetShader(edgeShader);
+	for (Material* material : aaModel->Materials())
+		material->SetShader(aaShader);
 
 	worldBuffer = new WorldBuffer();
 
 	D3DXMatrixIdentity(&view);
 
-	normalRT = new RenderTarget();
-	depthRT = new RenderTarget();
-	realRT = new RenderTarget();
-	AART = new RenderTarget();
+	normalRT = new RenderTarget(desc.Width, desc.Height);
+	depthRT = new RenderTarget(desc.Width, desc.Height);
+	realRT = new RenderTarget(desc.Width, desc.Height);
+	lightRT = new RenderTarget(desc.Width, desc.Height);
+	AART = new RenderTarget(desc.Width, desc.Height);
 
 	{
 		D3DDesc desc;
@@ -41,17 +45,28 @@ ToonShading::ToonShading(ExecuteValues* values)
 	buffer->Data.Far = values->Perspective->GetFarZ();
 
 	xplus = yplus = zplus = 0.0f;
+
+	D3DXMATRIX S, R, T;
+	D3DXMatrixScaling(&S, desc.Width, desc.Height, 1.0f);
+	D3DXMatrixRotationY(&R, (float)D3DX_PI);
+	D3DXMatrixTranslation(&T, desc.Width / 2, desc.Height / 2, 0.5f);
+
+	edgeModel->Bone(0)->Transform(S*R*T);
+
+	D3DXMatrixTranslation(&T, desc.Width / 2, desc.Height / 2, 0.4f);
+	aaModel->Bone(0)->Transform(S*R*T);
 }
 
 ToonShading::~ToonShading()
 {
-	SAFE_DELETE(shaderaa);
-	SAFE_DELETE(shader);
+	SAFE_DELETE(aaShader);
+	SAFE_DELETE(edgeShader);
 
-	SAFE_DELETE(model2);
-	SAFE_DELETE(model);
+	SAFE_DELETE(aaModel);
+	SAFE_DELETE(edgeModel);
 
 	SAFE_DELETE(AART);
+	SAFE_DELETE(lightRT);
 	SAFE_DELETE(normalRT);
 	SAFE_DELETE(depthRT);
 	SAFE_DELETE(realRT);
@@ -61,37 +76,30 @@ ToonShading::~ToonShading()
 
 void ToonShading::Update()
 {
-	D3DDesc desc;
-	D3D::GetDesc(&desc);
-
-	D3DXMATRIX S, R, T;
-	D3DXMatrixScaling(&S, desc.Width, desc.Height, 1.0f);
-	D3DXMatrixRotationY(&R, (float)D3DX_PI);
-	D3DXMatrixTranslation(&T, desc.Width / 2, desc.Height / 2 , 0.5f);
-
-	model->Bone(0)->Transform(S*R*T);
-
-	D3DXMatrixTranslation(&T, desc.Width / 2 + xplus, desc.Height / 2 + yplus, 0.2f + zplus);
-	model2->Bone(0)->Transform(S*R*T);
 }
 
-void ToonShading::PreRender()
+void ToonShading::NormalRender()
 {
 	normalRT->Set();
 
 }
 
-void ToonShading::PreRender2()
+void ToonShading::DepthRender()
 {
 	depthRT->Set();
 }
 
-void ToonShading::Render()
+void ToonShading::DiffuseRender()
 {
 	realRT->Set();
 }
 
-void ToonShading::PostRender()
+void ToonShading::LightRender()
+{
+	lightRT->Set();
+}
+
+void ToonShading::EdgeRender()
 {
 	AART->Set();
 
@@ -113,11 +121,11 @@ void ToonShading::PostRender()
 	buffer->Data.Width = static_cast<float>(normalRT->GetWidth());
 	buffer->Data.Height = static_cast<float>(normalRT->GetHeight());
 	buffer->SetPSBuffer(2);
-	model->TransformsCopy();
-	model->Render();
+	edgeModel->TransformsCopy();
+	edgeModel->Render();
 }
 
-void ToonShading::PostRender2()
+void ToonShading::AARender()
 {
 	values->ViewProjection->SetView(view);
 	
@@ -134,8 +142,8 @@ void ToonShading::PostRender2()
 	buffer->Data.Height = static_cast<float>(AART->GetHeight());
 	buffer->SetPSBuffer(2);
 	buffer->SetVSBuffer(2);
-	model2->TransformsCopy();
-	model2->Render();
+	aaModel->TransformsCopy();
+	aaModel->Render();
 }
 
 void ToonShading::ImGuiRender()
@@ -153,12 +161,14 @@ void ToonShading::ResizeScreen()
 	buffer->Data.Near = values->Perspective->GetNearZ();
 	buffer->Data.Far = values->Perspective->GetFarZ();
 
-	normalRT->Create();
+	normalRT->Create(desc.Width, desc.Height);
 
-	depthRT->Create();
+	depthRT->Create(desc.Width, desc.Height);
 
-	realRT->Create();
+	realRT->Create(desc.Width, desc.Height);
 
-	AART->Create();
+	lightRT->Create(desc.Width, desc.Height);
+
+	AART->Create(desc.Width, desc.Height);
 
 }

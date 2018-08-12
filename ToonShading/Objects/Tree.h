@@ -20,8 +20,8 @@ public:
 
 	void Update();
 
-	void PostRender2();
-	void Render();
+	void DepthRender();
+	void DiffuseRender();
 
 	wstring FileName() { return fileName; }
 
@@ -33,8 +33,8 @@ private:
 	Model* model;
 	wstring fileName;
 
-	Shader* shader;
-	Shader* shader3;
+	Shader* diffuseShader;
+	Shader* depthShader;
 
 	vector<TreeStruct> trees;
 

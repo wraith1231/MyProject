@@ -48,7 +48,7 @@ UINT SpotLight::SpotLightSize()
 	return buffer->Data.Count;
 }
 
-void SpotLight::Render()
+void SpotLight::DiffuseRender()
 {
 	buffer->SetPSBuffer(11);
 
@@ -60,7 +60,7 @@ void SpotLight::Render()
 	}
 }
 
-void SpotLight::Render(bool val)
+void SpotLight::DiffuseRender(bool val)
 {
 	buffer->SetPSBuffer(11);
 

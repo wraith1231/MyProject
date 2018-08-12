@@ -31,31 +31,35 @@ public:
 
 	void Update();
 
-	void PreRender();
-	void PreRender2();
-	void Render();
-	void PostRender();
-	void PostRender2();
+	void NormalRender();
+	void DepthRender();
+	void DiffuseRender();
+
+	void LightRender();
+	void EdgeRender();
+	void AARender();
 	void ImGuiRender();
 
 	void ResizeScreen();
 
 private:
-	class Model* model;
-	class Model* model2;
+	class Model* edgeModel;
+	class Model* aaModel;
 	D3DXMATRIX view;
 
 	RenderTarget* normalRT;
 	RenderTarget* depthRT;
 	RenderTarget* realRT;
+	RenderTarget* lightRT;
 	RenderTarget* AART;
 
 	Orthographic* projection;
 
 	WorldBuffer* worldBuffer;
 
-	Shader* shader;
-	Shader* shaderaa;
+	Shader* edgeShader;
+	Shader* lightShader;
+	Shader* aaShader;
 
 	Buffer* buffer;
 

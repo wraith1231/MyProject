@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "RenderTarget.h"
 
-RenderTarget::RenderTarget()
+RenderTarget::RenderTarget(UINT width, UINT height, DXGI_FORMAT format)
 	: texture(NULL), rtv(NULL), srv(NULL)
 {	
-	Create();
+	Create(width, height, format);
 }
 
 RenderTarget::~RenderTarget()
@@ -18,7 +18,7 @@ void RenderTarget::Set()
 	D3D::Get()->Clear(D3DXCOLOR(0, 1, 0, 0), rtv);
 }
 
-void RenderTarget::Create(UINT width, UINT height)
+void RenderTarget::Create(UINT width, UINT height, DXGI_FORMAT format)
 {
 	Delete();
 
@@ -44,7 +44,7 @@ void RenderTarget::Create(UINT width, UINT height)
 
 	texDesc.MipLevels = 1;
 	texDesc.ArraySize = 1;
-	texDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	texDesc.Format = format;
 	texDesc.SampleDesc.Count = 1;
 	texDesc.SampleDesc.Quality = 0;
 	texDesc.Usage = D3D11_USAGE_DEFAULT;

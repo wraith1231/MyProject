@@ -33,20 +33,27 @@ void ExeGui::Update()
 	}
 }
 
-void ExeGui::Render()
-{
-	
-}
-
-void ExeGui::PostRender()
+void ExeGui::DepthRender()
 {
 }
 
-void ExeGui::PreRender2()
+void ExeGui::NormalRender()
 {
 }
 
-void ExeGui::PostRender2()
+void ExeGui::DiffuseRender()
+{
+}
+
+void ExeGui::LightRender()
+{
+}
+
+void ExeGui::EdgeRender()
+{
+}
+
+void ExeGui::AARender()
 {
 }
 

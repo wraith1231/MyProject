@@ -32,9 +32,9 @@ public:
 	void SelectObjectUpdate();
 	void Unselect();
 
-	void PreRender();
-	void PreRender2();
-	void Render();
+	void NormalRender();
+	void DepthRender();
+	void DiffuseRender();
 
 	void ImGuiRender();
 

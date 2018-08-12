@@ -9,11 +9,11 @@ public:
 	~GameSettings();
 
 	void Update();
-	void Render();
 
-	void PreRender();
-	void PreRender2();
-	void PostRender();
+	void NormalRender();
+	void DepthRender();
+	void DiffuseRender();
+
 	void ImguiRender();
 
 	void DisposeUnTouchable(wstring file = L"");

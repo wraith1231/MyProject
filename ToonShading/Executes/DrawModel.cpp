@@ -19,29 +19,33 @@ void DrawModel::Update()
 	settings->Update();
 }
 
-void DrawModel::PreRender()
+void DrawModel::NormalRender()
 {
-	settings->PreRender();
+	settings->NormalRender();
 }
 
-void DrawModel::PreRender2()
+void DrawModel::DepthRender()
 {
-	settings->PreRender2();
+	settings->DepthRender();
 }
 
-void DrawModel::Render()
+void DrawModel::DiffuseRender()
 {
-	settings->Render();
+	settings->DiffuseRender();
 }
 
-void DrawModel::PostRender()
+void DrawModel::LightRender()
 {
-	settings->PostRender();
 }
 
-void DrawModel::PostRender2()
+void DrawModel::EdgeRender()
 {
 }
+
+void DrawModel::AARender()
+{
+}
+
 
 void DrawModel::ImGuiRender()
 {

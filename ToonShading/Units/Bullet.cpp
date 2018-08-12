@@ -16,9 +16,9 @@ Bullet::Bullet(ExecuteValues* values)
 	model->CheckMaxMinVer(max, min);
 	float rad = max.y - min.y;
 
-	shader = new Shader(Shaders + L"999_Mesh.hlsl");
-	shader2 = new Shader(Shaders + L"999_Mesh.hlsl", "VS_Normal", "PS_Normal");
-	shader3 = new Shader(Shaders + L"999_Mesh.hlsl", "VS_Depth", "PS_Depth");
+	diffuseShader = new Shader(Shaders + L"999_Mesh.hlsl");
+	normalShader = new Shader(Shaders + L"999_Mesh.hlsl", "VS_Normal", "PS_Normal");
+	depthShader = new Shader(Shaders + L"999_Mesh.hlsl", "VS_Depth", "PS_Depth");
 
 	sphere = new Objects::BoundingSphere(D3DXVECTOR3(0, 0, 0), rad);
 	//sphere->SetColor(D3DXCOLOR(0, 1, 0, 1));
@@ -31,9 +31,9 @@ Bullet::~Bullet()
 		SAFE_DELETE(bullet);
 	SAFE_DELETE(sphere);
 	
-	SAFE_DELETE(shader);
-	SAFE_DELETE(shader2);
-	SAFE_DELETE(shader3);
+	SAFE_DELETE(diffuseShader);
+	SAFE_DELETE(normalShader);
+	SAFE_DELETE(depthShader);
 
 	SAFE_DELETE(model);
 }
@@ -116,10 +116,10 @@ void Bullet::Update()
 	}
 }
 
-void Bullet::PreRender()
+void Bullet::NormalRender()
 {
 	for (Material* material : model->Materials())
-		material->SetShader(shader2);
+		material->SetShader(normalShader);
 
 	for (BulletStruct* bullet : bullets)
 	{
@@ -133,14 +133,14 @@ void Bullet::PreRender()
 
 		for (ModelMesh* mesh : model->Meshes())
 			mesh->Render();
-		//model->PreRender();
+		//model->NormalRender();
 	}
 }
 
-void Bullet::PreRender2()
+void Bullet::DepthRender()
 {
 	for (Material* material : model->Materials())
-		material->SetShader(shader3);
+		material->SetShader(depthShader);
 
 	for (BulletStruct* bullet : bullets)
 	{
@@ -150,14 +150,14 @@ void Bullet::PreRender2()
 		model->SetWorld(bullet->World);
 		for (ModelMesh* mesh : model->Meshes())
 			mesh->Render();
-		//model->PreRender2();
+		//model->DepthRender();
 	}
 }
 
-void Bullet::Render()
+void Bullet::DiffuseRender()
 {
 	for (Material* material : model->Materials())
-		material->SetShader(shader);
+		material->SetShader(diffuseShader);
 
 	for (BulletStruct* bullet : bullets)
 	{

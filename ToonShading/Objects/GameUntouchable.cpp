@@ -231,7 +231,7 @@ void GameUntouchable::Unselect()
 }
 
 
-void GameUntouchable::PreRender()
+void GameUntouchable::NormalRender()
 {
 	for (Material* material : model->Materials())
 		material->SetShader(shader2);
@@ -245,11 +245,11 @@ void GameUntouchable::PreRender()
 		if (mod->Visible == false)
 			continue;
 
-		model->PreRender();
+		model->NormalRender();
 	}
 }
 
-void GameUntouchable::PreRender2()
+void GameUntouchable::DepthRender()
 {
 	for (Material* material : model->Materials())
 		material->SetShader(shader3);
@@ -259,11 +259,11 @@ void GameUntouchable::PreRender2()
 		if (mod->Visible == false)
 			continue;
 		model->SetWorld(mod->Transforms);
-		model->PreRender2();
+		model->DepthRender();
 	}
 }
 
-void GameUntouchable::Render()
+void GameUntouchable::DiffuseRender()
 {
 	for (Material* material : model->Materials())
 		material->SetShader(shader);
@@ -273,7 +273,7 @@ void GameUntouchable::Render()
 		if (mod->Visible == false)
 			continue;
 		model->SetWorld(mod->Transforms);
-		model->Render();
+		model->DiffuseRender();
 	}
 }
 
@@ -300,7 +300,6 @@ void GameUntouchable::ImGuiRender()
 
 		ImGui::End();
 	}
-
 }
 
 void GameUntouchable::SaveTransforms(Json::Value* val, UINT i)

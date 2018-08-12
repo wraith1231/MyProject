@@ -10,11 +10,13 @@ public:
 
 	void Update();
 
-	void PreRender();
-	void PreRender2();
-	void Render();
-	void PostRender();
-	void PostRender2();
+	void NormalRender();
+	void DepthRender();
+	void DiffuseRender();
+
+	void LightRender();
+	void EdgeRender();
+	void AARender();
 	void ImGuiRender();
 
 	void ResizeScreen() {}

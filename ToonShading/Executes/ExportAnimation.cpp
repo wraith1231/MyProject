@@ -35,19 +35,28 @@ void ExportAnimation::Update()
 
 }
 
-void ExportAnimation::PreRender()
+void ExportAnimation::DepthRender()
 {
-
 }
 
-void ExportAnimation::Render()
+void ExportAnimation::NormalRender()
 {
-
 }
 
-void ExportAnimation::PostRender()
+void ExportAnimation::DiffuseRender()
 {
+}
 
+void ExportAnimation::LightRender()
+{
+}
+
+void ExportAnimation::EdgeRender()
+{
+}
+
+void ExportAnimation::AARender()
+{
 }
 
 void ExportAnimation::ImGuiRender()

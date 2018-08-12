@@ -26,8 +26,8 @@ public:
 	UINT PointLightSize();
 	UINT PointLightMaxSize() { return POINTLIGHTSIZE; }
 
-	void Render();
-	void Render(bool val);
+	void DiffuseRender();
+	void DiffuseRender(bool val);
 
 	void ImGuiRender();
 

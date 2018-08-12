@@ -318,78 +318,74 @@ void GameSettings::Update()
 	}
 }
 
-void GameSettings::Render()
+void GameSettings::NormalRender()
 {
 	if (terrain != NULL)
-		terrain->Render();
+		terrain->NormalRender();
 	for (GameUntouchable* untouch : untouchables)
-		untouch->Render();
+		untouch->NormalRender();
 	if (skyBox != NULL)
-		skyBox->Render();
+		skyBox->NormalRender();
 	if (world != NULL)
-		world->Render();
+		world->NormalRender();
 
 	if (enemy != NULL)
-		enemy->Render();
+		enemy->NormalRender();
 	for (GameEnemy* ene : enemies)
-		ene->Render();
+		ene->NormalRender();
 	if (player != NULL)
-		player->Render();
+		player->NormalRender();
 	if (model != NULL)
-		model->Render();
-
+		model->NormalRender();
 	for (GameAnimationModel* am : models)
-		am->Render();
+		am->NormalRender();
 }
 
-void GameSettings::PreRender()
+void GameSettings::DepthRender()
 {
 	if (terrain != NULL)
-		terrain->PreRender();
+		terrain->DepthRender();
 	for (GameUntouchable* untouch : untouchables)
-		untouch->PreRender();
+		untouch->DepthRender();
 	if (skyBox != NULL)
-		skyBox->PreRender();
+		skyBox->DepthRender();
 	if (world != NULL)
-		world->PreRender();
+		world->DepthRender();
 
 	if (enemy != NULL)
-		enemy->PreRender();
+		enemy->DepthRender();
 	for (GameEnemy* ene : enemies)
-		ene->PreRender();
+		ene->DepthRender();
 	if (player != NULL)
-		player->PreRender();
+		player->DepthRender();
 	if (model != NULL)
-		model->PreRender();
+		model->DepthRender();
 	for (GameAnimationModel* am : models)
-		am->PreRender();
+		am->DepthRender();
 }
 
-void GameSettings::PreRender2()
+void GameSettings::DiffuseRender()
 {
 	if (terrain != NULL)
-		terrain->PreRender2();
+		terrain->DiffuseRender();
 	for (GameUntouchable* untouch : untouchables)
-		untouch->PreRender2();
+		untouch->DiffuseRender();
 	if (skyBox != NULL)
-		skyBox->PreRender2();
+		skyBox->DiffuseRender();
 	if (world != NULL)
-		world->PreRender2();
+		world->DiffuseRender();
 
 	if (enemy != NULL)
-		enemy->PreRender2();
+		enemy->DiffuseRender();
 	for (GameEnemy* ene : enemies)
-		ene->PreRender2();
+		ene->DiffuseRender();
 	if (player != NULL)
-		player->PreRender2();
+		player->DiffuseRender();
 	if (model != NULL)
-		model->PreRender2();
-	for (GameAnimationModel* am : models)
-		am->PreRender2();
-}
+		model->DiffuseRender();
 
-void GameSettings::PostRender()
-{
+	for (GameAnimationModel* am : models)
+		am->DiffuseRender();
 }
 
 void GameSettings::ImguiRender()

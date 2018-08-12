@@ -15,7 +15,7 @@ public:
 	~Fog();
 
 	void Update();
-	void Render();
+	void DiffuseRender();
 	void ImGuiRender();
 
 	void SetUse(bool val);

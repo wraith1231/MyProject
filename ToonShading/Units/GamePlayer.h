@@ -23,9 +23,11 @@ public:		//public Function
 
 	void Update();
 	void EditUpdate();
-	void Render();
-	void PreRender();
-	void PreRender2();
+
+	void NormalRender();
+	void DepthRender();
+	void DiffuseRender();
+	
 	void ImGuiRender();
 
 	Bullet* GetBullet() { return bullet; }

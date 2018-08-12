@@ -12,7 +12,7 @@ public:
 	~EnemyTank();
 
 	void Update();
-	void Render();
+	void DiffuseRender();
 
 	void PlayAction(Action action) { currentAction = action; }
 

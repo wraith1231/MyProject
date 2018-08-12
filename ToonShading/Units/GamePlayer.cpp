@@ -84,22 +84,22 @@ void GamePlayer::EditUpdate()
 	box->Update(transformed);
 }
 
-void GamePlayer::Render()
+void GamePlayer::NormalRender()
 {
-	bullet->Render();
-	GameUnit::Render();
+	bullet->NormalRender();
+	GameUnit::NormalRender();
 }
 
-void GamePlayer::PreRender()
+void GamePlayer::DepthRender()
 {
-	bullet->PreRender();
-	GameUnit::PreRender();
+	bullet->DepthRender();
+	GameUnit::DepthRender();
 }
 
-void GamePlayer::PreRender2()
+void GamePlayer::DiffuseRender()
 {
-	bullet->PreRender2();
-	GameUnit::PreRender2();
+	bullet->DiffuseRender();
+	GameUnit::DiffuseRender();
 }
 
 void GamePlayer::ImGuiRender()

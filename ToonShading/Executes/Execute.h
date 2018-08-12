@@ -32,11 +32,14 @@ public:
 
 	virtual void Update() = 0;
 
-	virtual void PreRender() = 0;
-	virtual void PreRender2() = 0;
-	virtual void Render() = 0;
-	virtual void PostRender() = 0;
-	virtual void PostRender2() = 0;
+	virtual void NormalRender() = 0;
+	virtual void DepthRender() = 0;
+	virtual void DiffuseRender() = 0;
+	
+	virtual void LightRender() = 0;
+	virtual void EdgeRender() = 0;
+	virtual void AARender() = 0;
+
 	virtual void ImGuiRender() = 0;
 
 	virtual void ResizeScreen() = 0;

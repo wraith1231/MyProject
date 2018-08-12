@@ -25,9 +25,10 @@ public:
 	virtual void Update();
 	virtual void EditUpdate();
 
-	virtual void PreRender();
-	virtual void PreRender2();
-	virtual void Render();
+	virtual void NormalRender();
+	virtual void DepthRender();
+	virtual void DiffuseRender();
+
 	virtual void ImGuiRender();
 
 	void StartPoint(D3DXVECTOR3& vec) { start = vec; }

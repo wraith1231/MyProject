@@ -83,11 +83,11 @@ void Program::PreRender()
 	SetGlobalBuffers();
 	
 	for (Execute* exe : executes)
-		exe->PreRender();
+		exe->NormalRender();
 	
 	//SetGlobalBuffers();
 	for (Execute* exe : executes)
-		exe->PreRender2();
+		exe->DepthRender();
 
 	
 }
@@ -97,19 +97,19 @@ void Program::Render()
 	//D3D::Get()->SetRenderTarget();
 
 	for (Execute* exe : executes)
-		exe->Render();
+		exe->DiffuseRender();
 
 }
 
 void Program::PostRender()
 {
 	for (Execute* exe : executes)
-		exe->PostRender();
+		exe->EdgeRender();
 	
 	D3D::Get()->SetRenderTarget();
 	
 	for (Execute* exe : executes)
-		exe->PostRender2();
+		exe->AARender();
 
 	for (Execute* exe : executes)
 		exe->ImGuiRender();

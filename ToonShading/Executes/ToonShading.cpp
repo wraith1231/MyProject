@@ -152,7 +152,8 @@ void ToonShading::EdgeRender()
 
 	ID3D11ShaderResourceView* normalView = normalRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(5, 1, &normalView);
-	ID3D11ShaderResourceView* depthView = depthRT->GetSRV();
+	ID3D11ShaderResourceView* depthView;// = depthRT->GetSRV();
+	depthView = D3D::GetSRV();
 	D3D::GetDC()->PSSetShaderResources(6, 1, &depthView);
 	ID3D11ShaderResourceView* realView = realRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(7, 1, &realView);
@@ -162,6 +163,7 @@ void ToonShading::EdgeRender()
 	buffer->Data.Width = static_cast<float>(normalRT->GetWidth());
 	buffer->Data.Height = static_cast<float>(normalRT->GetHeight());
 	buffer->SetPSBuffer(2);
+	lightBuffer->SetPSBuffer(3);
 	edgeModel->TransformsCopy();
 	edgeModel->Render();
 }
@@ -189,9 +191,10 @@ void ToonShading::AARender()
 
 void ToonShading::ImGuiRender()
 {
-	ImGui::Begin("Light");
+	ImGui::Begin("Buffer");
 
 	{
+
 		ImGui::InputFloat("Attenuation", &lightBuffer->Data.Attenuation);
 		ImGui::InputFloat("Power", &lightBuffer->Data.Power);
 	}

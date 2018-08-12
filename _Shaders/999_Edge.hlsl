@@ -8,6 +8,14 @@ cbuffer PS_Value : register(b2)
     float _valueFar;
 }
 
+//cbuffer PS_Buffer : register(b3)
+//{
+//    uint _normalBuffer;
+//    uint _depthBuffer;
+//    uint _diffuseBuffer;
+//    float _bufferPadding;
+//}
+
 Texture2D NormalRT : register(t5);
 Texture2D DepthRT : register(t6);
 Texture2D RealRT : register(t7);
@@ -72,6 +80,14 @@ float4 PS(PixelInput input) : SV_TARGET
     half4 normalColor = NormalRT.Sample(NormalRTSampler, input.uv);
     normalColor.rgb = decodeNormal(normalColor.rg);
     float depthColor = DepthRT.Sample(DepthRTSampler, input.uv).r;
+    return float4(depthColor.rrr, 1);
+    //[branch]
+    //if (_depthBuffer == 1)
+    //    return float4(depthColor, depthColor, depthColor, 1);
+    //else if (_normalBuffer == 1)
+    //    return normalColor;
+    //else if (_diffuseBuffer == 1)
+    //    return realColor;
 
     float depthColor1;
     half4 normalColor1;

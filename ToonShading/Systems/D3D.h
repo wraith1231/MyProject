@@ -44,6 +44,11 @@ public:
 		d3dDesc = desc;
 	}
 
+	static ID3D11ShaderResourceView* GetSRV()
+	{
+		return srv;
+	}
+
 	void SetRenderTarget(ID3D11RenderTargetView* rtv = NULL, ID3D11DepthStencilView* dsv = NULL);
 
 	void Clear(D3DXCOLOR color = D3DXCOLOR(0xFF555566), ID3D11RenderTargetView* rtv = NULL, ID3D11DepthStencilView* dsv = NULL);
@@ -68,6 +73,7 @@ private:
 	static ID3D11Device* device;
 	static ID3D11DeviceContext* deviceContext;
 	static IDXGISwapChain* swapChain;
+	static ID3D11ShaderResourceView* srv;
 	ID3D11DepthStencilView* depthStencilView;
 
 	ID3D11Texture2D* backBuffer;

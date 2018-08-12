@@ -7,6 +7,7 @@ D3DDesc D3D::d3dDesc;
 ID3D11Device* D3D::device = NULL;
 ID3D11DeviceContext* D3D::deviceContext = NULL;
 IDXGISwapChain* D3D::swapChain = NULL;
+ID3D11ShaderResourceView* D3D::srv = NULL;
 
 D3D * D3D::Get()
 {
@@ -229,11 +230,11 @@ void D3D::CreateBackBuffer(float width, float height)
 		desc.Height = (UINT)height;
 		desc.MipLevels = 1;
 		desc.ArraySize = 1;
-		desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		desc.Format = DXGI_FORMAT_R32_TYPELESS;
 		desc.SampleDesc.Count = 1;
 		desc.SampleDesc.Quality = 0;
 		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 		desc.CPUAccessFlags = 0;
 		desc.MiscFlags = 0;
 
@@ -255,7 +256,7 @@ void D3D::CreateBackBuffer(float width, float height)
 	{
 		D3D11_DEPTH_STENCIL_VIEW_DESC desc;
 		ZeroMemory(&desc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
-		desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		desc.Format = DXGI_FORMAT_D32_FLOAT;
 		desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		desc.Texture2D.MipSlice = 0;
 
@@ -263,6 +264,15 @@ void D3D::CreateBackBuffer(float width, float height)
 		assert(SUCCEEDED(hr));
 
 		SetRenderTarget(renderTargetView, depthStencilView);
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC des;
+		ZeroMemory(&des, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+		des.Format = DXGI_FORMAT_R32_FLOAT;
+		des.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		des.Texture2D.MipLevels = 1;
+
+		hr = D3D::GetDevice()->CreateShaderResourceView(backBuffer, &des, &srv);
+		assert(SUCCEEDED(hr));
 	}
 
 }

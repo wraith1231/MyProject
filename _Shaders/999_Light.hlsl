@@ -61,8 +61,8 @@ half4 PS(PixelInput input) : SV_TARGET
     float4 diffuse = RealRT.Sample(RealRTSampler, input.uv);
     float3 pixelPos = input.view * depth;
     
-    float lightDir = -_direction * 0.314;
-    half attenuation = saturate(1 - dot(lightDir / _lightAttenuation, lightDir / _lightAttenuation));
+    float lightDir = _direction;
+    half attenuation = saturate(dot(lightDir / _lightAttenuation, lightDir / _lightAttenuation));
     lightDir = normalize(lightDir);
 
     float3 reflection = reflect(_direction, normal.rgb);

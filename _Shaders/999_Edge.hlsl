@@ -52,11 +52,12 @@ half3 decodeNormal(half2 enc)
 float4 PS(PixelInput input) : SV_TARGET
 {
     float4 realColor = RealRT.Sample(RealRTSampler, input.uv);
-    float4 light = LightRT.Sample(LightRTSampler, input.uv);
-    float3 NLATTColor = light.xyz;// * realColor.rgb;
-    float3 Lighting = NLATTColor * light.www;
-
-    return float4(Lighting, 1.0f);
+    //float4 light = LightRT.Sample(LightRTSampler, input.uv);
+    //return light;
+    //float3 NLATTColor = light.xyz;// * realColor.rgb;
+    //float3 Lighting = NLATTColor * light.www;
+    //
+    //return float4(Lighting, 1.0f);
 
     float nor = (3.141592f / 180.0f) * 5.0f;
     float dep = 0.002f;

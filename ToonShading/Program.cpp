@@ -103,8 +103,8 @@ void Program::Render()
 
 void Program::PostRender()
 {
-	for (Execute* exe : executes)
-		exe->LightRender();
+	//for (Execute* exe : executes)
+	//	exe->LightRender();
 
 	for (Execute* exe : executes)
 		exe->EdgeRender();

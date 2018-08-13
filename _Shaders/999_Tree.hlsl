@@ -17,6 +17,7 @@ struct PixelInput
     float2 uv : TEXCOORD0;
     float3 wPosition : POSITION0;
     float3 normal : NORMAL0;
+    float2 depth : DEPTH0;
 };
 
 PixelInput VS(VertexTextureNormal input)
@@ -51,6 +52,7 @@ PixelInput VS(VertexTextureNormal input)
 
     output.wPosition = output.position;
     output.position = mul(output.position, _view);
+    output.depth = output.position.zw;
     output.position = mul(output.position, _projection);
 
     output.normal = mul(float3(0, 0, 1), (float3x3) mat);
@@ -79,6 +81,7 @@ float PS_Depth(PixelInput input) : SV_TARGET
     
     clip(diffuseMap.a - 0.9f);
     
+    return input.depth.x / _valueFar;
     return input.position.z / input.position.w;
     //float4 diffuseMap = _diffuseMap.Sample(_diffuseSampler, input.uv);
     //

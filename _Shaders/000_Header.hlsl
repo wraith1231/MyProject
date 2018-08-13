@@ -36,6 +36,14 @@ cbuffer PS_Material : register(b1)
     float MaterialPadding[2];
 }
 
+cbuffer PS_Value : register(b9)
+{
+    float _valueWidth;
+    float _valueHeight;
+    float _valueNear;
+    float _valueFar;
+}
+
 struct PointLight
 {
     uint Use;

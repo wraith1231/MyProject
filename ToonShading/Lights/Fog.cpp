@@ -31,8 +31,8 @@ void Fog::ImGuiRender()
 
 	{
 		ImGui::ColorEdit3("Color", buffer->Data.Color);
-		ImGui::SliderFloat("Start", &buffer->Data.Start, 0, 0.3f);
-		ImGui::SliderFloat("End", &buffer->Data.End, 0, 0.3f);
+		ImGui::SliderFloat("Start", &buffer->Data.Start, 0, 1);
+		ImGui::SliderFloat("End", &buffer->Data.End, 0, 1);
 	}
 
 	ImGui::End();

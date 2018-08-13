@@ -98,6 +98,9 @@ void ToonShading::Update()
 
 void ToonShading::NormalRender()
 {
+	buffer->SetPSBuffer(9);
+	buffer->SetVSBuffer(9);
+
 	normalRT->Set();
 
 }
@@ -132,7 +135,7 @@ void ToonShading::LightRender()
 
 	buffer->Data.Width = static_cast<float>(normalRT->GetWidth());
 	buffer->Data.Height = static_cast<float>(normalRT->GetHeight());
-	buffer->SetPSBuffer(2);
+	//buffer->SetPSBuffer(2);
 	lightBuffer->SetPSBuffer(3);
 	lightModel->TransformsCopy();
 	lightModel->Render();
@@ -152,8 +155,7 @@ void ToonShading::EdgeRender()
 
 	ID3D11ShaderResourceView* normalView = normalRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(5, 1, &normalView);
-	ID3D11ShaderResourceView* depthView;// = depthRT->GetSRV();
-	depthView = D3D::GetSRV();
+	ID3D11ShaderResourceView* depthView = depthRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(6, 1, &depthView);
 	ID3D11ShaderResourceView* realView = realRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(7, 1, &realView);
@@ -162,8 +164,7 @@ void ToonShading::EdgeRender()
 
 	buffer->Data.Width = static_cast<float>(normalRT->GetWidth());
 	buffer->Data.Height = static_cast<float>(normalRT->GetHeight());
-	buffer->SetPSBuffer(2);
-	lightBuffer->SetPSBuffer(3);
+	//lightBuffer->SetPSBuffer(3);
 	edgeModel->TransformsCopy();
 	edgeModel->Render();
 }
@@ -183,8 +184,6 @@ void ToonShading::AARender()
 
 	buffer->Data.Width = static_cast<float>(AART->GetWidth());
 	buffer->Data.Height = static_cast<float>(AART->GetHeight());
-	buffer->SetPSBuffer(2);
-	buffer->SetVSBuffer(2);
 	aaModel->TransformsCopy();
 	aaModel->Render();
 }

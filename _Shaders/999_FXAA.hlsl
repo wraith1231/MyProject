@@ -1,20 +1,20 @@
 #include "000_Header.hlsl"
 #include "FXAA.hlsl"
 
-cbuffer VS_Value : register(b2)
-{
-    float _vsWidth;
-    float _vsHeight;
-    float _vsNear;
-    float _vsFar;
-}
-cbuffer PS_Value : register(b2)
-{
-    float _valueWidth;
-    float _valueHeight;
-    float _valueNear;
-    float _valueFar;
-}
+//cbuffer VS_Value : register(b2)
+//{
+//    float _vsWidth;
+//    float _vsHeight;
+//    float _vsNear;
+//    float _vsFar;
+//}
+//cbuffer PS_Value : register(b2)
+//{
+//    float _valueWidth;
+//    float _valueHeight;
+//    float _valueNear;
+//    float _valueFar;
+//}
 
 Texture2D RenderTarget : register(t5);
 SamplerState RenderTargetSampler : register(s5);
@@ -34,7 +34,7 @@ PixelInput VS(VertexTextureNormal input)
     output.position = mul(output.position, _view);
     output.position = mul(output.position, _projection);
     
-    float2 rcpFrame = float2(1.0f / _vsWidth, 1.0f / _vsHeight);
+    float2 rcpFrame = float2(1.0f / _valueWidth, 1.0f / _valueHeight);
     output.uv = input.uv;
     output.zw = input.uv - (rcpFrame * (0.5 + 1.0 / 4.0));
     

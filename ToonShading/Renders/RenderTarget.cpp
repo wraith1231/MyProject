@@ -15,7 +15,7 @@ RenderTarget::~RenderTarget()
 void RenderTarget::Set()
 {
 	D3D::Get()->SetRenderTarget(rtv);
-	D3D::Get()->Clear(D3DXCOLOR(0, 1, 0, 0), rtv);
+	D3D::Get()->Clear(D3DXCOLOR(1, 1, 1, 0), rtv);
 }
 
 void RenderTarget::Create(UINT width, UINT height, DXGI_FORMAT format)

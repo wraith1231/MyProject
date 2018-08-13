@@ -1,12 +1,12 @@
 #include "000_Header.hlsl"
 
-cbuffer PS_Value : register(b2)
-{
-    float _valueWidth;
-    float _valueHeight;
-    float _valueNear;
-    float _valueFar;
-}
+//cbuffer PS_Value : register(b2)
+//{
+//    float _valueWidth;
+//    float _valueHeight;
+//    float _valueNear;
+//    float _valueFar;
+//}
 
 cbuffer PS_LightValue : register(b3)
 {

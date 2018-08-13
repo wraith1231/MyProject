@@ -13,6 +13,7 @@ struct PixelInput
 
     //float alpha : ALPHA0;
     float3 wPosition : POSITION0;
+    float2 depth : DEPTH0;
 };
 
 struct Wave
@@ -58,6 +59,7 @@ PixelInput VS(VertexTexture input)
     }
 
     output.position = mul(world, _view);
+    output.depth = output.position.zw;
     output.position = mul(output.position, _projection);
 
     output.eye = normalize(GetViewPosition() - world.xyz);
@@ -113,10 +115,11 @@ float4 PS(PixelInput input) : SV_TARGET
     //PointLightFunc(color, input.wPosition, input.row[2]);
     //SpotLightFunc(color.rgb, input.wPosition, input.row[2]);
     
-    return float4(color, 1);
+    return float4(color, 0.5f);
 }
 
 float PS_Depth(PixelInput input) : SV_TARGET
 {
+    return input.depth.x / _valueFar;
     return input.position.z / input.position.w;
 }

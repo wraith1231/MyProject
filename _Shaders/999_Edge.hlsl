@@ -1,12 +1,5 @@
 #include "000_Header.hlsl"
 
-cbuffer PS_Value : register(b2)
-{
-    float _valueWidth;
-    float _valueHeight;
-    float _valueNear;
-    float _valueFar;
-}
 
 //cbuffer PS_Buffer : register(b3)
 //{
@@ -68,43 +61,35 @@ float4 PS(PixelInput input) : SV_TARGET
     //return float4(Lighting, 1.0f);
 
     float nor = (3.141592f / 180.0f) * 5.0f;
-    float dep = 0.002f;
+    float dep = 0.01;
 
     float nordot, ndot;
     bool bd = true;
     float hei = 1.0f / _valueHeight;
     float wid = 1.0f / _valueWidth;
 
-    float fn = 1;// / (_valueFar - _valueNear);
+    float fn = 1;
 
     half4 normalColor = NormalRT.Sample(NormalRTSampler, input.uv);
     normalColor.rgb = decodeNormal(normalColor.rg);
     float depthColor = DepthRT.Sample(DepthRTSampler, input.uv).r;
-    return float4(depthColor.rrr, 1);
-    //[branch]
-    //if (_depthBuffer == 1)
-    //    return float4(depthColor, depthColor, depthColor, 1);
-    //else if (_normalBuffer == 1)
-    //    return normalColor;
-    //else if (_diffuseBuffer == 1)
-    //    return realColor;
-
+    //depthColor = 1 - depthColor;
+    //return float4(1 - depthColor.rrr, 1);
     float depthColor1;
     half4 normalColor1;
     float2 uv = input.uv;
    
     nordot = dot(normalColor, normalColor);
-
+    
     float factor = 0;
     [branch]
     if (_fogUse == 1)
     {
         factor = saturate((_fogEnd - depthColor) / (_fogEnd - _fogStart));
     
-        if (factor > 0.6f)
-            return lerp(realColor, _fogColor, factor) * (_sunColor * _sunIntensity);
+        if (factor < 0.4f)
+            return lerp(_fogColor, realColor, factor) * (_sunColor * _sunIntensity);
     }
-    
     depthColor *= fn;
 
     uv.y -= hei;
@@ -114,6 +99,7 @@ float4 PS(PixelInput input) : SV_TARGET
 
     ndot = dot(normalColor, normalColor1);
     depthColor1 *= fn;
+    //depthColor1 = 1 - depthColor1;
     if (abs(nordot - ndot) > nor)
         return float4(0, 0, 0, 1);
     if (abs(depthColor - depthColor1) > dep)
@@ -126,6 +112,7 @@ float4 PS(PixelInput input) : SV_TARGET
     depthColor1 = DepthRT.Sample(DepthRTSampler, uv).r;
     
     ndot = dot(normalColor, normalColor1);
+    //depthColor1 = 1 - depthColor1;
     depthColor1 *= fn;
     if (abs(nordot - ndot) > nor)
         return float4(0, 0, 0, 1);
@@ -139,6 +126,7 @@ float4 PS(PixelInput input) : SV_TARGET
     depthColor1 = DepthRT.Sample(DepthRTSampler, uv).r;
     
     ndot = dot(normalColor, normalColor1);
+    //depthColor1 = 1 - depthColor1;
     depthColor1 *= fn;
     if (abs(nordot - ndot) > nor)
         return float4(0, 0, 0, 1);
@@ -152,6 +140,7 @@ float4 PS(PixelInput input) : SV_TARGET
     depthColor1 = DepthRT.Sample(DepthRTSampler, uv).r;
     
     ndot = dot(normalColor, normalColor1);
+    //depthColor1 = 1 - depthColor1;
     depthColor1 *= fn;
     if (abs(nordot - ndot) > nor)
         return float4(0, 0, 0, 1);
@@ -159,7 +148,7 @@ float4 PS(PixelInput input) : SV_TARGET
         return float4(0, 0, 0, 1);
     
     if(_fogUse == 1)
-        return lerp(realColor, _fogColor, factor) * (_sunColor * _sunIntensity);
+        return lerp(_fogColor, realColor, factor) * (_sunColor * _sunIntensity);
     else
         return realColor * (_sunColor * _sunIntensity);
 }

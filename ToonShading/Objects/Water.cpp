@@ -123,7 +123,7 @@ void Water::Update()
 
 void Water::PreRender()
 {
-	D3D::GetDC()->OMSetBlendState(blendState[1], NULL, 0xFF);
+	//D3D::GetDC()->OMSetBlendState(blendState[1], NULL, 0xFF);
 	UINT stride = sizeof(VertexType);
 	UINT offset = 0;
 
@@ -137,7 +137,7 @@ void Water::PreRender()
 	material->SetBuffer();
 
 	D3D::GetDC()->DrawIndexed(indexSize, 0, 0);
-	D3D::GetDC()->OMSetBlendState(blendState[0], NULL, 0xFF);
+	//D3D::GetDC()->OMSetBlendState(blendState[0], NULL, 0xFF);
 }
 
 void Water::ImGuiRender()

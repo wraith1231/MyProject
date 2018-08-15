@@ -16,8 +16,11 @@ cbuffer PS_LightValue : register(b3)
 
 Texture2D NormalRT : register(t5);
 Texture2D DepthRT : register(t6);
+Texture2D LightMeshRT : register(t7);
+
 SamplerState NormalRTSampler : register(s5);
 SamplerState DepthRTSampler : register(s6);
+SamplerState LightMeshRTSampler : register(s7);
 
 struct PixelInput
 {
@@ -42,26 +45,26 @@ PixelInput VS(VertexTextureNormal input)
 
 half4 PS(PixelInput input) : SV_TARGET
 {
-    half3 normal;
-    normal.rg = NormalRT.Sample(NormalRTSampler, input.uv).rg;
+    //return LightMeshRT.Sample(LightMeshRTSampler, input.uv);
+    float4 light = LightMeshRT.Sample(LightMeshRTSampler, input.uv);
+    float3 normal = NormalRT.Sample(NormalRTSampler, input.uv).rgb;
+    //half3 normal;
+    //normal.rg = NormalRT.Sample(NormalRTSampler, input.uv).rg;
+    //normal = NormalDecode(normal.xy);
     float4 depth = DepthRT.Sample(DepthRTSampler, input.uv);
-    //return half4(abs(depth.gba), 1);
-
-    if (depth.g < 1.001f && depth.g > 0.999f &&
-        depth.b < 1.001f && depth.b > 0.999f &&
-        depth.a < 0.001f && depth.a > -0.001f)
-        return float4(1, 1, 1, 1);
-
-    normal = NormalDecode(normal.xy);
-    //return float4(normal, 1);
     
-    //directional ¸ÕÀú
     float4 color = (float4) 0;
     
     Diffuse(color.rgb, normal);
-    
-    PointLightFunc(color.rgb, depth.gba, normal);
-    SpotLightFunc(color.rgb, depth.gba, normal);
+    [branch]
+    if (length(light.xyz) > 0.5f)
+        return color;
+    else
+    {
+        
+        PointLightFunc(color.rgb, depth.gba, normal);
+        SpotLightFunc(color.rgb, depth.gba, normal);
 
-    return color;
+        return color;
+    }
 }

@@ -123,7 +123,7 @@ D3DXVECTOR3 GameRender::Right()
 	return right;
 }
 
-void GameRender::Scale(float & val)
+void GameRender::Scale(float val)
 {
 	scale = D3DXVECTOR3(val, val, val);
 }

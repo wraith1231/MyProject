@@ -33,6 +33,7 @@ public:
 	virtual void Update() = 0;
 
 	virtual void PreRender() = 0;
+	virtual void LightMeshRender() = 0;
 	virtual void LightRender() = 0;
 	virtual void EdgeRender() = 0;
 	virtual void AARender() = 0;

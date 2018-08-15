@@ -37,6 +37,10 @@ void ExeGui::PreRender()
 {
 }
 
+void ExeGui::LightMeshRender()
+{
+}
+
 void ExeGui::LightRender()
 {
 }

@@ -46,6 +46,7 @@ public:
 	void Update();
 
 	void PreRender();
+	void LightMeshRender();
 	void LightRender();
 	void EdgeRender();
 	void AARender();
@@ -62,6 +63,7 @@ private:
 	RenderTarget* normalRT;
 	RenderTarget* depthRT;
 	RenderTarget* realRT;
+	RenderTarget* lightMeshRT;
 	RenderTarget* lightRT;
 	RenderTarget* AART;
 

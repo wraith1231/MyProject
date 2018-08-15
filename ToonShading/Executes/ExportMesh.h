@@ -9,6 +9,7 @@ public:
 	void Update();
 	
 	void PreRender();
+	void LightMeshRender();
 	void LightRender();
 	void EdgeRender();
 	void AARender();

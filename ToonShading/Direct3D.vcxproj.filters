@@ -252,6 +252,27 @@
     <ClInclude Include="Lights\Fog.h">
       <Filter>Lights</Filter>
     </ClInclude>
+    <ClInclude Include="Objects\MeshCapsule.h">
+      <Filter>Objects\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\MeshCone.h">
+      <Filter>Objects\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\MeshCube.h">
+      <Filter>Objects\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\MeshCylinder.h">
+      <Filter>Objects\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\MeshPlane.h">
+      <Filter>Objects\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\MeshQuad.h">
+      <Filter>Objects\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\MeshSphere.h">
+      <Filter>Objects\Meshes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Executes">
@@ -313,6 +334,9 @@
     </Filter>
     <Filter Include="Lights">
       <UniqueIdentifier>{f0c2eeed-9c33-4e6d-bcbc-50584ea05a5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects\Meshes">
+      <UniqueIdentifier>{6f5871e6-eab1-40b4-b487-398db442154e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -521,6 +545,27 @@
     </ClCompile>
     <ClCompile Include="Lights\Fog.cpp">
       <Filter>Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\MeshCapsule.cpp">
+      <Filter>Objects\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\MeshCone.cpp">
+      <Filter>Objects\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\MeshCube.cpp">
+      <Filter>Objects\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\MeshCylinder.cpp">
+      <Filter>Objects\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\MeshPlane.cpp">
+      <Filter>Objects\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\MeshQuad.cpp">
+      <Filter>Objects\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\MeshSphere.cpp">
+      <Filter>Objects\Meshes</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

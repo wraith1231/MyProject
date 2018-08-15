@@ -8,48 +8,33 @@ ExportMesh::ExportMesh(ExecuteValues* values)
 {
 	Fbx::Exporter* exporter = NULL;
 
-	//exporter = new Fbx::Exporter(Assets + L"spheres.fbx");
-	//exporter->ExportMaterial(Models + L"Bullets/", L"Bullet");
-	//exporter->ExportMesh(Models + L"Bullets/", L"Bullet");
+	//exporter = new Fbx::Exporter(Assets + L"Meshes/Capsule.fbx");
+	//exporter->ExportMaterial(Models + L"Meshes/", L"Capsule");
+	//exporter->ExportMesh(Models + L"Meshes/", L"Capsule");
 	//SAFE_DELETE(exporter);
-
-	//exporter = new Fbx::Exporter(Assets + L"Sapphi/Sapphiart_model.fbx");
-	//exporter->ExportMaterial(Models + L"Sapphi/", L"Sapphi");
-	//exporter->ExportMesh(Models + L"Sapphi/", L"Sapphi");
+	//exporter = new Fbx::Exporter(Assets + L"Meshes/Cube.fbx");
+	//exporter->ExportMaterial(Models + L"Meshes/", L"Cube");
+	//exporter->ExportMesh(Models + L"Meshes/", L"Cube");
 	//SAFE_DELETE(exporter);
-	//
-	//exporter = new Fbx::Exporter(Assets + L"Sapphi/Sapphiart@idle.fbx");
-	//exporter->ExportMaterial(Models + L"Sapphi/", L"Sapphi");
-	//exporter->ExportMesh(Models + L"Sapphi/", L"Sapphi");
-	//exporter->ExportAnimation(Models + L"Sapphi/", L"Idle", true);
+	//exporter = new Fbx::Exporter(Assets + L"Meshes/Cylinder.fbx");
+	//exporter->ExportMaterial(Models + L"Meshes/", L"Cylinder");
+	//exporter->ExportMesh(Models + L"Meshes/", L"Cylinder");
 	//SAFE_DELETE(exporter);
-	//exporter = new Fbx::Exporter(Assets + L"Bonney/jewelry A.fbx");
-	//exporter->ExportMaterial(Models + L"Bonney/", L"Bonney");
-	//exporter->ExportMesh(Models + L"Bonney/", L"Bonney");
-	//exporter->ExportAnimation(Models + L"Bonney/", L"Bonney");
+	//exporter = new Fbx::Exporter(Assets + L"Meshes/Plane.fbx");
+	//exporter->ExportMaterial(Models + L"Meshes/", L"Plane");
+	//exporter->ExportMesh(Models + L"Meshes/", L"Plane");
 	//SAFE_DELETE(exporter);
-	//
-	//exporter = new Fbx::Exporter(Assets + L"Galko/GalkoPOSE.fbx");
-	//
-	//exporter->ExportAnimation(Models + L"Galko/", L"GalkoPOSE");
+	//exporter = new Fbx::Exporter(Assets + L"Meshes/Quad.fbx");
+	//exporter->ExportMaterial(Models + L"Meshes/", L"Quad");
+	//exporter->ExportMesh(Models + L"Meshes/", L"Quad");
 	//SAFE_DELETE(exporter);
-
-	////sky
-	//exporter = new Fbx::Exporter(Assets + L"World/Stage1/France_Sky.fbx");
-	//exporter->ExportMaterial(Models + L"Stage/", L"france_sky");
-	//exporter->ExportMesh(Models + L"Stage/", L"france_sky");
+	//exporter = new Fbx::Exporter(Assets + L"Meshes/Sphere.fbx");
+	//exporter->ExportMaterial(Models + L"Meshes/", L"Sphere");
+	//exporter->ExportMesh(Models + L"Meshes/", L"Sphere");
 	//SAFE_DELETE(exporter);
-
-	//stage
-	/*exporter = new Fbx::Exporter(Assets + L"World/Stage1/France.fbx");
-	exporter->ExportMaterial(Models + L"Stage/", L"france");
-	exporter->ExportMesh(Models + L"Stage/", L"france");
-	SAFE_DELETE(exporter);*/
-	
-	//grund
-	//exporter = new Fbx::Exporter(Assets + L"Grund/Grund.fbx", true);
-	//exporter->ExportMaterial(Models + L"Grund/", L"grund");
-	//exporter->ExportMesh(Models + L"Grund/", L"grund");
+	//exporter = new Fbx::Exporter(Assets + L"Meshes/Cone.fbx");
+	//exporter->ExportMaterial(Models + L"Meshes/", L"Cone");
+	//exporter->ExportMesh(Models + L"Meshes/", L"Cone");
 	//SAFE_DELETE(exporter);
 
 	/*
@@ -88,6 +73,10 @@ void ExportMesh::Update()
 }
 
 void ExportMesh::PreRender()
+{
+}
+
+void ExportMesh::LightMeshRender()
 {
 }
 

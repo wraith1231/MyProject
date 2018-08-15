@@ -24,6 +24,11 @@ void DrawModel::PreRender()
 	settings->PreRender();
 }
 
+void DrawModel::LightMeshRender()
+{
+	settings->LightMeshRender();
+}
+
 void DrawModel::LightRender()
 {
 }

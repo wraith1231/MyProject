@@ -13,6 +13,8 @@
 
 #include "../Utilities/BinaryFile.h"
 
+#include "MeshCone.h"
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //editMode는 editor 상태일때만
 //shader = 기본, shader2 = normal, shader3 = depth
@@ -28,7 +30,6 @@ GameTerrain::GameTerrain(ExecuteValues* value)
 	Init();
 	CreateNormal();
 	CreateBuffer();
-
 }
 
 GameTerrain::~GameTerrain()
@@ -533,6 +534,12 @@ void GameTerrain::PreRender()
 	treeBuffer->SetVSBuffer(2);
 	for (Tree* tree : trees)
 		tree->PreRender();
+}
+
+void GameTerrain::LightMeshRender()
+{
+	if (pointLight != NULL)
+		pointLight->LightMeshRender();
 }
 
 void GameTerrain::ImGuiRender()

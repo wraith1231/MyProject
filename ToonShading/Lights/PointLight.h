@@ -28,6 +28,7 @@ public:
 
 	void PreRender();
 	void PreRender(bool val);
+	void LightMeshRender();
 
 	void ImGuiRender();
 
@@ -77,10 +78,27 @@ private:
 			float Padding[3];
 		} Data;
 	};
+	class MeshBuffer : public ShaderBuffer
+	{
+	public:
+		MeshBuffer() : ShaderBuffer(&Data, sizeof(Struct))
+		{
+			Data.Number = 0;
+		}
+
+		struct Struct
+		{
+			UINT Number;
+			float Padding[3];
+		} Data;
+	};
+
 public:
 	Objects::BoundingBox* box;
+	class MeshSphere* sphere;
 
 	Buffer* buffer;
+	MeshBuffer* meshBuffer;
 
 	bool lightSelect;
 	UINT selectNum;

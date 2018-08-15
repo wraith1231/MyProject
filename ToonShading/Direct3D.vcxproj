@@ -63,6 +63,13 @@
     <ClInclude Include="Objects\GameUntouchable.h" />
     <ClInclude Include="Objects\GameWorld.h" />
     <ClInclude Include="Objects\AnimationKeyframe.h" />
+    <ClInclude Include="Objects\MeshCapsule.h" />
+    <ClInclude Include="Objects\MeshCone.h" />
+    <ClInclude Include="Objects\MeshCube.h" />
+    <ClInclude Include="Objects\MeshCylinder.h" />
+    <ClInclude Include="Objects\MeshPlane.h" />
+    <ClInclude Include="Objects\MeshQuad.h" />
+    <ClInclude Include="Objects\MeshSphere.h" />
     <ClInclude Include="Objects\Tree.h" />
     <ClInclude Include="Objects\Water.h" />
     <ClInclude Include="Program.h" />
@@ -142,6 +149,13 @@
     <ClCompile Include="Objects\GameTerrain.cpp" />
     <ClCompile Include="Objects\GameUntouchable.cpp" />
     <ClCompile Include="Objects\GameWorld.cpp" />
+    <ClCompile Include="Objects\MeshCapsule.cpp" />
+    <ClCompile Include="Objects\MeshCone.cpp" />
+    <ClCompile Include="Objects\MeshCube.cpp" />
+    <ClCompile Include="Objects\MeshCylinder.cpp" />
+    <ClCompile Include="Objects\MeshPlane.cpp" />
+    <ClCompile Include="Objects\MeshQuad.cpp" />
+    <ClCompile Include="Objects\MeshSphere.cpp" />
     <ClCompile Include="Objects\Tree.cpp" />
     <ClCompile Include="Objects\Water.cpp" />
     <ClCompile Include="Program.cpp" />

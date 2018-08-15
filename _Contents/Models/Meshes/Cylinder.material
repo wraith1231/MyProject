@@ -1,0 +1,15 @@
+{
+   "Default-Material" : {
+      "Ambient" : [ 0.20000000298023224, 0.20000000298023224, 0.20000000298023224, 1.0 ],
+      "Diffuse" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "DiffuseFile" : [ "" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 0.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "Default-Material" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 20.0,
+      "Specular" : [ 0.20000000298023224, 0.20000000298023224, 0.20000000298023224, 1.0 ],
+      "SpecularFile" : [ "" ]
+   }
+}

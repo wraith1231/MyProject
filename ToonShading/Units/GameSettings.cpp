@@ -342,6 +342,14 @@ void GameSettings::PreRender()
 		am->PreRender();
 }
 
+void GameSettings::LightMeshRender()
+{
+	if ( terrain != NULL)
+	{
+		terrain->LightMeshRender();
+	}
+}
+
 void GameSettings::ImguiRender()
 {
 	if (editMode == true)

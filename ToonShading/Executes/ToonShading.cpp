@@ -39,6 +39,7 @@ ToonShading::ToonShading(ExecuteValues* values)
 	normalRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);// , DXGI_FORMAT_R32G32_FLOAT);
 	depthRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	realRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
+	lightMeshRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	lightRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	AART = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 
@@ -108,6 +109,11 @@ void ToonShading::PreRender()
 	D3D::GetDC()->OMSetRenderTargets(3, rtv, D3D::Get()->GetDSV());
 }
 
+void ToonShading::LightMeshRender()
+{
+	lightMeshRT->Set();
+}
+
 void ToonShading::LightRender()
 {
 	lightRT->Set();
@@ -123,6 +129,8 @@ void ToonShading::LightRender()
 	D3D::GetDC()->PSSetShaderResources(5, 1, &normalView);
 	ID3D11ShaderResourceView* depthView = depthRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(6, 1, &depthView);
+	ID3D11ShaderResourceView* lightMeshView = lightMeshRT->GetSRV();
+	D3D::GetDC()->PSSetShaderResources(7, 1, &lightMeshView);
 
 	buffer->Data.Width = static_cast<float>(normalRT->GetWidth());
 	buffer->Data.Height = static_cast<float>(normalRT->GetHeight());
@@ -151,6 +159,8 @@ void ToonShading::EdgeRender()
 	D3D::GetDC()->PSSetShaderResources(7, 1, &realView);
 	ID3D11ShaderResourceView* lightView = lightRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(8, 1, &lightView);
+	ID3D11ShaderResourceView* lightMeshView = lightMeshRT->GetSRV();
+	D3D::GetDC()->PSSetShaderResources(9, 1, &lightMeshView);
 
 	buffer->Data.Width = static_cast<float>(normalRT->GetWidth());
 	buffer->Data.Height = static_cast<float>(normalRT->GetHeight());
@@ -183,7 +193,7 @@ void ToonShading::ImGuiRender()
 	ImGui::Begin("Buffer");
 
 	{
-		ImGui::SliderInt("Buffer Render", (int*)&lightBuffer->Data.BufferRender, 0, 5);
+		ImGui::SliderInt("Buffer Render", (int*)&lightBuffer->Data.BufferRender, 0, 6);
 	}
 
 	ImGui::End();
@@ -204,6 +214,8 @@ void ToonShading::ResizeScreen()
 	depthRT->Create((UINT)desc.Width, (UINT)desc.Height);
 
 	realRT->Create((UINT)desc.Width, (UINT)desc.Height);
+
+	lightMeshRT->Create((UINT)desc.Width, (UINT)desc.Height);
 
 	lightRT->Create((UINT)desc.Width, (UINT)desc.Height);
 

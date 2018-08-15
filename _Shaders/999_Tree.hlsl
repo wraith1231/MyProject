@@ -52,7 +52,7 @@ PixelInput VS(VertexTextureNormal input)
     output.vPosition = output.position;
     output.position = mul(output.position, _projection);
 
-    output.normal = mul(float3(0, 0, 1), (float3x3) mat);
+    output.normal = normalize(mul(float3(0, 1, 0), (float3x3) mat));
     output.uv = input.uv;
 
     return output;
@@ -67,7 +67,8 @@ PS_GBUFFEROUTPUT PS(PixelInput input)
     PS_GBUFFEROUTPUT output = (PS_GBUFFEROUTPUT) 0;
     output.color = diffuseMap;
     output.depth = float4(input.vPosition.z / _valueFar, input.wPosition.xyz);
-    output.normal.xy = NormalEncode(input.normal.xyz);
+    //output.normal.xy = NormalEncode(input.normal.xyz);
+    output.normal.xyz = input.normal;
 
     return output;
 }

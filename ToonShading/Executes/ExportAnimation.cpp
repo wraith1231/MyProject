@@ -39,6 +39,10 @@ void ExportAnimation::PreRender()
 {
 }
 
+void ExportAnimation::LightMeshRender()
+{
+}
+
 void ExportAnimation::LightRender()
 {
 }

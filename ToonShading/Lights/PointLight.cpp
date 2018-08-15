@@ -4,6 +4,8 @@
 #include "../Bounding/BoundingBox.h"
 #include "../Bounding/ObjectsRay.h"
 
+#include "../Objects/MeshSphere.h"
+
 PointLight::PointLight()
 {
 	buffer = new Buffer();
@@ -13,10 +15,15 @@ PointLight::PointLight()
 	min = -max;
 
 	box = new Objects::BoundingBox(max, min);
+	sphere = new MeshSphere();
+	sphere->SetShader(Shaders + L"999_PointLightMesh.hlsl");
+	meshBuffer = new MeshBuffer();
 }
 
 PointLight::~PointLight()
 {
+	SAFE_DELETE(meshBuffer);
+	SAFE_DELETE(sphere);
 	SAFE_DELETE(box);
 	SAFE_DELETE(buffer);
 }
@@ -73,6 +80,20 @@ void PointLight::PreRender(bool val)
 			box->SetColor(D3DXCOLOR(buffer->Data.Light[i].Color.x, buffer->Data.Light[i].Color.y, buffer->Data.Light[i].Color.z, 1.0f));
 			box->Render();
 		}
+	}
+}
+
+void PointLight::LightMeshRender()
+{
+	for (size_t i = 0; i < POINTLIGHTSIZE; i++)
+	{
+		if (buffer->Data.Light[i].Use == false) continue;
+
+		sphere->SetPosition(buffer->Data.Light[i].Position);
+		sphere->Scale(buffer->Data.Light[i].Range * 2);
+		meshBuffer->Data.Number = i;
+		meshBuffer->SetPSBuffer(2);
+		sphere->PreRender();
 	}
 }
 

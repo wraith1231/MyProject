@@ -34,7 +34,7 @@ public:
 	void Right(D3DXVECTOR3& vec);
 	D3DXVECTOR3 Right();
 
-	void Scale(float& val);
+	void Scale(float val);
 	float Scale();
 
 	D3DXMATRIX Transformed();

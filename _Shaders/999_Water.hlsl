@@ -60,7 +60,8 @@ PixelInput VS(VertexTexture input)
         ddx -= deriv * wave[i].direction.x;
         ddy -= deriv * wave[i].direction.y;
     }
-
+    
+    output.wPosition = world;
     output.position = mul(world, _view);
     output.vPosition = output.position;
     output.position = mul(output.position, _projection);
@@ -76,7 +77,6 @@ PixelInput VS(VertexTexture input)
     output.bump[1] = input.uv * _waterTextureScale * 2.0f + _waterTime * _waterBumpSpeed * 4.0f;
     output.bump[2] = input.uv * _waterTextureScale * 4.0f + _waterTime * _waterBumpSpeed * 8.0f;
     
-    output.wPosition = world;
 
     return output;
 }
@@ -104,7 +104,7 @@ PS_GBUFFEROUTPUT PS(PixelInput input)
     float4 reflection = _specularMap.SampleBias(_specularSampler, r.xy, r.w, offset);
     reflection.rgb *= (reflection.r + reflection.g + reflection.b) * _waterHDRMultiplier;
 
-    float facing = saturate(1.0f - max(dot(input.eye, n), 0.0f));
+    float facing = saturate(1.0f - max(-dot(-input.eye, n), 0.0f));
     float fresnel = saturate(_waterFresnelBias + pow(facing, _waterFresnelPower));
 
     float4 waterColor = lerp(_waterShallowColor, _waterDeepColor, facing) * _waterAmount;
@@ -115,7 +115,9 @@ PS_GBUFFEROUTPUT PS(PixelInput input)
     
     PS_GBUFFEROUTPUT output = (PS_GBUFFEROUTPUT) 0;
     output.color = float4(color, 1);
-    output.depth = float4(input.vPosition.z / _valueFar, input.wPosition.xyz);
-    output.normal.xy = NormalEncode(input.row[2].xyz);
+    output.depth = float4(input.vPosition.z / _valueFar, input.wPosition);
+    //output.normal.xy = NormalEncode(n.xyz);
+    output.normal.xyz = n;
+
     return output;
 }

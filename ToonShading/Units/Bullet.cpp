@@ -16,9 +16,10 @@ Bullet::Bullet(ExecuteValues* values)
 	model->CheckMaxMinVer(max, min);
 	float rad = max.y - min.y;
 
-	diffuseShader = new Shader(Shaders + L"999_Mesh.hlsl");
-	normalShader = new Shader(Shaders + L"999_Mesh.hlsl", "VS_Normal", "PS_Normal");
-	depthShader = new Shader(Shaders + L"999_Mesh.hlsl", "VS_Depth", "PS_Depth");
+	shader = new Shader(Shaders + L"999_Mesh.hlsl");
+	for (Material* material : model->Materials())
+		material->SetShader(shader);
+
 
 	sphere = new Objects::BoundingSphere(D3DXVECTOR3(0, 0, 0), rad);
 	//sphere->SetColor(D3DXCOLOR(0, 1, 0, 1));
@@ -31,9 +32,7 @@ Bullet::~Bullet()
 		SAFE_DELETE(bullet);
 	SAFE_DELETE(sphere);
 	
-	SAFE_DELETE(diffuseShader);
-	SAFE_DELETE(normalShader);
-	SAFE_DELETE(depthShader);
+	SAFE_DELETE(shader);
 
 	SAFE_DELETE(model);
 }
@@ -116,11 +115,8 @@ void Bullet::Update()
 	}
 }
 
-void Bullet::NormalRender()
+void Bullet::PreRender()
 {
-	for (Material* material : model->Materials())
-		material->SetShader(normalShader);
-
 	for (BulletStruct* bullet : bullets)
 	{
 		model->SetWorld(bullet->World);
@@ -128,46 +124,12 @@ void Bullet::NormalRender()
 		model->VisibleUpdate();
 		bullet->Visible = model->GetVisible();
 
-		if (bullet->Visible == false) 
+		if (bullet->Visible == false)
 			continue;
 
 		for (ModelMesh* mesh : model->Meshes())
 			mesh->Render();
 		//model->NormalRender();
-	}
-}
-
-void Bullet::DepthRender()
-{
-	for (Material* material : model->Materials())
-		material->SetShader(depthShader);
-
-	for (BulletStruct* bullet : bullets)
-	{
-		if (bullet->Visible == false) 
-			continue;
-
-		model->SetWorld(bullet->World);
-		for (ModelMesh* mesh : model->Meshes())
-			mesh->Render();
-		//model->DepthRender();
-	}
-}
-
-void Bullet::DiffuseRender()
-{
-	for (Material* material : model->Materials())
-		material->SetShader(diffuseShader);
-
-	for (BulletStruct* bullet : bullets)
-	{
-		if (bullet->Visible == false) 
-			continue;
-
-		model->SetWorld(bullet->World);
-		for (ModelMesh* mesh : model->Meshes())
-			mesh->Render();
-		//model->Render();
 	}
 }
 

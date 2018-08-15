@@ -24,9 +24,7 @@ public:		//public Function
 	void Update();
 	void EditUpdate();
 
-	void NormalRender();
-	void DepthRender();
-	void DiffuseRender();
+	void PreRender();
 	
 	void ImGuiRender();
 

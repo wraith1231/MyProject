@@ -35,15 +35,7 @@ void ExportAnimation::Update()
 
 }
 
-void ExportAnimation::DepthRender()
-{
-}
-
-void ExportAnimation::NormalRender()
-{
-}
-
-void ExportAnimation::DiffuseRender()
+void ExportAnimation::PreRender()
 {
 }
 

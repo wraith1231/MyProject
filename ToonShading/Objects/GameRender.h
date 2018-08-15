@@ -40,9 +40,7 @@ public:
 	D3DXMATRIX Transformed();
 
 	virtual void Update() = 0;
-	virtual void NormalRender() = 0;
-	virtual void DepthRender() = 0;
-	virtual void DiffuseRender() = 0;
+	virtual void PreRender() = 0;
 	virtual void ImGuiRender() = 0;
 
 	D3DXVECTOR3* FollowPos();

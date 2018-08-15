@@ -19,19 +19,9 @@ void DrawModel::Update()
 	settings->Update();
 }
 
-void DrawModel::NormalRender()
+void DrawModel::PreRender()
 {
-	settings->NormalRender();
-}
-
-void DrawModel::DepthRender()
-{
-	settings->DepthRender();
-}
-
-void DrawModel::DiffuseRender()
-{
-	settings->DiffuseRender();
+	settings->PreRender();
 }
 
 void DrawModel::LightRender()

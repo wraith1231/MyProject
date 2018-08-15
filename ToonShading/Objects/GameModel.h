@@ -51,9 +51,7 @@ public:
 	virtual ~GameModel();
 
 	virtual void Update();
-	virtual void NormalRender();
-	virtual void DepthRender();
-	virtual void DiffuseRender();
+	virtual void PreRender();
 	virtual void ImGuiRender();
 
 	void Rotate(D3DXVECTOR2 amount);
@@ -70,9 +68,7 @@ protected:	//private function
 	void CalcPosition();
 
 protected:	//private valuable
-	Shader* diffuseShader;
-	Shader* normalShader;
-	Shader* depthShader;
+	Shader* shader;
 	Model* model;
 
 	D3DXVECTOR3 velocity;

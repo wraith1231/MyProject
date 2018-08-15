@@ -10,9 +10,7 @@ public:
 
 	void Update();
 
-	void NormalRender();
-	void DepthRender();
-	void DiffuseRender();
+	void PreRender();
 
 	void ImguiRender();
 

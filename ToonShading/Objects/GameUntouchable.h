@@ -32,9 +32,7 @@ public:
 	void SelectObjectUpdate();
 	void Unselect();
 
-	void NormalRender();
-	void DepthRender();
-	void DiffuseRender();
+	void PreRender();
 
 	void ImGuiRender();
 
@@ -57,8 +55,6 @@ private:
 	wstring file;
 
 	Shader* shader;
-	Shader* shader2;
-	Shader* shader3;
 
 	vector<ModelStruct*> transforms;
 };

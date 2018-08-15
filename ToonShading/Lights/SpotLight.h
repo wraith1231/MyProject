@@ -30,9 +30,8 @@ public:
 	UINT SpotLightSize();
 	UINT SpotLightMaxSize() { return SPOTLIGHTSIZE; }
 
-	void DiffuseRender();
-	void DiffuseRender(bool val);
-
+	void PreRender();
+	void PreRender(bool val);
 	void ImGuiRender();
 
 	bool LightUse(UINT num, SpotLightSave& data);

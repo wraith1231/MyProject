@@ -25,6 +25,7 @@ public:
 	UINT GetHeight() { return height; }
 
 	void Set();
+	void Clear();
 
 	void Create(UINT width = 1280, UINT height = 720, DXGI_FORMAT format = DXGI_FORMAT_R32G32B32A32_FLOAT);
 private:

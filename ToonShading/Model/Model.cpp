@@ -51,59 +51,11 @@ void Model::Update()
 
 }
 
-void Model::NormalRender()
+void Model::Render()
 {
 	transforms.clear();
 	CopyAbsoluteBoneTo(worldMat, transforms);
 
-	//VisibleUpdate();
-
-	//if (visible == false)
-	//	return;
-
-	for (ModelMesh* mesh : meshes)
-	{
-		int index = mesh->ParentBoneIndex();
-		D3DXMATRIX transform = transforms[index];
-		
-		mesh->SetWorld(transform);
-		mesh->Render();
-	}
-}
-
-void Model::DepthRender()
-{
-	//VisibleUpdate();
-	//if (visible == false)
-	//	return;
-
-	for (ModelMesh* mesh : meshes)
-	{
-		int index = mesh->ParentBoneIndex();
-		D3DXMATRIX transform = transforms[index];
-		
-		mesh->SetWorld(transform);
-		mesh->Render();
-	}
-}
-
-void Model::DiffuseRender()
-{
-	//if (visible == false)
-	//	return;
-
-	for (ModelMesh* mesh : meshes)
-	{
-		int index = mesh->ParentBoneIndex();
-		D3DXMATRIX transform = transforms[index];
-		
-		mesh->SetWorld(transform);
-		mesh->Render();
-	}
-}
-
-void Model::Render()
-{
 	for (ModelMesh* mesh : meshes)
 	{
 		int index = mesh->ParentBoneIndex();

@@ -84,22 +84,10 @@ void GamePlayer::EditUpdate()
 	box->Update(transformed);
 }
 
-void GamePlayer::NormalRender()
+void GamePlayer::PreRender()
 {
-	bullet->NormalRender();
-	GameUnit::NormalRender();
-}
-
-void GamePlayer::DepthRender()
-{
-	bullet->DepthRender();
-	GameUnit::DepthRender();
-}
-
-void GamePlayer::DiffuseRender()
-{
-	bullet->DiffuseRender();
-	GameUnit::DiffuseRender();
+	bullet->PreRender();
+	GameUnit::PreRender();
 }
 
 void GamePlayer::ImGuiRender()

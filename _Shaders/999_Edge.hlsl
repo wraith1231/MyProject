@@ -65,7 +65,7 @@ float4 PS(PixelInput input) : SV_TARGET
     else if (_bufferRender == 2)
     {
         float3 normal = NormalRT.Sample(NormalRTSampler, input.uv);
-        normal.xyz = decodeNormal(normal.xy);
+        normal.xyz = NormalDecode(normal.xy);
         return float4(normal, 1);
     }
     else if (_bufferRender == 3)
@@ -81,16 +81,7 @@ float4 PS(PixelInput input) : SV_TARGET
     
     float4 realColor = RealRT.Sample(RealRTSampler, input.uv);
     float4 lightColor = LightRT.Sample(LightRTSampler, input.uv);
-    //return lightColor;
-    //return realColor;
-
     return float4(realColor.rgb * lightColor.rgb, 1.0f);
-    //float4 light = LightRT.Sample(LightRTSampler, input.uv);
-    //return light;
-    //float3 NLATTColor = light.xyz;// * realColor.rgb;
-    //float3 Lighting = NLATTColor * light.www;
-    //
-    //return float4(Lighting, 1.0f);
 
     float nor = (3.141592f / 180.0f) * 5.0f;
     float dep = 0.01;
@@ -105,8 +96,7 @@ float4 PS(PixelInput input) : SV_TARGET
     half4 normalColor = NormalRT.Sample(NormalRTSampler, input.uv);
     normalColor.rgb = decodeNormal(normalColor.rg);
     float depthColor = DepthRT.Sample(DepthRTSampler, input.uv).r;
-    //depthColor = 1 - depthColor;
-    //return float4(1 - depthColor.rrr, 1);
+
     float depthColor1;
     half4 normalColor1;
     float2 uv = input.uv;

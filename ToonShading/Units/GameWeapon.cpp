@@ -23,15 +23,7 @@ void GameWeapon::Update()
 
 }
 
-void GameWeapon::DiffuseRender()
-{
-}
-
-void GameWeapon::NormalRender()
-{
-}
-
-void GameWeapon::DepthRender()
+void GameWeapon::PreRender()
 {
 }
 

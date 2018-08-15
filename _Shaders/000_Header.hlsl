@@ -132,6 +132,48 @@ cbuffer PS_Fog : register(b13)
     float _fogPadding;
 }
 
+struct PS_GBUFFEROUTPUT
+{
+    float4 normal : SV_TARGET0;
+    float4 depth : SV_TARGET1;
+    float4 color : SV_TARGET2;
+};
+
+float2 NormalEncode(float3 normal)
+{
+    float2 output = (float2) 0;
+    
+    output.x = normal.x / (1 + normal.z);
+    output.y = normal.y / (1 + normal.z);
+    return output;
+    //float p = sqrt(input.normal.z * 8 + 8);
+    //output.normal = float4(input.normal.xy / p + 0.5f, 0, 0);
+}   
+
+/*
+half3 decodeNormal(half2 enc)
+{
+    half2 fenc = enc * 4 - 2;
+    half f = dot(fenc, fenc);
+    half g = sqrt(1 - f / 4);
+    half3 n;
+    n.xy = fenc * g;
+    n.z = 1 - f / 2;
+    return n;
+}
+*/
+float3 NormalDecode(float2 encnor)
+{
+    float3 output = (float3) 0;
+
+    float denom = 2 / (1 + encnor.x * encnor + encnor.y * encnor.y);
+    output.x = encnor.x * denom;
+    output.y = encnor.y * denom;
+    output.z = denom - 1;
+
+    return output;
+}
+
 Texture2D _diffuseMap : register(t0);
 Texture2D _specularMap : register(t1);
 Texture2D _emissiveMap : register(t2);

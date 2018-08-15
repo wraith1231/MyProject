@@ -12,10 +12,7 @@ public:
 
 	void Update();
 
-	void NormalRender();
-	void DepthRender();
-	void DiffuseRender();
-
+	void PreRender();
 	void ImGuiRender();
 
 	struct GameWeaponSpec* SpecData() { return specData; }

@@ -36,9 +36,7 @@ public:
 
 	void Update();
 
-	void NormalRender();
-	void DepthRender();
-	void DiffuseRender();
+	void PreRender();
 
 	bool CheckIntersect(Objects::BoundingBox* box, UINT& num);
 
@@ -52,7 +50,5 @@ private:
 
 	class Model* model;
 
-	Shader* diffuseShader;
-	Shader* normalShader;
-	Shader* depthShader;
+	Shader* shader;
 };

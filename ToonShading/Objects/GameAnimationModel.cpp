@@ -125,21 +125,9 @@ void GameAnimationModel::Update()
 	model->CopyAbsoluteBoneTo(transformed, boneTransforms);
 }
 
-
-void GameAnimationModel::NormalRender()
+void GameAnimationModel::PreRender()
 {
-	GameModel::NormalRender();
-}
-
-void GameAnimationModel::DepthRender()
-{
-	GameModel::DepthRender();
-}
-
-void GameAnimationModel::DiffuseRender()
-{
-	//바꿔줄건 부모의 boneTransforms만 해주면 됨
-	GameModel::DiffuseRender();
+	GameModel::PreRender();
 }
 
 void GameAnimationModel::ImGuiRender()

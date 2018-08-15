@@ -33,15 +33,7 @@ void ExeGui::Update()
 	}
 }
 
-void ExeGui::DepthRender()
-{
-}
-
-void ExeGui::NormalRender()
-{
-}
-
-void ExeGui::DiffuseRender()
+void ExeGui::PreRender()
 {
 }
 

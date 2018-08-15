@@ -318,81 +318,34 @@ void GameSettings::Update()
 	}
 }
 
-void GameSettings::NormalRender()
+void GameSettings::PreRender()
 {
 	if (terrain != NULL)
-		terrain->NormalRender();
+		terrain->PreRender();
 	for (GameUntouchable* untouch : untouchables)
-		untouch->NormalRender();
+		untouch->PreRender();
 	if (skyBox != NULL)
-		skyBox->NormalRender();
+		skyBox->PreRender();
 	if (world != NULL)
-		world->NormalRender();
-
+		world->PreRender();
+	
 	if (enemy != NULL)
-		enemy->NormalRender();
+		enemy->PreRender();
 	for (GameEnemy* ene : enemies)
-		ene->NormalRender();
+		ene->PreRender();
 	if (player != NULL)
-		player->NormalRender();
+		player->PreRender();
 	if (model != NULL)
-		model->NormalRender();
+		model->PreRender();
+	
 	for (GameAnimationModel* am : models)
-		am->NormalRender();
-}
-
-void GameSettings::DepthRender()
-{
-	if (terrain != NULL)
-		terrain->DepthRender();
-	for (GameUntouchable* untouch : untouchables)
-		untouch->DepthRender();
-	if (skyBox != NULL)
-		skyBox->DepthRender();
-	if (world != NULL)
-		world->DepthRender();
-
-	if (enemy != NULL)
-		enemy->DepthRender();
-	for (GameEnemy* ene : enemies)
-		ene->DepthRender();
-	if (player != NULL)
-		player->DepthRender();
-	if (model != NULL)
-		model->DepthRender();
-	for (GameAnimationModel* am : models)
-		am->DepthRender();
-}
-
-void GameSettings::DiffuseRender()
-{
-	if (terrain != NULL)
-		terrain->DiffuseRender();
-	for (GameUntouchable* untouch : untouchables)
-		untouch->DiffuseRender();
-	if (skyBox != NULL)
-		skyBox->DiffuseRender();
-	if (world != NULL)
-		world->DiffuseRender();
-
-	if (enemy != NULL)
-		enemy->DiffuseRender();
-	for (GameEnemy* ene : enemies)
-		ene->DiffuseRender();
-	if (player != NULL)
-		player->DiffuseRender();
-	if (model != NULL)
-		model->DiffuseRender();
-
-	for (GameAnimationModel* am : models)
-		am->DiffuseRender();
+		am->PreRender();
 }
 
 void GameSettings::ImguiRender()
 {
 	if (editMode == true)
 	{
-
 		ImGui::BeginMainMenuBar();
 
 		//Scene

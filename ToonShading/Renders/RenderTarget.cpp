@@ -18,6 +18,11 @@ void RenderTarget::Set()
 	D3D::Get()->Clear(D3DXCOLOR(1, 1, 1, 0), rtv);
 }
 
+void RenderTarget::Clear()
+{
+	D3D::Get()->Clear(D3DXCOLOR(1, 1, 1, 0), rtv);
+}
+
 void RenderTarget::Create(UINT width, UINT height, DXGI_FORMAT format)
 {
 	Delete();

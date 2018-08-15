@@ -45,10 +45,7 @@ public:
 
 	void Update();
 
-	void NormalRender();
-	void DepthRender();
-	void DiffuseRender();
-
+	void PreRender();
 	void LightRender();
 	void EdgeRender();
 	void AARender();

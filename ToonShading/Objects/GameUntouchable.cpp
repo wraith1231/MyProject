@@ -15,8 +15,8 @@ GameUntouchable::GameUntouchable(wstring file, ExecuteValues* value)
 	model->SetExecuteValue(value);
 
 	shader = new Shader(Shaders + L"999_Mesh.hlsl");
-	shader2 = new Shader(Shaders + L"999_Mesh.hlsl", "VS_Normal", "PS_Normal");
-	shader3 = new Shader(Shaders + L"999_Mesh.hlsl", "VS_Depth", "PS_Depth");
+	for (Material* material : model->Materials())
+		material->SetShader(shader);
 
 	D3DXVECTOR3 max, min;
 	max = D3DXVECTOR3(-9999, -9999, -9999);
@@ -34,8 +34,6 @@ GameUntouchable::~GameUntouchable()
 	SAFE_DELETE(model);
 
 	SAFE_DELETE(shader);
-	SAFE_DELETE(shader2);
-	SAFE_DELETE(shader3);
 
 	SAFE_DELETE(box);
 
@@ -231,11 +229,8 @@ void GameUntouchable::Unselect()
 }
 
 
-void GameUntouchable::NormalRender()
+void GameUntouchable::PreRender()
 {
-	for (Material* material : model->Materials())
-		material->SetShader(shader2);
-
 	for (ModelStruct* mod : transforms)
 	{
 		model->SetWorld(mod->Transforms);
@@ -245,35 +240,7 @@ void GameUntouchable::NormalRender()
 		if (mod->Visible == false)
 			continue;
 
-		model->NormalRender();
-	}
-}
-
-void GameUntouchable::DepthRender()
-{
-	for (Material* material : model->Materials())
-		material->SetShader(shader3);
-
-	for (ModelStruct* mod : transforms)
-	{
-		if (mod->Visible == false)
-			continue;
-		model->SetWorld(mod->Transforms);
-		model->DepthRender();
-	}
-}
-
-void GameUntouchable::DiffuseRender()
-{
-	for (Material* material : model->Materials())
-		material->SetShader(shader);
-
-	for (ModelStruct* mod : transforms)
-	{
-		if (mod->Visible == false)
-			continue;
-		model->SetWorld(mod->Transforms);
-		model->DiffuseRender();
+		model->Render();
 	}
 }
 

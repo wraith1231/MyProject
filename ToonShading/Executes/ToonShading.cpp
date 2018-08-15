@@ -36,7 +36,7 @@ ToonShading::ToonShading(ExecuteValues* values)
 
 	D3DXMatrixIdentity(&view);
 
-	normalRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height, DXGI_FORMAT_R32G32_FLOAT);
+	normalRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);// , DXGI_FORMAT_R32G32_FLOAT);
 	depthRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	realRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	lightRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
@@ -96,23 +96,16 @@ void ToonShading::Update()
 {
 }
 
-void ToonShading::NormalRender()
+void ToonShading::PreRender()
 {
 	buffer->SetPSBuffer(9);
 	buffer->SetVSBuffer(9);
 
-	normalRT->Set();
-
-}
-
-void ToonShading::DepthRender()
-{
-	depthRT->Set();
-}
-
-void ToonShading::DiffuseRender()
-{
-	realRT->Set();
+	normalRT->Clear();
+	depthRT->Clear();
+	realRT->Clear();
+	ID3D11RenderTargetView* rtv[3] = { normalRT->GetRTV(), depthRT->GetRTV(), realRT->GetRTV() };
+	D3D::GetDC()->OMSetRenderTargets(3, rtv, D3D::Get()->GetDSV());
 }
 
 void ToonShading::LightRender()
@@ -130,13 +123,10 @@ void ToonShading::LightRender()
 	D3D::GetDC()->PSSetShaderResources(5, 1, &normalView);
 	ID3D11ShaderResourceView* depthView = depthRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(6, 1, &depthView);
-	//ID3D11ShaderResourceView* realView = realRT->GetSRV();
-	//D3D::GetDC()->PSSetShaderResources(7, 1, &realView);
 
 	buffer->Data.Width = static_cast<float>(normalRT->GetWidth());
 	buffer->Data.Height = static_cast<float>(normalRT->GetHeight());
-	//buffer->SetPSBuffer(2);
-	//lightBuffer->SetPSBuffer(3);
+
 	lightModel->TransformsCopy();
 	lightModel->Render();
 }

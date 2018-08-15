@@ -10,10 +10,9 @@ struct PixelInput
     float2 bump[3] : BUMP0;
 
     float3 eye : VIEW0;
-
-    //float alpha : ALPHA0;
+    
     float3 wPosition : POSITION0;
-    float2 depth : DEPTH0;
+    float3 vPosition : POSITION1;
 };
 
 struct Wave
@@ -27,10 +26,11 @@ struct Wave
 PixelInput VS(VertexTexture input)
 {
     PixelInput output;
-    Wave wave[2] =
+    Wave wave[3] =
     {
         { 1.0, 1.0, 0.5, float2(-1, 0) },
-        { 2.0, 0.5, 1.7, float2(-0.7, -0.7) }
+        { 2.0, 0.5, 1.7, float2(-0.7, -0.7) },
+        { 0.6, 1.2, 1.3, float2(-0.3, -0.4) }
     };
 
     wave[0].frequancy = _waterWaveFrequancy;
@@ -38,6 +38,9 @@ PixelInput VS(VertexTexture input)
     
     wave[1].frequancy = _waterWaveFrequancy * 3.0f;
     wave[1].amplitude = _waterWaveAmplitude * 0.33f;
+
+    wave[2].frequancy = _waterWaveFrequancy * 1.5f;
+    wave[2].amplitude = _waterWaveAmplitude * 1.2f;
 
     float4 pos = input.position;
     pos.y = _waterHeight;
@@ -49,7 +52,7 @@ PixelInput VS(VertexTexture input)
     float angle;
     ddx = ddy = 0.0f;
 
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 3; i++)
     {
         angle = dot(wave[i].direction, world.xz) * wave[i].frequancy + _waterTime * wave[i].phase;
         world.y += wave[i].amplitude * sin(angle);
@@ -59,7 +62,7 @@ PixelInput VS(VertexTexture input)
     }
 
     output.position = mul(world, _view);
-    output.depth = output.position.zw;
+    output.vPosition = output.position;
     output.position = mul(output.position, _projection);
 
     output.eye = normalize(GetViewPosition() - world.xyz);
@@ -72,14 +75,13 @@ PixelInput VS(VertexTexture input)
     output.bump[0] = input.uv * _waterTextureScale + _waterTime * _waterBumpSpeed;
     output.bump[1] = input.uv * _waterTextureScale * 2.0f + _waterTime * _waterBumpSpeed * 4.0f;
     output.bump[2] = input.uv * _waterTextureScale * 4.0f + _waterTime * _waterBumpSpeed * 8.0f;
-
-    //output.alpha = 0.5f * (1.0f - saturate(1.0f / length(GetViewPosition() - world.xyz)));
+    
     output.wPosition = world;
 
     return output;
 }
 
-float4 PS(PixelInput input) : SV_TARGET
+PS_GBUFFEROUTPUT PS(PixelInput input) 
 {
     float4 t0 = _normalMap.Sample(_normalSampler, input.bump[0]) * 2.0f - 1.0f;
     float4 t1 = _normalMap.Sample(_normalSampler, input.bump[1]) * 2.0f - 1.0f;
@@ -111,22 +113,9 @@ float4 PS(PixelInput input) : SV_TARGET
 
     float3 color = waterColor.rgb + reflection.rgb;
     
-    //color = GetDiffuseColor(float4(color, 1), _direction, input.row[2]).rgb;
-    //PointLightFunc(color, input.wPosition, input.row[2]);
-    //SpotLightFunc(color.rgb, input.wPosition, input.row[2]);
-    
-    return float4(color, 1.0f);
-}
-
-half4 PS_Normal(PixelInput input) : SV_TARGET
-{
-    half p = sqrt(input.row[2].z * 8 + 8);
-    return half4(input.row[2].xy / p + 0.5, 0, 0);
-}
-
-float4 PS_Depth(PixelInput input) : SV_TARGET
-{
-    return float4(input.depth.x / _valueFar, input.wPosition);
-    return input.depth.x / _valueFar;
-    return input.position.z / input.position.w;
+    PS_GBUFFEROUTPUT output = (PS_GBUFFEROUTPUT) 0;
+    output.color = float4(color, 1);
+    output.depth = float4(input.vPosition.z / _valueFar, input.wPosition.xyz);
+    output.normal.xy = NormalEncode(input.row[2].xyz);
+    return output;
 }

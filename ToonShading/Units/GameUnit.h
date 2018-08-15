@@ -11,10 +11,7 @@ public:
 
 	virtual void Update();
 
-	virtual void NormalRender();
-	virtual void DepthRender();
-	virtual void DiffuseRender();
-
+	virtual void PreRender();
 	virtual void ImGuiRender();
 
 	void Life(float val) { life = val; }

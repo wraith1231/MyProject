@@ -87,15 +87,7 @@ void ExportMesh::Update()
 
 }
 
-void ExportMesh::DepthRender()
-{
-}
-
-void ExportMesh::NormalRender()
-{
-}
-
-void ExportMesh::DiffuseRender()
+void ExportMesh::PreRender()
 {
 }
 

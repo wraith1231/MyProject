@@ -106,9 +106,9 @@ void EnemyTank::Update()
 	GameEnemy::Update();
 }
 
-void EnemyTank::DiffuseRender()
+void EnemyTank::PreRender()
 {
-	GameEnemy::DiffuseRender();
+	GameEnemy::PreRender();
 }
 
 void EnemyTank::ActionIdle()

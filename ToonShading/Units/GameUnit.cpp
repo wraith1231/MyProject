@@ -26,19 +26,9 @@ void GameUnit::Update()
 	GameAnimationModel::Update();
 }
 
-void GameUnit::NormalRender()
+void GameUnit::PreRender()
 {
-	GameAnimationModel::NormalRender();
-}
-
-void GameUnit::DepthRender()
-{
-	GameAnimationModel::DepthRender();
-}
-
-void GameUnit::DiffuseRender()
-{
-	GameAnimationModel::DiffuseRender();
+	GameAnimationModel::PreRender();
 }
 
 void GameUnit::ImGuiRender()

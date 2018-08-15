@@ -20,7 +20,7 @@ void Fog::Update()
 
 }
 
-void Fog::DiffuseRender()
+void Fog::PreRender()
 {
 	buffer->SetPSBuffer(13);
 }

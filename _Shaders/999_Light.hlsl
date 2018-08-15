@@ -40,20 +40,10 @@ PixelInput VS(VertexTextureNormal input)
     return output;
 }
 
-half3 decodeNormal(half2 enc)
-{
-    half2 fenc = enc * 4 - 2;
-    half f = dot(fenc, fenc);
-    half g = sqrt(1 - f / 4);
-    half3 n;
-    n.xy = fenc * g;
-    n.z = 1 - f / 2;
-    return n;
-}
-
 half4 PS(PixelInput input) : SV_TARGET
 {
-    half3 normal = NormalRT.Sample(NormalRTSampler, input.uv).rgb;
+    half3 normal;
+    normal.rg = NormalRT.Sample(NormalRTSampler, input.uv).rg;
     float4 depth = DepthRT.Sample(DepthRTSampler, input.uv);
     //return half4(abs(depth.gba), 1);
 
@@ -62,7 +52,7 @@ half4 PS(PixelInput input) : SV_TARGET
         depth.a < 0.001f && depth.a > -0.001f)
         return float4(1, 1, 1, 1);
 
-    normal.rgb = decodeNormal(normal.xy);
+    normal = NormalDecode(normal.xy);
     //return float4(normal, 1);
     
     //directional ¸ÕÀú

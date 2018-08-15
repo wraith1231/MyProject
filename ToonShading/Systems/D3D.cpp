@@ -8,6 +8,7 @@ ID3D11Device* D3D::device = NULL;
 ID3D11DeviceContext* D3D::deviceContext = NULL;
 IDXGISwapChain* D3D::swapChain = NULL;
 ID3D11ShaderResourceView* D3D::srv = NULL;
+ID3D11DepthStencilView* D3D::depthStencilView = NULL;
 
 D3D * D3D::Get()
 {

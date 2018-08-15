@@ -17,8 +17,6 @@ cbuffer TerrainBuffer : register(b2)
     float _padding2;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 struct PixelInput
 {
     float4 position : SV_POSITION;
@@ -27,7 +25,7 @@ struct PixelInput
     float3 normal : NORMAL0;
     float4 color : COLOR0;
     float alpha : ALPHA0;
-    float3 wPosition : POSITION0;
+    float3 vPosition : POSITION0;
 };
 
 PixelInput VS(VertexColorTextureNormal input)
@@ -36,6 +34,7 @@ PixelInput VS(VertexColorTextureNormal input)
 
     float4 world = mul(input.position, _world);
     output.position = mul(world, _view);
+    output.vPosition = output.position;
     output.position = mul(output.position, _projection);
 
     output.oPosition = input.position;
@@ -45,33 +44,17 @@ PixelInput VS(VertexColorTextureNormal input)
     
     output.color = input.color;
     output.uv = input.uv;
-
-    output.alpha = 0.5f * (1.0f - saturate(1.0f / length(GetViewPosition() - world.xyz)));
     
     float temp, temp1;
     temp = world.y;
     temp1 = _waterHeight;
 
     output.alpha = saturate((temp / temp1) * 0.1f + 0.3f);
-
-    //[branch]
-    //if (_waterHeight < 0)
-    //{
-    //    temp.y++;
-    //    float4 tempw = _waterHeight;
-    //    tempw.y += 1;
-    //    temp = abs(temp);
-    //    output.alpha = 1.0f - saturate((tempw - temp.y) / tempw - 0.4f);
-    //}
-    //else
-    //    output.alpha = 1.0f - saturate((_waterHeight - world.y) / _waterHeight - 0.4f);
-
-    output.wPosition = world;
-
+    
     return output;
 }
 
-float4 PS(PixelInput input) : SV_TARGET
+PS_GBUFFEROUTPUT PS(PixelInput input)
 {
     float4 penCol = float4(0, 0, 0, 0);
 
@@ -113,76 +96,13 @@ float4 PS(PixelInput input) : SV_TARGET
     
     color2 = _texture4.Sample(_samplerState, input.uv);
     diffuse = lerp(diffuse, color2, input.color.r);
-
-    //diffuse = GetDiffuseColor(diffuse, _direction, input.normal);
     
     float3 color = diffuse.rgb + penCol.rgb;
-    //PointLightFunc(color.rgb, input.wPosition, input.normal);
-    //SpotLightFunc(color.rgb, input.wPosition, input.normal);
 
+    PS_GBUFFEROUTPUT output = (PS_GBUFFEROUTPUT) 0;
+    output.color = float4(color, input.alpha);
+    output.depth = float4(input.vPosition.z / _valueFar, input.oPosition.xyz);
+    output.normal.xy = NormalEncode(input.normal.xyz);
 
-    return float4(color, input.alpha);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct PixelNormalInput
-{
-    float4 position : SV_POSITION;
-    float3 normal : NORMAL0;
-};
-
-PixelNormalInput VS_Normal(VertexColorTextureNormal input)
-{
-    PixelNormalInput output;
-    
-    output.position = mul(input.position, _world);
-    output.position = mul(output.position, _view);
-    output.position = mul(output.position, _projection);
-
-    output.normal = GetWorldNormal(input.normal, _world);
-    output.normal = normalize(output.normal);
-    
     return output;
-}
-
-half4 PS_Normal(PixelNormalInput input) : SV_TARGET
-{
-    half p = sqrt(input.normal.z * 8 + 8);
-    return half4(input.normal.xy / p + 0.5, 0, 0);
-    //float4 normal = float4(input.normal, 1);
-    //normal = (normal + 1.0f) * 0.5f;
-    //
-    //return normal;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct PixelDepthInput
-{
-    float4 position : SV_POSITION;
-    float3 oPosition : POSITION0;
-    float2 depth : DEPTH0;
-};
-
-PixelDepthInput VS_Depth(VertexColorTextureNormal input)
-{
-    PixelDepthInput output;
-    
-    output.position = mul(input.position, _world);
-    output.oPosition = output.position;
-    output.position = mul(output.position, _view);
-    output.depth = output.position.zw;
-    output.position = mul(output.position, _projection);
-    
-    return output;
-}
-
-float4 PS_Depth(PixelDepthInput input) : SV_TARGET
-{
-    return float4(input.depth.x / _valueFar, input.oPosition);
-    return input.depth.x / _valueFar;
-    return input.position.z / input.position.w;
-    //return float4(input.position.zw, 1, 1);
-    //return float4(input.zw.x, input.zw.y, 0, 1);
 }

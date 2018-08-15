@@ -30,9 +30,7 @@ public:
 	float PlayTime(wstring boneName);
 
 	virtual void Update();
-	virtual void NormalRender();
-	virtual void DepthRender();
-	virtual void DiffuseRender();
+	virtual void PreRender();
 	virtual void ImGuiRender();
 
 private:

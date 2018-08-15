@@ -493,114 +493,46 @@ void GameTerrain::Update()
 		water->Update();
 }
 
-void GameTerrain::DiffuseRender()
+void GameTerrain::PreRender()
 {
 	if (pointLight != NULL)
-		pointLight->DiffuseRender(pointLightSelect);
+		pointLight->PreRender(pointLightSelect);
 	if (spotLight != NULL)
-		spotLight->DiffuseRender(spotLightSelect);
+		spotLight->PreRender(spotLightSelect);
 	if (fog != NULL)
-		fog->DiffuseRender();
+		fog->PreRender();
 
 	if (tex1 != NULL)
 		tex1->SetShaderResource(5);
-
+	
 	if (tex2 != NULL)
 		tex2->SetShaderResource(6);
-
+	
 	if (tex3 != NULL)
 		tex3->SetShaderResource(7);
-
+	
 	if (tex4 != NULL)
 		tex4->SetShaderResource(8);
-
+	
 	UINT stride = sizeof(VertexType);
 	UINT offset = 0;
-
+	
 	D3D::GetDC()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
 	D3D::GetDC()->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	material->SetShader(diffuseShader);
+	
 	buffer->SetVSBuffer(1);
 	terrainBuffer->SetPSBuffer(2);
 	material->SetBuffer();
-
+	
 	D3D::GetDC()->DrawIndexed(indexSize, 0, 0);
 
 	if (water != NULL)
-		water->DiffuseRender();
-
+		water->PreRender();
+	
 	treeBuffer->SetVSBuffer(2);
 	for (Tree* tree : trees)
-		tree->DiffuseRender();
-
-}
-
-void GameTerrain::NormalRender()
-{
-	if (tex1 != NULL)
-		tex1->SetShaderResource(5);
-
-	if (tex2 != NULL)
-		tex2->SetShaderResource(6);
-
-	if (tex3 != NULL)
-		tex3->SetShaderResource(7);
-
-	if (tex4 != NULL)
-		tex4->SetShaderResource(8);
-
-	UINT stride = sizeof(VertexType);
-	UINT offset = 0;
-
-	D3D::GetDC()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
-	D3D::GetDC()->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	material->SetShader(normalShader);
-	buffer->SetVSBuffer(1);
-	material->SetBuffer();
-
-	D3D::GetDC()->DrawIndexed(indexSize, 0, 0);
-
-	if (water != NULL)
-		water->NormalRender();
-	treeBuffer->SetVSBuffer(2);
-	for (Tree* tree : trees)
-		tree->NormalRender();
-}
-
-void GameTerrain::DepthRender()
-{
-	if (tex1 != NULL)
-		tex1->SetShaderResource(5);
-
-	if (tex2 != NULL)
-		tex2->SetShaderResource(6);
-
-	if (tex3 != NULL)
-		tex3->SetShaderResource(7);
-
-	if (tex4 != NULL)
-		tex4->SetShaderResource(8);
-
-	UINT stride = sizeof(VertexType);
-	UINT offset = 0;
-
-	D3D::GetDC()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
-	D3D::GetDC()->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	material->SetShader(depthShader);
-	buffer->SetVSBuffer(1);
-	material->SetBuffer();
-
-	D3D::GetDC()->DrawIndexed(indexSize, 0, 0);
-
-	if (water != NULL)
-		water->DepthRender();
-	treeBuffer->SetVSBuffer(2);
-	for (Tree* tree : trees)
-		tree->DepthRender();
+		tree->PreRender();
 }
 
 void GameTerrain::ImGuiRender()
@@ -1206,7 +1138,7 @@ bool GameTerrain::GetHeight(D3DXVECTOR3 & pos)
 void GameTerrain::FirstInit(UINT width, UINT height)
 {
 	tex1 = tex2 = tex3 = tex4 = NULL;
-	diffuseShader = normalShader = depthShader = NULL;
+	shader = NULL;
 	vertexBuffer = indexBuffer = NULL;
 	pointLight = NULL;
 	spotLight = NULL;
@@ -1230,9 +1162,7 @@ void GameTerrain::FirstInit(UINT width, UINT height)
 	splat = D3DXCOLOR(0, 0, 0, 0);
 
 
-	diffuseShader = new Shader(Shaders + L"999_Terrain.hlsl");
-	normalShader = new Shader(Shaders + L"999_Terrain.hlsl", "VS_Normal", "PS_Normal");
-	depthShader = new Shader(Shaders + L"999_Terrain.hlsl", "VS_Depth", "PS_Depth");
+	shader = new Shader(Shaders + L"999_Terrain.hlsl");
 	buffer = new WorldBuffer();
 	terrainBuffer = new TerrainBuffer();
 	treeBuffer = new TreeBuffer();
@@ -1243,6 +1173,7 @@ void GameTerrain::FirstInit(UINT width, UINT height)
 	QuadTreeMake(widthEdit, heightEdit);
 
 	material = new Material;
+	material->SetShader(shader);
 }
 
 void GameTerrain::Init(UINT width, UINT height)
@@ -1452,7 +1383,7 @@ void GameTerrain::Clear()
 	if (fog != NULL)
 	{
 		fog->SetUse(false);
-		fog->DiffuseRender();
+		fog->PreRender();
 	}
 	SAFE_DELETE(fog);
 	SAFE_DELETE(spotLight);
@@ -1470,9 +1401,7 @@ void GameTerrain::Clear()
 	SAFE_RELEASE(vertexBuffer);
 	SAFE_RELEASE(indexBuffer);
 
-	SAFE_DELETE(diffuseShader);
-	SAFE_DELETE(normalShader);
-	SAFE_DELETE(depthShader);
+	SAFE_DELETE(shader);
 
 	SAFE_DELETE(tex1);
 	SAFE_DELETE(tex2);

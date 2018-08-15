@@ -110,10 +110,7 @@ public:
 
 	void Update();
 
-	void NormalRender();
-	void DepthRender();
-	void DiffuseRender();
-
+	void PreRender();
 	void ImGuiRender();
 
 	bool Intersect(D3DXVECTOR3 cam, D3DXVECTOR3 camDir, float& dis);
@@ -176,9 +173,7 @@ private:
 	Texture* tex3;
 	Texture* tex4;
 
-	Shader* diffuseShader;
-	Shader* normalShader;
-	Shader* depthShader;
+	Shader* shader;
 
 	Material* material;
 

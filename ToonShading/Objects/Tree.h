@@ -20,9 +20,7 @@ public:
 
 	void Update();
 
-	void NormalRender();
-	void DepthRender();
-	void DiffuseRender();
+	void PreRender();
 
 	wstring FileName() { return fileName; }
 
@@ -34,9 +32,7 @@ private:
 	Model* model;
 	wstring fileName;
 
-	Shader* diffuseShader;
-	Shader* depthShader;
-	Shader* normalShader;
+	Shader* shader;
 
 	vector<TreeStruct> trees;
 

@@ -52,9 +52,6 @@ public:
 	~Model();
 
 	void Update();
-	void NormalRender();
-	void DepthRender();
-	void DiffuseRender();
 	void Render();
 
 	void GizmoRender();

@@ -1,13 +1,11 @@
 #include "000_Header.hlsl"
 
 
-//cbuffer PS_Buffer : register(b3)
-//{
-//    uint _normalBuffer;
-//    uint _depthBuffer;
-//    uint _diffuseBuffer;
-//    float _bufferPadding;
-//}
+cbuffer PS_Buffer : register(b3)
+{
+    uint _bufferRender;
+    float3 _bufferPadding;
+}
 
 Texture2D NormalRT : register(t5);
 Texture2D DepthRT : register(t6);
@@ -52,7 +50,41 @@ half3 decodeNormal(half2 enc)
 
 float4 PS(PixelInput input) : SV_TARGET
 {
+    [branch]
+    if (_bufferRender == 0)
+    {
+        float depth = DepthRT.Sample(DepthRTSampler, input.uv);
+        return float4(depth.rrrr);
+    }
+    else if (_bufferRender == 1)
+    {
+        float3 oPos = DepthRT.Sample(DepthRTSampler, input.uv).gba;
+        return float4(oPos, 1);
+
+    }
+    else if (_bufferRender == 2)
+    {
+        float3 normal = NormalRT.Sample(NormalRTSampler, input.uv);
+        normal.xyz = decodeNormal(normal.xy);
+        return float4(normal, 1);
+    }
+    else if (_bufferRender == 3)
+    {
+        float4 diffuse = RealRT.Sample(RealRTSampler, input.uv);
+        return diffuse;
+    }
+    else if (_bufferRender == 4)
+    {
+        float4 lightColor = LightRT.Sample(LightRTSampler, input.uv);
+        return lightColor;
+    }
+    
     float4 realColor = RealRT.Sample(RealRTSampler, input.uv);
+    float4 lightColor = LightRT.Sample(LightRTSampler, input.uv);
+    //return lightColor;
+    //return realColor;
+
+    return float4(realColor.rgb * lightColor.rgb, 1.0f);
     //float4 light = LightRT.Sample(LightRTSampler, input.uv);
     //return light;
     //float3 NLATTColor = light.xyz;// * realColor.rgb;

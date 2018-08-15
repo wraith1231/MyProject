@@ -36,7 +36,7 @@ cbuffer PS_Material : register(b1)
     float MaterialPadding[2];
 }
 
-cbuffer PS_Value : register(b9)
+cbuffer VPS_Value : register(b9)
 {
     float _valueWidth;
     float _valueHeight;
@@ -231,24 +231,26 @@ void IntensityCut(inout float intensity)
         intensity = 1.6f;
 }
 
-void Diffuse(inout float3 color, in float3 direction, in float3 normal)
+void Diffuse(inout float3 color, in float3 normal)
 {
-    float3 light = direction * -1.0f;
+    float3 light = _direction * -1.0f;
     float intensity = saturate(dot(normal, light));
 
-    IntensityCut(intensity);
-
-    color = color + _diffuse.rgb * intensity;
+    //IntensityCut(intensity);
+    
+    color = _diffuse.rgb * intensity;
+    //color = color + _diffuse.rgb * intensity;
 }
 
-void Diffuse(inout float3 color, in float3 diffuse, in float3 direction, in float3 normal)
+void Diffuse(inout float3 color, in float3 diffuse, in float3 normal)
 {
-    float3 light = direction * -1.0f;
+    float3 light = _direction * -1.0f;
     float intensity = saturate(dot(normal, light));
 
-    IntensityCut(intensity);
-
-    color = color + diffuse.rgb * intensity;
+    //IntensityCut(intensity);
+ 
+    color = diffuse.rgb * intensity;
+    //color = color + diffuse.rgb * intensity;
 }
 
 void Specular(inout float3 color, in float3 direction, in float3 normal, in float3 eye)
@@ -256,7 +258,7 @@ void Specular(inout float3 color, in float3 direction, in float3 normal, in floa
     float3 reflection = reflect(_direction, normal);
     float intensity = saturate(dot(reflection, eye));
 
-    IntensityCut(intensity);
+    //IntensityCut(intensity);
 
     float specular = pow(intensity, _shininess);
 
@@ -268,7 +270,7 @@ void Specular(inout float3 color, in float3 mapIntensity, in float3 direction, i
     float3 reflection = reflect(_direction, normal);
     float intensity = saturate(dot(reflection, eye));
 
-    IntensityCut(intensity);
+    //IntensityCut(intensity);
 
     float specular = pow(intensity, _shininess);
 
@@ -282,7 +284,7 @@ float GetDiffuseIntensity(float3 direction, float3 normal)
     
     float intensity = saturate(dot(normal, light));
 
-    IntensityCut(intensity);
+    //IntensityCut(intensity);
 
     return intensity;
 }
@@ -293,7 +295,7 @@ float4 GetDiffuseColor(float4 color, float3 direction, float3 normal)
     float3 light = direction * -1;
     float intensity = saturate(dot(normal, light));
 
-    IntensityCut(intensity);
+    //IntensityCut(intensity);
 
     return float4(color.rgb * intensity, 0);
 }
@@ -309,7 +311,7 @@ void PointLighting(inout float3 color, in PointLight light, in float3 position, 
     float intensity = saturate((light.Range - dist) / light.Range);
     intensity = pow(intensity, light.Intensity);
 
-    IntensityCut(intensity);
+    //IntensityCut(intensity);
 
     color = color + intensity * light.Color;
 }
@@ -325,7 +327,7 @@ void SpotLighting(inout float3 color, in SpotLight light, in float3 position, in
     if (lightAngle > 0.0f)
         intensity = smoothstep(light.OuterAngle, light.InnerAngle, lightAngle);
 
-    IntensityCut(intensity);
+    //IntensityCut(intensity);
 
     color = color + light.Color * intensity;
 }

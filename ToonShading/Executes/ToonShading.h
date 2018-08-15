@@ -29,15 +29,13 @@ public:
 	public:
 		LightBuffer() : ShaderBuffer(&Data, sizeof(Struct))
 		{
-			Data.Attenuation = 10.0f;
-			Data.Power = 0.01f;
+			Data.BufferRender = 0;
 		}
 
 		struct Struct
 		{
-			float Attenuation;
-			float Power;
-			float Padding[2];
+			UINT BufferRender;
+			float Padding[3];
 		} Data;
 	};
 

@@ -37,7 +37,7 @@ ToonShading::ToonShading(ExecuteValues* values)
 	D3DXMatrixIdentity(&view);
 
 	normalRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height, DXGI_FORMAT_R32G32_FLOAT);
-	depthRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height, DXGI_FORMAT_R32_FLOAT);
+	depthRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	realRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	lightRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	AART = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
@@ -130,13 +130,13 @@ void ToonShading::LightRender()
 	D3D::GetDC()->PSSetShaderResources(5, 1, &normalView);
 	ID3D11ShaderResourceView* depthView = depthRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(6, 1, &depthView);
-	ID3D11ShaderResourceView* realView = realRT->GetSRV();
-	D3D::GetDC()->PSSetShaderResources(7, 1, &realView);
+	//ID3D11ShaderResourceView* realView = realRT->GetSRV();
+	//D3D::GetDC()->PSSetShaderResources(7, 1, &realView);
 
 	buffer->Data.Width = static_cast<float>(normalRT->GetWidth());
 	buffer->Data.Height = static_cast<float>(normalRT->GetHeight());
 	//buffer->SetPSBuffer(2);
-	lightBuffer->SetPSBuffer(3);
+	//lightBuffer->SetPSBuffer(3);
 	lightModel->TransformsCopy();
 	lightModel->Render();
 }
@@ -164,7 +164,7 @@ void ToonShading::EdgeRender()
 
 	buffer->Data.Width = static_cast<float>(normalRT->GetWidth());
 	buffer->Data.Height = static_cast<float>(normalRT->GetHeight());
-	//lightBuffer->SetPSBuffer(3);
+	lightBuffer->SetPSBuffer(3);
 	edgeModel->TransformsCopy();
 	edgeModel->Render();
 }
@@ -193,9 +193,7 @@ void ToonShading::ImGuiRender()
 	ImGui::Begin("Buffer");
 
 	{
-
-		ImGui::InputFloat("Attenuation", &lightBuffer->Data.Attenuation);
-		ImGui::InputFloat("Power", &lightBuffer->Data.Power);
+		ImGui::SliderInt("Buffer Render", (int*)&lightBuffer->Data.BufferRender, 0, 5);
 	}
 
 	ImGui::End();

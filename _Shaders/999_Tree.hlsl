@@ -75,12 +75,23 @@ float4 PS(PixelInput input) : SV_TARGET
     return diffuseMap;
 }
 
-float PS_Depth(PixelInput input) : SV_TARGET
+half4 PS_Normal(PixelInput input) : SV_TARGET
 {
     float4 diffuseMap = _diffuseMap.Sample(_diffuseSampler, input.uv);
     
     clip(diffuseMap.a - 0.9f);
     
+    half p = sqrt(input.normal.z * 8 + 8);
+    return half4(input.normal.xy / p + 0.5, 0, 0);
+}
+
+float4 PS_Depth(PixelInput input) : SV_TARGET
+{
+    float4 diffuseMap = _diffuseMap.Sample(_diffuseSampler, input.uv);
+    
+    clip(diffuseMap.a - 0.9f);
+    
+    return float4(input.depth.x / _valueFar, input.wPosition);
     return input.depth.x / _valueFar;
     return input.position.z / input.position.w;
     //float4 diffuseMap = _diffuseMap.Sample(_diffuseSampler, input.uv);

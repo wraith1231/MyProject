@@ -47,18 +47,24 @@ PixelInput VS(VertexColorTextureNormal input)
     output.uv = input.uv;
 
     output.alpha = 0.5f * (1.0f - saturate(1.0f / length(GetViewPosition() - world.xyz)));
-    float4 temp = world;
     
-    [branch]
-    if (_waterHeight == 0)
-    {
-        temp.y++;
-        float4 tempw = _waterHeight;
-        tempw.y += 1;
-        output.alpha = 1.0f - saturate((tempw - temp.y) / tempw - 0.4f);
-    }
-    else
-        output.alpha = 1.0f - saturate((_waterHeight - world.y) / _waterHeight - 0.4f);
+    float temp, temp1;
+    temp = world.y;
+    temp1 = _waterHeight;
+
+    output.alpha = saturate((temp / temp1) * 0.1f + 0.3f);
+
+    //[branch]
+    //if (_waterHeight < 0)
+    //{
+    //    temp.y++;
+    //    float4 tempw = _waterHeight;
+    //    tempw.y += 1;
+    //    temp = abs(temp);
+    //    output.alpha = 1.0f - saturate((tempw - temp.y) / tempw - 0.4f);
+    //}
+    //else
+    //    output.alpha = 1.0f - saturate((_waterHeight - world.y) / _waterHeight - 0.4f);
 
     output.wPosition = world;
 
@@ -155,6 +161,7 @@ half4 PS_Normal(PixelNormalInput input) : SV_TARGET
 struct PixelDepthInput
 {
     float4 position : SV_POSITION;
+    float3 oPosition : POSITION0;
     float2 depth : DEPTH0;
 };
 
@@ -163,6 +170,7 @@ PixelDepthInput VS_Depth(VertexColorTextureNormal input)
     PixelDepthInput output;
     
     output.position = mul(input.position, _world);
+    output.oPosition = output.position;
     output.position = mul(output.position, _view);
     output.depth = output.position.zw;
     output.position = mul(output.position, _projection);
@@ -170,8 +178,9 @@ PixelDepthInput VS_Depth(VertexColorTextureNormal input)
     return output;
 }
 
-float PS_Depth(PixelDepthInput input) : SV_TARGET
+float4 PS_Depth(PixelDepthInput input) : SV_TARGET
 {
+    return float4(input.depth.x / _valueFar, input.oPosition);
     return input.depth.x / _valueFar;
     return input.position.z / input.position.w;
     //return float4(input.position.zw, 1, 1);

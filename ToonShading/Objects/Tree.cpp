@@ -15,12 +15,14 @@ Tree::Tree(wstring fileName, ExecuteValues* values)
 
 	diffuseShader = new Shader(Shaders + L"999_Tree.hlsl");
 	depthShader = new Shader(Shaders + L"999_Tree.hlsl", "VS", "PS_Depth");
+	normalShader = new Shader(Shaders + L"999_Tree.hlsl", "VS", "PS_Normal");
 }
 
 Tree::~Tree()
 {
 	SAFE_DELETE(model);
 
+	SAFE_DELETE(normalShader);
 	SAFE_DELETE(diffuseShader);
 	SAFE_DELETE(depthShader);
 }
@@ -45,6 +47,25 @@ void Tree::Update()
 {
 }
 
+void Tree::NormalRender()
+{
+	for (Material* mat : model->Materials())
+		mat->SetShader(normalShader);
+
+	for (TreeStruct tree : trees)
+	{
+		model->SetWorld(tree.Transform);
+		model->VisibleUpdate();
+		tree.Visible = model->GetVisible();
+
+		if (tree.Visible == false)
+			continue;
+
+		for (ModelMesh* mesh : model->Meshes())
+			mesh->Render();
+	}
+}
+
 void Tree::DepthRender()
 {
 	for (Material* mat : model->Materials())
@@ -54,9 +75,6 @@ void Tree::DepthRender()
 	for (TreeStruct tree : trees)
 	{
 		model->SetWorld(tree.Transform);
-		model->VisibleUpdate();
-		tree.Visible = model->GetVisible();
-
 		if (tree.Visible == false)
 			continue;
 

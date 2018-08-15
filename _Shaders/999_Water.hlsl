@@ -115,11 +115,18 @@ float4 PS(PixelInput input) : SV_TARGET
     //PointLightFunc(color, input.wPosition, input.row[2]);
     //SpotLightFunc(color.rgb, input.wPosition, input.row[2]);
     
-    return float4(color, 0.5f);
+    return float4(color, 1.0f);
 }
 
-float PS_Depth(PixelInput input) : SV_TARGET
+half4 PS_Normal(PixelInput input) : SV_TARGET
 {
+    half p = sqrt(input.row[2].z * 8 + 8);
+    return half4(input.row[2].xy / p + 0.5, 0, 0);
+}
+
+float4 PS_Depth(PixelInput input) : SV_TARGET
+{
+    return float4(input.depth.x / _valueFar, input.wPosition);
     return input.depth.x / _valueFar;
     return input.position.z / input.position.w;
 }

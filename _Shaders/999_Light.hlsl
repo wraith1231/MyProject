@@ -16,10 +16,8 @@ cbuffer PS_LightValue : register(b3)
 
 Texture2D NormalRT : register(t5);
 Texture2D DepthRT : register(t6);
-Texture2D RealRT : register(t7);
 SamplerState NormalRTSampler : register(s5);
 SamplerState DepthRTSampler : register(s6);
-SamplerState RealRTSampler : register(s7);
 
 struct PixelInput
 {
@@ -55,29 +53,25 @@ half3 decodeNormal(half2 enc)
 
 half4 PS(PixelInput input) : SV_TARGET
 {
-    float depth = DepthRT.Sample(DepthRTSampler, input.uv).r;
-    half4 normal = NormalRT.Sample(NormalRTSampler, input.uv);
-    normal.rgb = decodeNormal(normal.rg);
-    float4 diffuse = RealRT.Sample(RealRTSampler, input.uv);
-    float3 pixelPos = input.view * depth;
+    half3 normal = NormalRT.Sample(NormalRTSampler, input.uv).rgb;
+    float4 depth = DepthRT.Sample(DepthRTSampler, input.uv);
+    //return half4(abs(depth.gba), 1);
+
+    if (depth.g < 1.001f && depth.g > 0.999f &&
+        depth.b < 1.001f && depth.b > 0.999f &&
+        depth.a < 0.001f && depth.a > -0.001f)
+        return float4(1, 1, 1, 1);
+
+    normal.rgb = decodeNormal(normal.xy);
+    //return float4(normal, 1);
     
-    float lightDir = _direction;
-    half attenuation = saturate(dot(lightDir / _lightAttenuation, lightDir / _lightAttenuation));
-    lightDir = normalize(lightDir);
+    //directional ¸ÕÀú
+    float4 color = (float4) 0;
+    
+    Diffuse(color.rgb, normal);
+    
+    PointLightFunc(color.rgb, depth.gba, normal);
+    SpotLightFunc(color.rgb, depth.gba, normal);
 
-    float3 reflection = reflect(_direction, normal.rgb);
-    float intensity = saturate(dot(reflection, input.view));
-
-    //IntensityCut(intensity);
-
-    float specular = pow(intensity, _specularPower);
-
-    //float specular = pow(saturate(dot(reflect(normalize(-float3(0, 1, 0)), normal.rgb), lightDir)), _specularPower);
-
-    float NL = dot(lightDir, normal.rgb) * attenuation;
-
-    return float4(diffuse.rgb * NL, specular * NL);
-
-    //return float4(0, 0, 0, 1);
-
+    return color;
 }

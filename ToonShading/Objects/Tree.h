@@ -20,6 +20,7 @@ public:
 
 	void Update();
 
+	void NormalRender();
 	void DepthRender();
 	void DiffuseRender();
 
@@ -35,6 +36,7 @@ private:
 
 	Shader* diffuseShader;
 	Shader* depthShader;
+	Shader* normalShader;
 
 	vector<TreeStruct> trees;
 

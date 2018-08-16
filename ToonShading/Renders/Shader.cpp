@@ -5,12 +5,21 @@ void Shader::Render()
 {
 	D3D::GetDC()->IASetInputLayout(inputLayout);
 	D3D::GetDC()->VSSetShader(vertexShader, NULL, 0);
+	if (hullShader != NULL)
+		D3D::GetDC()->HSSetShader(hullShader, NULL, 0);
+	if (domainShader != NULL)
+		D3D::GetDC()->DSSetShader(domainShader, NULL, 0);
+	if (geometryShader != NULL)
+		D3D::GetDC()->GSSetShader(geometryShader, NULL, 0);
 	D3D::GetDC()->PSSetShader(pixelShader, NULL, 0);
-
 }
 
 Shader::Shader(wstring shaderFile, string vsName, string psName)
 	: shaderFile(shaderFile), vsName(vsName), psName(psName)
+	, gsName(""), dsName(""), hsName("")
+	, hullBlob(NULL), hullShader(NULL)
+	, domainBlob(NULL), domainShader(NULL)
+	, geometryBlob(NULL), geometryShader(NULL)
 {
 	CreateVertexShader();
 	CreatePixelShader();
@@ -22,6 +31,15 @@ Shader::~Shader()
 	SAFE_RELEASE(reflection);
 
 	SAFE_RELEASE(inputLayout);
+
+	SAFE_RELEASE(hullBlob);
+	SAFE_RELEASE(domainBlob);
+	SAFE_RELEASE(geometryBlob);
+
+	SAFE_RELEASE(hullShader);
+	SAFE_RELEASE(domainShader);
+	SAFE_RELEASE(geometryShader);
+
 	SAFE_RELEASE(vertexBlob);
 	SAFE_RELEASE(vertexShader);
 
@@ -163,6 +181,72 @@ void Shader::CreateInputLayout()
 		, vertexBlob->GetBufferPointer()
 		, vertexBlob->GetBufferSize()
 		, &inputLayout
+	);
+	assert(SUCCEEDED(hr));
+}
+
+void Shader::CreateHullShader(wstring shaderFile, string hsName)
+{
+	this->hsName = hsName;
+	ID3D10Blob* error;
+	HRESULT hr = D3DX11CompileFromFile
+	(
+		shaderFile.c_str(), NULL, NULL, hsName.c_str(), "hs_5_0"
+		, D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL
+		, &hullBlob, &error, NULL
+	);
+	CheckShaderError(hr, error);
+
+	hr = D3D::GetDevice()->CreateHullShader
+	(
+		hullBlob->GetBufferPointer()
+		, hullBlob->GetBufferSize()
+		, NULL
+		, &hullShader
+	);
+	assert(SUCCEEDED(hr));
+}
+
+void Shader::CreateDomainShader(wstring shaderFile, string dsName)
+{
+	this->dsName = dsName;
+	ID3D10Blob* error;
+	HRESULT hr = D3DX11CompileFromFile
+	(
+		shaderFile.c_str(), NULL, NULL, dsName.c_str(), "ds_5_0"
+		, D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL
+		, &domainBlob, &error, NULL
+	);
+	CheckShaderError(hr, error);
+
+	hr = D3D::GetDevice()->CreateDomainShader
+	(
+		domainBlob->GetBufferPointer()
+		, domainBlob->GetBufferSize()
+		, NULL
+		, &domainShader
+	);
+	assert(SUCCEEDED(hr));
+}
+
+void Shader::CreateGeometryShader(wstring shaderFile, string gsName)
+{
+	this->gsName = gsName;
+	ID3D10Blob* error;
+	HRESULT hr = D3DX11CompileFromFile
+	(
+		shaderFile.c_str(), NULL, NULL, gsName.c_str(), "gs_5_0"
+		, D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL
+		, &geometryBlob, &error, NULL
+	);
+	CheckShaderError(hr, error);
+
+	hr = D3D::GetDevice()->CreateGeometryShader
+	(
+		geometryBlob->GetBufferPointer()
+		, geometryBlob->GetBufferSize()
+		, NULL
+		, &geometryShader
 	);
 	assert(SUCCEEDED(hr));
 }

@@ -69,6 +69,21 @@ ToonShading::ToonShading(ExecuteValues* values)
 
 	D3DXMatrixTranslation(&T, desc.Width / 2, desc.Height / 2, 0.4f);
 	aaModel->Bone(0)->Transform(S*R*T);
+
+	{
+		D3D11_DEPTH_STENCIL_DESC desc;
+		desc.DepthEnable = TRUE;
+		desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		desc.DepthFunc = D3D11_COMPARISON_LESS;
+		desc.StencilEnable = TRUE;
+		desc.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
+		desc.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
+		D3D11_DEPTH_STENCILOP_DESC op = { D3D11_STENCIL_OP_KEEP,D3D11_STENCIL_OP_KEEP ,D3D11_STENCIL_OP_KEEP , D3D11_COMPARISON_EQUAL };
+		desc.FrontFace = op;
+		desc.BackFace = op;
+		HRESULT hr = D3D::GetDevice()->CreateDepthStencilState(&desc, &writeLessStencilMask);
+		assert(SUCCEEDED(hr));
+	}
 }
 
 ToonShading::~ToonShading()
@@ -107,15 +122,27 @@ void ToonShading::PreRender()
 	realRT->Clear();
 	ID3D11RenderTargetView* rtv[3] = { normalRT->GetRTV(), depthRT->GetRTV(), realRT->GetRTV() };
 	D3D::GetDC()->OMSetRenderTargets(3, rtv, D3D::Get()->GetDSV());
+	D3D::GetDC()->OMSetDepthStencilState(D3D::Get()->GetDSS(), 1);
 }
 
 void ToonShading::LightMeshRender()
 {
-	lightMeshRT->Set();
+	//ID3D11RenderTargetView* rtv[3] = { NULL, NULL, NULL };
+	//D3D::GetDC()->OMSetRenderTargets(3, rtv, D3D::Get()->GetReadOnlyDSV());
+	//
+	//
+	//lightMeshRT->Set();
+
+	//directional;
+
+
 }
 
 void ToonShading::LightRender()
 {
+	ID3D11RenderTargetView* rtv = lightMeshRT->GetRTV();
+	D3D::GetDC()->OMSetRenderTargets(1, &rtv, D3D::Get()->GetReadOnlyDSV());
+
 	lightRT->Set();
 	values->ViewProjection->SetView(view);
 
@@ -154,6 +181,7 @@ void ToonShading::EdgeRender()
 	ID3D11ShaderResourceView* normalView = normalRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(5, 1, &normalView);
 	ID3D11ShaderResourceView* depthView = depthRT->GetSRV();
+	//depthView = D3D::Get()->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(6, 1, &depthView);
 	ID3D11ShaderResourceView* realView = realRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(7, 1, &realView);

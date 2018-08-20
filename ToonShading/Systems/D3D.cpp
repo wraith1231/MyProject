@@ -9,6 +9,8 @@ ID3D11DeviceContext* D3D::deviceContext = NULL;
 IDXGISwapChain* D3D::swapChain = NULL;
 ID3D11ShaderResourceView* D3D::srv = NULL;
 ID3D11DepthStencilView* D3D::depthStencilView = NULL;
+ID3D11DepthStencilView* D3D::readOnlyDSV = NULL;
+ID3D11DepthStencilState* D3D::dss = NULL;
 
 D3D * D3D::Get()
 {
@@ -49,7 +51,7 @@ void D3D::Clear(D3DXCOLOR color, ID3D11RenderTargetView* rtv, ID3D11DepthStencil
 		dsv = depthStencilView;
 
 	deviceContext->ClearRenderTargetView(rtv, color);
-	deviceContext->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1, 0);
+	deviceContext->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
 }
 
 void D3D::Present()
@@ -85,6 +87,9 @@ D3D::~D3D()
 
 	if (swapChain != NULL)
 		swapChain->SetFullscreenState(false, NULL);
+
+	SAFE_RELEASE(srv);
+	SAFE_RELEASE(dss);
 
 	SAFE_RELEASE(deviceContext);
 	SAFE_RELEASE(device);
@@ -231,7 +236,7 @@ void D3D::CreateBackBuffer(float width, float height)
 		desc.Height = (UINT)height;
 		desc.MipLevels = 1;
 		desc.ArraySize = 1;
-		desc.Format = DXGI_FORMAT_R32_TYPELESS;
+		desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
 		desc.SampleDesc.Count = 1;
 		desc.SampleDesc.Quality = 0;
 		desc.Usage = D3D11_USAGE_DEFAULT;
@@ -257,22 +262,39 @@ void D3D::CreateBackBuffer(float width, float height)
 	{
 		D3D11_DEPTH_STENCIL_VIEW_DESC desc;
 		ZeroMemory(&desc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
-		desc.Format = DXGI_FORMAT_D32_FLOAT;
+		desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-		desc.Texture2D.MipSlice = 0;
+		//desc.Flags = 0;
+		//desc.Texture2D.MipSlice = 0;
 
 		hr = D3D::GetDevice()->CreateDepthStencilView(backBuffer, &desc, &depthStencilView);
 		assert(SUCCEEDED(hr));
+		desc.Flags = D3D11_DSV_READ_ONLY_DEPTH | D3D11_DSV_READ_ONLY_STENCIL;
+		hr = D3D::GetDevice()->CreateDepthStencilView(backBuffer, &desc, &readOnlyDSV);
 
 		SetRenderTarget(renderTargetView, depthStencilView);
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC des;
 		ZeroMemory(&des, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
-		des.Format = DXGI_FORMAT_R32_FLOAT;
+		des.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 		des.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		des.Texture2D.MipLevels = 1;
 
 		hr = D3D::GetDevice()->CreateShaderResourceView(backBuffer, &des, &srv);
+		assert(SUCCEEDED(hr));
+
+		D3D11_DEPTH_STENCIL_DESC descDepth;
+		descDepth.DepthEnable = TRUE;
+		descDepth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		descDepth.DepthFunc = D3D11_COMPARISON_LESS;
+		descDepth.StencilEnable = TRUE;
+		descDepth.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
+		descDepth.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
+		D3D11_DEPTH_STENCILOP_DESC descop = { D3D11_STENCIL_OP_REPLACE, D3D11_STENCIL_OP_REPLACE, D3D11_STENCIL_OP_REPLACE, D3D11_COMPARISON_ALWAYS };
+		descDepth.FrontFace = descop;
+		descDepth.BackFace = descop;
+		
+		hr = D3D::GetDevice()->CreateDepthStencilState(&descDepth, &dss);
 		assert(SUCCEEDED(hr));
 	}
 

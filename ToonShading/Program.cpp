@@ -85,8 +85,8 @@ void Program::PreRender()
 	for (Execute* exe : executes)
 		exe->PreRender();
 
-	for (Execute* exe : executes)
-		exe->LightMeshRender();
+	//for (Execute* exe : executes)
+	//	exe->LightMeshRender();
 }
 
 void Program::Render()

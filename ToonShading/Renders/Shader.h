@@ -14,6 +14,8 @@ public:
 	void CreateDomainShader(wstring shaderFile, string dsName = "DS");
 	void CreateGeometryShader(wstring shaderFile, string gsName = "GS");
 
+	static void ClearShader();
+
 private:
 	void CreateVertexShader();
 	void CreatePixelShader();

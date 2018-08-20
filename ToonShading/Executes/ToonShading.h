@@ -79,4 +79,6 @@ private:
 	LightBuffer* lightBuffer;
 
 	float xplus, yplus, zplus;
+
+	ID3D11DepthStencilState* writeLessStencilMask;
 };

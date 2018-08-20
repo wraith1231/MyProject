@@ -55,7 +55,12 @@ float4 PS(PixelInput input) : SV_TARGET
     [branch]
     if (_bufferRender == 0)
     {
-        float depth = DepthRT.Sample(DepthRTSampler, input.uv);
+        //return DepthRT.Sample(DepthRTSampler, input.uv);
+        float depth = DepthRT.Sample(DepthRTSampler, input.uv).r;
+        //float ld = _valueFar / (depth + _valueNear);
+        //float4 color = (float4)0;
+        //color += float4(1.0 - saturate(ld / 75.0f), 1.0f - saturate(ld / 125.0f), 1.0f - saturate(ld / 200.0f), 0.0f);
+        //return float4(ld.rrrr);
         return float4(depth.rrrr);
     }
     else if (_bufferRender == 1)

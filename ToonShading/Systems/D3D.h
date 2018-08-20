@@ -53,6 +53,15 @@ public:
 	{
 		return depthStencilView;
 	}
+	static ID3D11DepthStencilView* GetReadOnlyDSV()
+	{
+		return readOnlyDSV;
+	}
+
+	static ID3D11DepthStencilState* GetDSS()
+	{
+		return dss;
+	}
 
 	void SetRenderTarget(ID3D11RenderTargetView* rtv = NULL, ID3D11DepthStencilView* dsv = NULL);
 
@@ -80,6 +89,8 @@ private:
 	static IDXGISwapChain* swapChain;
 	static ID3D11ShaderResourceView* srv;
 	static ID3D11DepthStencilView* depthStencilView;
+	static ID3D11DepthStencilView* readOnlyDSV;
+	static ID3D11DepthStencilState* dss;
 
 	ID3D11Texture2D* backBuffer;
 	ID3D11RenderTargetView* renderTargetView;

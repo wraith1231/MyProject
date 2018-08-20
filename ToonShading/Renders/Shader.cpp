@@ -250,3 +250,12 @@ void Shader::CreateGeometryShader(wstring shaderFile, string gsName)
 	);
 	assert(SUCCEEDED(hr));
 }
+
+void Shader::ClearShader()
+{
+	D3D::GetDC()->VSSetShader(NULL, NULL, 0);
+	D3D::GetDC()->PSSetShader(NULL, NULL, 0);
+	D3D::GetDC()->HSSetShader(NULL, NULL, 0);
+	D3D::GetDC()->DSSetShader(NULL, NULL, 0);
+	D3D::GetDC()->GSSetShader(NULL, NULL, 0);
+}

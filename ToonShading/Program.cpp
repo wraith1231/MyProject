@@ -85,8 +85,8 @@ void Program::PreRender()
 	for (Execute* exe : executes)
 		exe->PreRender();
 
-	//for (Execute* exe : executes)
-	//	exe->LightMeshRender();
+	for (Execute* exe : executes)
+		exe->LightMeshRender();
 }
 
 void Program::Render()
@@ -137,8 +137,10 @@ void Program::SetGlobalBuffers()
 
 	//values->ViewFrustum->SetMatrix(view * projection);
 	values->ViewFrustum->ConstructFrustum(values->Perspective->GetFarZ(), projection, view);
-	
-	values->ViewProjection->SetVSBuffer(0);
+
+	values->ViewProjection->SetVSBuffer(8);
+	values->ViewProjection->SetDSBuffer(8);
+	values->ViewProjection->SetPSBuffer(8);
 
 	values->GlobalLight->SetPSBuffer(0);
 }

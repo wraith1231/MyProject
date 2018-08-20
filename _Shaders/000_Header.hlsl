@@ -1,4 +1,4 @@
-cbuffer VS_ViewProjection : register(b0)
+cbuffer VS_ViewProjection : register(b8)
 {
     matrix _view;
     matrix _projection;

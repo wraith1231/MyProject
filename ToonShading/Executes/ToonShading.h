@@ -39,6 +39,30 @@ public:
 		} Data;
 	};
 
+	class DirBuffer : public ShaderBuffer
+	{
+	public:
+		DirBuffer() : ShaderBuffer(&Data, sizeof(Struct))
+		{
+			Data.AmbientDown = D3DXVECTOR3(-1.0, -1.0, -1.0);
+			Data.AmbientRange = D3DXVECTOR3(1.0, 1.0, 1.0);
+			Data.DirToLight = D3DXVECTOR3(0, 1, 0);
+			Data.DirColor = D3DXVECTOR3(1, 1, 1);
+		}
+
+		struct Struct
+		{
+			D3DXVECTOR3 AmbientDown;
+			float Padding1;
+			D3DXVECTOR3 AmbientRange;
+			float Padding2;
+			D3DXVECTOR3 DirToLight;
+			float Padding3;
+			D3DXVECTOR3 DirColor;
+			float Padding4;
+		} Data;
+	};
+
 public:
 	ToonShading(ExecuteValues* values);
 	~ToonShading();
@@ -81,4 +105,7 @@ private:
 	float xplus, yplus, zplus;
 
 	ID3D11DepthStencilState* writeLessStencilMask;
+
+	Shader* dirLight;
+	DirBuffer* dirBuffer;
 };

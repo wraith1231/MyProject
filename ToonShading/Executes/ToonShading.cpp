@@ -21,6 +21,8 @@ ToonShading::ToonShading(ExecuteValues* values)
 	lightModel->ReadMaterial(Models + L"Mesh/Quad.material");
 	lightModel->ReadMesh(Models + L"Mesh/Quad.mesh");
 
+	dirLight = new Shader(Shaders + L"DirLight.hlsl");
+
 	edgeShader = new Shader(Shaders + L"999_Edge.hlsl");
 	lightShader = new Shader(Shaders + L"999_Light.hlsl");
 	aaShader = new Shader(Shaders + L"999_FXAA.hlsl");
@@ -84,6 +86,7 @@ ToonShading::ToonShading(ExecuteValues* values)
 		HRESULT hr = D3D::GetDevice()->CreateDepthStencilState(&desc, &writeLessStencilMask);
 		assert(SUCCEEDED(hr));
 	}
+	dirBuffer = new DirBuffer;
 }
 
 ToonShading::~ToonShading()
@@ -127,23 +130,38 @@ void ToonShading::PreRender()
 
 void ToonShading::LightMeshRender()
 {
-	//ID3D11RenderTargetView* rtv[3] = { NULL, NULL, NULL };
-	//D3D::GetDC()->OMSetRenderTargets(3, rtv, D3D::Get()->GetReadOnlyDSV());
-	//
-	//
+	lightMeshRT->Clear();
+	ID3D11RenderTargetView* rtv = lightMeshRT->GetRTV();
+	D3D::GetDC()->OMSetRenderTargets(1, &rtv, D3D::Get()->GetReadOnlyDSV());
+	
+	dirBuffer->Data.DirColor = D3DXVECTOR3(values->GlobalLight->Data.Color.r, values->GlobalLight->Data.Color.g, values->GlobalLight->Data.Color.b);
+	dirBuffer->Data.DirToLight = -values->GlobalLight->Data.Direction;
 	//lightMeshRT->Set();
 
 	//directional;
+	D3D::GetDC()->IASetInputLayout(NULL);
+	D3D::GetDC()->IASetVertexBuffers(0, 0, NULL, NULL, NULL);
+	D3D::GetDC()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
+	ID3D11ShaderResourceView* normalView = normalRT->GetSRV();
+	D3D::GetDC()->PSSetShaderResources(5, 1, &normalView);
+	ID3D11ShaderResourceView* depthView = depthRT->GetSRV();
+	D3D::GetDC()->PSSetShaderResources(6, 1, &depthView);
+	ID3D11ShaderResourceView* realView = realRT->GetSRV();
+	D3D::GetDC()->PSSetShaderResources(7, 1, &realView);
+	dirBuffer->SetPSBuffer(2);
+	dirLight->Render();
+	D3D::GetDC()->Draw(4, 0);
 
 }
 
 void ToonShading::LightRender()
 {
-	ID3D11RenderTargetView* rtv = lightMeshRT->GetRTV();
+	lightRT->Clear();
+	ID3D11RenderTargetView* rtv = lightRT->GetRTV();
 	D3D::GetDC()->OMSetRenderTargets(1, &rtv, D3D::Get()->GetReadOnlyDSV());
 
-	lightRT->Set();
+	//lightRT->Set();
 	values->ViewProjection->SetView(view);
 
 	D3DXMATRIX pro;
@@ -181,7 +199,6 @@ void ToonShading::EdgeRender()
 	ID3D11ShaderResourceView* normalView = normalRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(5, 1, &normalView);
 	ID3D11ShaderResourceView* depthView = depthRT->GetSRV();
-	//depthView = D3D::Get()->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(6, 1, &depthView);
 	ID3D11ShaderResourceView* realView = realRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(7, 1, &realView);

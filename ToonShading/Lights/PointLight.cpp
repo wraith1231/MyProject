@@ -18,10 +18,35 @@ PointLight::PointLight()
 	sphere = new MeshSphere();
 	sphere->SetShader(Shaders + L"999_PointLightMesh.hlsl");
 	meshBuffer = new MeshBuffer();
+
+	psShader = new Shader(Shaders + L"PointLight.hlsl");
+	psShader->CreateHullShader(Shaders + L"PointLight.hlsl");
+	psShader->CreateDomainShader(Shaders + L"PointLight.hlsl");
+
+	{
+		D3D11_BLEND_DESC desc;
+		States::GetBlendDesc(&desc);
+		States::CreateBlend(&desc, &blend[0]);
+
+		desc.AlphaToCoverageEnable = FALSE;
+		desc.IndependentBlendEnable = FALSE;
+
+		D3D11_RENDER_TARGET_BLEND_DESC def =
+		{
+			TRUE,
+			D3D11_BLEND_ONE, D3D11_BLEND_ONE, D3D11_BLEND_OP_ADD,
+			D3D11_BLEND_ONE, D3D11_BLEND_ONE, D3D11_BLEND_OP_ADD,
+			D3D11_COLOR_WRITE_ENABLE_ALL,
+		};
+		for (UINT i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+			desc.RenderTarget[i] = def;
+		States::CreateBlend(&desc, &blend[1]);
+	}
 }
 
 PointLight::~PointLight()
 {
+	SAFE_DELETE(psShader);
 	SAFE_DELETE(meshBuffer);
 	SAFE_DELETE(sphere);
 	SAFE_DELETE(box);
@@ -30,28 +55,37 @@ PointLight::~PointLight()
 
 UINT PointLight::AddPointLight(D3DXVECTOR3 position, D3DXVECTOR3 color, float intensity, float range)
 {
-	for (size_t i = 0; i < 16; i++)
-	{
-		if (buffer->Data.Light[i].Use == 0)
-		{
-			buffer->Data.Light[i].Use = 1;
-			buffer->Data.Light[i].Position = position;
-			buffer->Data.Light[i].Color = color;
-			buffer->Data.Light[i].Intensity = intensity;
-			buffer->Data.Light[i].Range = range;
+	PointLightSave temp;
+	temp.Position = position;
+	temp.Color = color;
+	temp.intenstiy = intensity;
+	temp.range = range;
+	lights.push_back(temp);
 
-			buffer->Data.Count++;
-
-			return i;
-		}
-	}
-
-	return POINTLIGHTSIZE;
+	return lights.size() - 1;
+	//for (size_t i = 0; i < 16; i++)
+	//{
+	//	if (buffer->Data.Light[i].Use == 0)
+	//	{
+	//		buffer->Data.Light[i].Use = 1;
+	//		buffer->Data.Light[i].Position = position;
+	//		buffer->Data.Light[i].Color = color;
+	//		buffer->Data.Light[i].Intensity = intensity;
+	//		buffer->Data.Light[i].Range = range;
+	//
+	//		buffer->Data.Count++;
+	//
+	//		return i;
+	//	}
+	//}
+	//
+	//return POINTLIGHTSIZE;
 }
 
 UINT PointLight::PointLightSize()
 {
-	return buffer->Data.Count;
+	return lights.size();
+	//return buffer->Data.Count;
 }
 
 void PointLight::PreRender()
@@ -60,8 +94,8 @@ void PointLight::PreRender()
 
 	if (lightSelect == true)
 	{
-		box->Update(buffer->Data.Light[selectNum].Position);
-		box->SetColor(D3DXCOLOR(buffer->Data.Light[selectNum].Color.x, buffer->Data.Light[selectNum].Color.y, buffer->Data.Light[selectNum].Color.z, 1.0f));
+		box->Update(lights[selectNum].Position);
+		box->SetColor(D3DXCOLOR(lights[selectNum].Color.x, lights[selectNum].Color.y, lights[selectNum].Color.z, 1.0f));
 		box->Render();
 	}
 }
@@ -72,29 +106,56 @@ void PointLight::PreRender(bool val)
 
 	if (val == true)
 	{
-		for (size_t i = 0; i < POINTLIGHTSIZE; i++)
+		for (size_t i = 0; i < lights.size(); i++)
 		{
-			if (buffer->Data.Light[i].Use == false) continue;
-
-			box->Update(buffer->Data.Light[i].Position);
-			box->SetColor(D3DXCOLOR(buffer->Data.Light[i].Color.x, buffer->Data.Light[i].Color.y, buffer->Data.Light[i].Color.z, 1.0f));
+			box->Update(lights[i].Position);
+			box->SetColor(D3DXCOLOR(lights[i].Color.x, lights[i].Color.y, lights[i].Color.z, 1.0f));
 			box->Render();
 		}
+
+		//for (size_t i = 0; i < POINTLIGHTSIZE; i++)
+		//{
+		//	if (buffer->Data.Light[i].Use == false) continue;
+		//
+		//	box->Update(buffer->Data.Light[i].Position);
+		//	box->SetColor(D3DXCOLOR(buffer->Data.Light[i].Color.x, buffer->Data.Light[i].Color.y, buffer->Data.Light[i].Color.z, 1.0f));
+		//	box->Render();
+		//}
 	}
 }
 
 void PointLight::LightMeshRender()
 {
-	for (size_t i = 0; i < POINTLIGHTSIZE; i++)
-	{
-		if (buffer->Data.Light[i].Use == false) continue;
+	D3D::GetDC()->OMSetBlendState(blend[1], NULL, 0xFF);
 
-		sphere->SetPosition(buffer->Data.Light[i].Position);
-		sphere->Scale(buffer->Data.Light[i].Range * 2);
-		meshBuffer->Data.Number = i;
-		meshBuffer->SetPSBuffer(2);
-		sphere->PreRender();
+	for (PointLightSave light : lights)
+	{
+		buffer->Data.Position = light.Position;
+		buffer->Data.Color = light.Color;
+		buffer->Data.RangeRcp = 1.0f / light.range;
+
+		D3D::GetDC()->IASetInputLayout(NULL);
+		D3D::GetDC()->IASetVertexBuffers(0, 0, NULL, NULL, NULL);
+		D3D::GetDC()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST);
+
+		buffer->SetPSBuffer(2);
+		psShader->Render();
+		D3D::GetDC()->Draw(2, 0);
 	}
+
+	D3D::GetDC()->OMSetBlendState(blend[0], NULL, 0xFF);
+
+	Shader::ClearShader();
+	//for (size_t i = 0; i < POINTLIGHTSIZE; i++)
+	//{
+	//	if (buffer->Data.Light[i].Use == false) continue;
+	//
+	//	sphere->SetPosition(buffer->Data.Light[i].Position);
+	//	sphere->Scale(buffer->Data.Light[i].Range * 2);
+	//	meshBuffer->Data.Number = i;
+	//	meshBuffer->SetPSBuffer(2);
+	//	sphere->PreRender();
+	//}
 }
 
 void PointLight::ImGuiRender()
@@ -104,21 +165,35 @@ void PointLight::ImGuiRender()
 		ImGui::Begin("Point Light");
 
 		{
-			ImGui::Text("Count : %d", buffer->Data.Count);
-			UINT b = buffer->Data.Light[selectNum].Use;
-			ImGui::Checkbox("Use", (bool*)&buffer->Data.Light[selectNum].Use);
-			if (b != buffer->Data.Light[selectNum].Use)
+			ImGui::Text("Count : %d", lights.size());
+			bool b = true;
+			ImGui::Checkbox("Use", &b);
+			if (b == false)
 			{
-				if (b == 1)
-					buffer->Data.Count--;
-				else
-					buffer->Data.Count++;
+				lights.erase(lights.begin() + selectNum);
+
+				ImGui::End();
 			}
 
-			ImGui::InputFloat3("Position", buffer->Data.Light[selectNum].Position);
-			ImGui::ColorEdit3("Color", buffer->Data.Light[selectNum].Color);
-			ImGui::InputFloat("Intensity", &buffer->Data.Light[selectNum].Intensity);
-			ImGui::InputFloat("Range", &buffer->Data.Light[selectNum].Range);
+			ImGui::InputFloat3("Position", lights[selectNum].Position);
+			ImGui::ColorEdit3("Color", lights[selectNum].Color);
+			ImGui::InputFloat("Intensity", &lights[selectNum].intenstiy);
+			ImGui::InputFloat("Range", &lights[selectNum].range);
+			//ImGui::Text("Count : %d", buffer->Data.Count);
+			//UINT b = buffer->Data.Light[selectNum].Use;
+			//ImGui::Checkbox("Use", (bool*)&buffer->Data.Light[selectNum].Use);
+			//if (b != buffer->Data.Light[selectNum].Use)
+			//{
+			//	if (b == 1)
+			//		buffer->Data.Count--;
+			//	else
+			//		buffer->Data.Count++;
+			//}
+			//
+			//ImGui::InputFloat3("Position", buffer->Data.Light[selectNum].Position);
+			//ImGui::ColorEdit3("Color", buffer->Data.Light[selectNum].Color);
+			//ImGui::InputFloat("Intensity", &buffer->Data.Light[selectNum].Intensity);
+			//ImGui::InputFloat("Range", &buffer->Data.Light[selectNum].Range);
 		}
 
 		ImGui::End();
@@ -128,22 +203,31 @@ void PointLight::ImGuiRender()
 
 bool PointLight::LightUse(UINT num, PointLightSave& data)
 {
-	if (buffer->Data.Light[num].Use == false)
-		return false;
+	if (num >= lights.size()) return false;
 
-	data.Color = buffer->Data.Light[num].Color;
-	data.Position = buffer->Data.Light[num].Position;
-	data.intenstiy = buffer->Data.Light[num].Intensity;
-	data.range = buffer->Data.Light[num].Range;
+	data.Color = lights[num].Color;
+	data.Position = lights[num].Position;
+	data.intenstiy = lights[num].intenstiy;
+	data.range = lights[num].intenstiy;
 
-	return buffer->Data.Light[num].Use == 1;
+	return true;
+
+	//if (buffer->Data.Light[num].Use == false)
+	//	return false;
+	//
+	//data.Color = buffer->Data.Light[num].Color;
+	//data.Position = buffer->Data.Light[num].Position;
+	//data.intenstiy = buffer->Data.Light[num].Intensity;
+	//data.range = buffer->Data.Light[num].Range;
+	//
+	//return buffer->Data.Light[num].Use == 1;
 }
 
 void PointLight::LightSelect(Objects::Ray* ray)
 {
-	for (size_t i = 0; i < POINTLIGHTSIZE; i++)
+	for (size_t i = 0; i < lights.size(); i++)
 	{
-		box->Update(buffer->Data.Light[i].Position);
+		box->Update(lights[i].Position);
 
 		if (box->Intersects(ray) == true)
 		{
@@ -153,6 +237,19 @@ void PointLight::LightSelect(Objects::Ray* ray)
 			return;
 		}
 	}
+
+	//for (size_t i = 0; i < POINTLIGHTSIZE; i++)
+	//{
+	//	box->Update(buffer->Data.Light[i].Position);
+	//
+	//	if (box->Intersects(ray) == true)
+	//	{
+	//		selectNum = i;
+	//		lightSelect = true;
+	//
+	//		return;
+	//	}
+	//}
 
 	//selectNum = POINTLIGHTSIZE;
 	//lightSelect = false;

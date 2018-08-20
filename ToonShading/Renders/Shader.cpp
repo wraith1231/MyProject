@@ -17,6 +17,7 @@ void Shader::Render()
 Shader::Shader(wstring shaderFile, string vsName, string psName)
 	: shaderFile(shaderFile), vsName(vsName), psName(psName)
 	, gsName(""), dsName(""), hsName("")
+	, inputLayout(NULL)
 	, hullBlob(NULL), hullShader(NULL)
 	, domainBlob(NULL), domainShader(NULL)
 	, geometryBlob(NULL), geometryShader(NULL)
@@ -174,15 +175,18 @@ void Shader::CreateInputLayout()
 		inputLayoutDesc.push_back(elementDesc);
 	}
 
-	hr = D3D::GetDevice()->CreateInputLayout
-	(
-		&inputLayoutDesc[0]
-		, inputLayoutDesc.size()
-		, vertexBlob->GetBufferPointer()
-		, vertexBlob->GetBufferSize()
-		, &inputLayout
-	);
-	assert(SUCCEEDED(hr));
+	if (inputLayoutDesc.size() > 0)
+	{
+		hr = D3D::GetDevice()->CreateInputLayout
+		(
+			&inputLayoutDesc[0]
+			, inputLayoutDesc.size()
+			, vertexBlob->GetBufferPointer()
+			, vertexBlob->GetBufferSize()
+			, &inputLayout
+		);
+		assert(SUCCEEDED(hr));
+	}
 }
 
 void Shader::CreateHullShader(wstring shaderFile, string hsName)

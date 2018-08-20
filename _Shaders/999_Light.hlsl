@@ -46,7 +46,7 @@ PixelInput VS(VertexTextureNormal input)
 half4 PS(PixelInput input) : SV_TARGET
 {
     //return LightMeshRT.Sample(LightMeshRTSampler, input.uv);
-    float4 light = LightMeshRT.Sample(LightMeshRTSampler, input.uv);
+    //float4 light = LightMeshRT.Sample(LightMeshRTSampler, input.uv);
     float3 normal = NormalRT.Sample(NormalRTSampler, input.uv).rgb;
     //half3 normal;
     //normal.rg = NormalRT.Sample(NormalRTSampler, input.uv).rg;
@@ -56,15 +56,15 @@ half4 PS(PixelInput input) : SV_TARGET
     float4 color = (float4) 0;
     
     Diffuse(color.rgb, normal);
-    [branch]
-    if (length(light.xyz) > 0.5f)
-        return color;
-    else
-    {
-        
-        PointLightFunc(color.rgb, depth.gba, normal);
-        SpotLightFunc(color.rgb, depth.gba, normal);
+    PointLightFunc(color.rgb, depth.gba, normal);
+    SpotLightFunc(color.rgb, depth.gba, normal);
 
-        return color;
-    }
+    return color;
+    //[branch]
+    //if (length(light.xyz) > 0.5f)
+    //    return color;
+    //else
+    //{
+    //    
+    //}
 }

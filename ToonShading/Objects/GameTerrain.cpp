@@ -151,17 +151,13 @@ void GameTerrain::SaveTerrain(wstring saveFile)
 		if (pointLight->PointLightSize() > 0)
 		{
 			UINT count = 0;
-			for (UINT i = 0; i < pointLight->PointLightMaxSize(); i++)
+			for (UINT i = 0; i < pointLight->PointLightSize(); i++)
 			{
 				PointLightSave temp;
 				if (pointLight->LightUse(i, temp) == true)
 				{
-					count++;
 					w->Byte(&temp, sizeof(PointLightSave));
 				}
-
-				if (count > pointLight->PointLightSize())
-					break;
 			}
 		}
 	}
@@ -1061,12 +1057,12 @@ void GameTerrain::PointLightDispose(D3DXVECTOR3 pos)
 	if (pointLightDispose == true)
 	{
 		UINT num = pointLight->AddPointLight(pos);
-		if (num < pointLight->PointLightMaxSize())
-		{
-			pointLightDispose = false;
-			pointLightSelect = true;
-			pointLight->LightSelect(true, num);
-		}
+		//if (num < pointLight->PointLightMaxSize())
+		//{
+		//	pointLightDispose = false;
+		//	pointLightSelect = true;
+		//	pointLight->LightSelect(true, num);
+		//}
 	}
 }
 
@@ -1174,7 +1170,7 @@ void GameTerrain::FirstInit(UINT width, UINT height)
 	terrainBuffer = new TerrainBuffer();
 	treeBuffer = new TreeBuffer();
 	D3DXMatrixRotationY(&treeBuffer->Data.Rotate, (float)D3DX_PI);
-	pointLight = new PointLight();
+	pointLight = new PointLight(values);
 	spotLight = new SpotLight();
 
 	QuadTreeMake(widthEdit, heightEdit);

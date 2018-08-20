@@ -19,10 +19,10 @@ struct PointLightSave
 class PointLight
 {
 public:
-	PointLight();
+	PointLight(ExecuteValues* values = NULL);
 	~PointLight();
 
-	UINT AddPointLight(D3DXVECTOR3 position = D3DXVECTOR3(0, 0, 0), D3DXVECTOR3 color = D3DXVECTOR3(1, 1, 1), float intensity =  1.0f, float range = 1.0f);
+	UINT AddPointLight(D3DXVECTOR3 position = D3DXVECTOR3(0, 0, 0), D3DXVECTOR3 color = D3DXVECTOR3(1, 1, 1), float intensity =  1.0f, float range = 10.0f);
 	UINT PointLightSize();
 	UINT PointLightMaxSize() { return POINTLIGHTSIZE; }
 
@@ -95,6 +95,19 @@ private:
 		//	float Padding[3];
 		//} Data;
 	};
+	class DSBuffer : public ShaderBuffer
+	{
+	public:
+		DSBuffer() : ShaderBuffer(&Data, sizeof(Struct))
+		{
+			D3DXMatrixIdentity(&Data.mat);
+		}
+
+		struct Struct
+		{
+			D3DXMATRIX mat;
+		} Data;
+	};
 	class MeshBuffer : public ShaderBuffer
 	{
 	public:
@@ -111,10 +124,12 @@ private:
 	};
 
 public:
+	ExecuteValues* values;
 	Objects::BoundingBox* box;
 	class MeshSphere* sphere;
 
 	Buffer* buffer;
+	DSBuffer* dsBuffer;
 	MeshBuffer* meshBuffer;
 
 	bool lightSelect;
@@ -123,5 +138,6 @@ public:
 	vector<PointLightSave> lights;
 
 	Shader* psShader;
-	ID3D11BlendState* blend[2];
+	ID3D11BlendState* blend;
+	ID3D11RasterizerState* rasterize;
 };

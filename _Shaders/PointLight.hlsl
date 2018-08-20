@@ -1,9 +1,9 @@
 #include "000_Header.hlsl"
 
-//cbuffer DS_PointLight : register(b0)
-//{
-//    matrix _pointLightProjection;
-//}
+cbuffer DS_PointLight : register(b1)
+{
+    matrix _pointLightProjection;
+}
 
 cbuffer PS_PointLight : register(b2)
 {
@@ -103,7 +103,8 @@ DS_OUTPUT DS(HS_CONSTANT_DATA_OUTPUT input, float2 UV : SV_DOMAINLOCATION, const
 
     DS_OUTPUT output;
     output.position = mul(posLS, _projection);
-    output.uv = output.position.xy / output.position.w;
+    output.uv = (output.position.xy / output.position.w + 1.0f) * 0.5f;
+    output.uv.y = 1 - output.uv.y;
 
     return output;
 }

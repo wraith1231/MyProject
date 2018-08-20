@@ -6,7 +6,8 @@
 
 #include "../Objects/MeshSphere.h"
 
-PointLight::PointLight()
+PointLight::PointLight(ExecuteValues* values)
+	: values(values)
 {
 	buffer = new Buffer();
 
@@ -25,8 +26,8 @@ PointLight::PointLight()
 
 	{
 		D3D11_BLEND_DESC desc;
-		States::GetBlendDesc(&desc);
-		States::CreateBlend(&desc, &blend[0]);
+		//States::GetBlendDesc(&desc);
+		//States::CreateBlend(&desc, &blend[0]);
 
 		desc.AlphaToCoverageEnable = FALSE;
 		desc.IndependentBlendEnable = FALSE;
@@ -40,12 +41,35 @@ PointLight::PointLight()
 		};
 		for (UINT i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
 			desc.RenderTarget[i] = def;
-		States::CreateBlend(&desc, &blend[1]);
+		States::CreateBlend(&desc, &blend);
 	}
+	{
+		D3D11_RASTERIZER_DESC desc =
+		{
+			D3D11_FILL_SOLID,
+			D3D11_CULL_FRONT,
+			FALSE,
+			D3D11_DEFAULT_DEPTH_BIAS,
+			D3D11_DEFAULT_DEPTH_BIAS_CLAMP,
+			D3D11_DEFAULT_SLOPE_SCALED_DEPTH_BIAS,
+			FALSE,
+			FALSE,
+			FALSE,
+			FALSE
+		};
+		desc.CullMode = D3D11_CULL_FRONT;
+		D3D::GetDevice()->CreateRasterizerState(&desc, &rasterize);
+	}
+
+	dsBuffer = new DSBuffer();
 }
 
 PointLight::~PointLight()
 {
+	SAFE_RELEASE(rasterize);
+	SAFE_RELEASE(blend);
+
+	SAFE_DELETE(dsBuffer);
 	SAFE_DELETE(psShader);
 	SAFE_DELETE(meshBuffer);
 	SAFE_DELETE(sphere);
@@ -126,7 +150,18 @@ void PointLight::PreRender(bool val)
 
 void PointLight::LightMeshRender()
 {
-	D3D::GetDC()->OMSetBlendState(blend[1], NULL, 0xFF);
+	ID3D11BlendState* prevBlen;
+	FLOAT prevFactor[4];
+	UINT prevMask;
+	D3D::GetDC()->OMGetBlendState(&prevBlen, prevFactor, &prevMask);
+	D3D::GetDC()->OMSetBlendState(blend, prevFactor, prevMask);
+
+	ID3D11RasterizerState* prevRaster;
+	D3D::GetDC()->RSGetState(&prevRaster);
+	D3D::GetDC()->RSSetState(rasterize);
+	values->ViewProjection->GetProjection(dsBuffer->Data.mat);
+	D3DXMatrixTranspose(&dsBuffer->Data.mat, &dsBuffer->Data.mat);
+	dsBuffer->SetDSBuffer(1);
 
 	for (PointLightSave light : lights)
 	{
@@ -143,7 +178,8 @@ void PointLight::LightMeshRender()
 		D3D::GetDC()->Draw(2, 0);
 	}
 
-	D3D::GetDC()->OMSetBlendState(blend[0], NULL, 0xFF);
+	D3D::GetDC()->RSSetState(prevRaster);
+	D3D::GetDC()->OMSetBlendState(prevBlen, prevFactor, prevMask);
 
 	Shader::ClearShader();
 	//for (size_t i = 0; i < POINTLIGHTSIZE; i++)

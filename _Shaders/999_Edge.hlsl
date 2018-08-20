@@ -84,11 +84,11 @@ float4 PS(PixelInput input) : SV_TARGET
     {
         return LightMeshRT.Sample(LightMeshRTSampler, input.uv);
     }
-    else if (_bufferRender == 5)
-    {
-        float4 lightColor = LightRT.Sample(LightRTSampler, input.uv);
-        return lightColor;
-    }
+    //else if (_bufferRender == 5)
+    //{
+    //    float4 lightColor = LightRT.Sample(LightRTSampler, input.uv);
+    //    return lightColor;
+    //}
     
     float4 realColor = RealRT.Sample(RealRTSampler, input.uv);
     float4 lightColor = LightRT.Sample(LightRTSampler, input.uv);

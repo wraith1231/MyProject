@@ -17,31 +17,24 @@ ToonShading::ToonShading(ExecuteValues* values)
 	aaModel->ReadMaterial(Models + L"Mesh/Quad.material");
 	aaModel->ReadMesh(Models + L"Mesh/Quad.mesh");
 
-	lightModel = new Model();
-	lightModel->ReadMaterial(Models + L"Mesh/Quad.material");
-	lightModel->ReadMesh(Models + L"Mesh/Quad.mesh");
-
 	dirLight = new Shader(Shaders + L"DirLight.hlsl");
 
 	edgeShader = new Shader(Shaders + L"999_Edge.hlsl");
-	lightShader = new Shader(Shaders + L"999_Light.hlsl");
 	aaShader = new Shader(Shaders + L"999_FXAA.hlsl");
 
 	for (Material* material : edgeModel->Materials())
 		material->SetShader(edgeShader);
 	for (Material* material : aaModel->Materials())
 		material->SetShader(aaShader);
-	for (Material* material : lightModel->Materials())
-		material->SetShader(lightShader);
 
 	worldBuffer = new WorldBuffer();
 
 	D3DXMatrixIdentity(&view);
 
+	shadowRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height, DXGI_FORMAT_R16_FLOAT);
 	normalRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);// , DXGI_FORMAT_R32G32_FLOAT);
 	depthRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	diffuseRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
-	lightMeshRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	lightRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	AART = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 
@@ -65,9 +58,6 @@ ToonShading::ToonShading(ExecuteValues* values)
 	D3DXMatrixTranslation(&T, desc.Width / 2, desc.Height / 2, 0.5f);
 
 	edgeModel->Bone(0)->Transform(S*R*T); 
-
-	D3DXMatrixTranslation(&T, desc.Width / 2, desc.Height / 2, 0.5f);
-	lightModel->Bone(0)->Transform(S*R*T);
 
 	D3DXMatrixTranslation(&T, desc.Width / 2, desc.Height / 2, 0.4f);
 	aaModel->Bone(0)->Transform(S*R*T);
@@ -94,11 +84,9 @@ ToonShading::~ToonShading()
 	SAFE_DELETE(lightBuffer);
 	SAFE_DELETE(buffer);
 
-	SAFE_DELETE(lightShader);
 	SAFE_DELETE(aaShader);
 	SAFE_DELETE(edgeShader);
 
-	SAFE_DELETE(lightModel);
 	SAFE_DELETE(aaModel);
 	SAFE_DELETE(edgeModel);
 
@@ -107,6 +95,7 @@ ToonShading::~ToonShading()
 	SAFE_DELETE(normalRT);
 	SAFE_DELETE(depthRT);
 	SAFE_DELETE(diffuseRT);
+	SAFE_DELETE(shadowRT);
 
 	SAFE_DELETE(projection);
 }
@@ -117,6 +106,7 @@ void ToonShading::Update()
 
 void ToonShading::ShadowRender()
 {
+	shadowRT->Set();
 }
 
 void ToonShading::PreRender()
@@ -134,13 +124,12 @@ void ToonShading::PreRender()
 
 void ToonShading::LightRender()
 {
-	lightMeshRT->Clear();
-	ID3D11RenderTargetView* rtv = lightMeshRT->GetRTV();
+	lightRT->Clear();
+	ID3D11RenderTargetView* rtv = lightRT->GetRTV();
 	D3D::GetDC()->OMSetRenderTargets(1, &rtv, D3D::Get()->GetReadOnlyDSV());
 
 	dirBuffer->Data.DirColor = D3DXVECTOR3(values->GlobalLight->Data.Color.r, values->GlobalLight->Data.Color.g, values->GlobalLight->Data.Color.b);
 	dirBuffer->Data.DirToLight = -values->GlobalLight->Data.Direction;
-	//lightMeshRT->Set();
 
 	//directional;
 	D3D::GetDC()->IASetInputLayout(NULL);
@@ -176,8 +165,8 @@ void ToonShading::EdgeRender()
 	D3D::GetDC()->PSSetShaderResources(6, 1, &depthView);
 	ID3D11ShaderResourceView* diffuseView = diffuseRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(7, 1, &diffuseView);
-	ID3D11ShaderResourceView* lightMeshView = lightMeshRT->GetSRV();
-	D3D::GetDC()->PSSetShaderResources(8, 1, &lightMeshView);
+	ID3D11ShaderResourceView* lightView = lightRT->GetSRV();
+	D3D::GetDC()->PSSetShaderResources(8, 1, &lightView);
 
 	buffer->Data.Width = static_cast<float>(normalRT->GetWidth());
 	buffer->Data.Height = static_cast<float>(normalRT->GetHeight());
@@ -231,8 +220,6 @@ void ToonShading::ResizeScreen()
 	depthRT->Create((UINT)desc.Width, (UINT)desc.Height);
 
 	diffuseRT->Create((UINT)desc.Width, (UINT)desc.Height);
-
-	lightMeshRT->Create((UINT)desc.Width, (UINT)desc.Height);
 
 	lightRT->Create((UINT)desc.Width, (UINT)desc.Height);
 

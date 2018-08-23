@@ -81,13 +81,12 @@ public:
 private:
 	class Model* edgeModel;
 	class Model* aaModel;
-	class Model* lightModel;
 	D3DXMATRIX view;
 
+	RenderTarget* shadowRT;
 	RenderTarget* normalRT;
 	RenderTarget* depthRT;
 	RenderTarget* diffuseRT;
-	RenderTarget* lightMeshRT;
 	RenderTarget* lightRT;
 	RenderTarget* AART;
 
@@ -96,7 +95,6 @@ private:
 	WorldBuffer* worldBuffer;
 
 	Shader* edgeShader;
-	Shader* lightShader;
 	Shader* aaShader;
 
 	Buffer* buffer;

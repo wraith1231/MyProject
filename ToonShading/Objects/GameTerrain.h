@@ -111,7 +111,7 @@ public:
 	void Update();
 
 	void PreRender();
-	void LightMeshRender();
+	void LightRender();
 	void ImGuiRender();
 
 	bool Intersect(D3DXVECTOR3 cam, D3DXVECTOR3 camDir, float& dis);

@@ -28,7 +28,7 @@ public:
 
 	void PreRender();
 	void PreRender(bool val);
-	void LightMeshRender();
+	void LightRender();
 
 	void ImGuiRender();
 

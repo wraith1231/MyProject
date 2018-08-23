@@ -19,18 +19,18 @@ void DrawModel::Update()
 	settings->Update();
 }
 
+void DrawModel::ShadowRender()
+{
+}
+
 void DrawModel::PreRender()
 {
 	settings->PreRender();
 }
 
-void DrawModel::LightMeshRender()
-{
-	settings->LightMeshRender();
-}
-
 void DrawModel::LightRender()
 {
+	settings->LightRender();
 }
 
 void DrawModel::EdgeRender()

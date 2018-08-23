@@ -40,7 +40,7 @@ ToonShading::ToonShading(ExecuteValues* values)
 
 	normalRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);// , DXGI_FORMAT_R32G32_FLOAT);
 	depthRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
-	realRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
+	diffuseRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	lightMeshRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	lightRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	AART = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
@@ -106,12 +106,16 @@ ToonShading::~ToonShading()
 	SAFE_DELETE(lightRT);
 	SAFE_DELETE(normalRT);
 	SAFE_DELETE(depthRT);
-	SAFE_DELETE(realRT);
+	SAFE_DELETE(diffuseRT);
 
 	SAFE_DELETE(projection);
 }
 
 void ToonShading::Update()
+{
+}
+
+void ToonShading::ShadowRender()
 {
 }
 
@@ -122,18 +126,18 @@ void ToonShading::PreRender()
 
 	normalRT->Clear();
 	depthRT->Clear();
-	realRT->Clear();
-	ID3D11RenderTargetView* rtv[3] = { normalRT->GetRTV(), depthRT->GetRTV(), realRT->GetRTV() };
+	diffuseRT->Clear();
+	ID3D11RenderTargetView* rtv[3] = { normalRT->GetRTV(), depthRT->GetRTV(), diffuseRT->GetRTV() };
 	D3D::GetDC()->OMSetRenderTargets(3, rtv, D3D::Get()->GetDSV());
 	D3D::GetDC()->OMSetDepthStencilState(D3D::Get()->GetDSS(), 1);
 }
 
-void ToonShading::LightMeshRender()
+void ToonShading::LightRender()
 {
 	lightMeshRT->Clear();
 	ID3D11RenderTargetView* rtv = lightMeshRT->GetRTV();
 	D3D::GetDC()->OMSetRenderTargets(1, &rtv, D3D::Get()->GetReadOnlyDSV());
-	
+
 	dirBuffer->Data.DirColor = D3DXVECTOR3(values->GlobalLight->Data.Color.r, values->GlobalLight->Data.Color.g, values->GlobalLight->Data.Color.b);
 	dirBuffer->Data.DirToLight = -values->GlobalLight->Data.Direction;
 	//lightMeshRT->Set();
@@ -147,41 +151,11 @@ void ToonShading::LightMeshRender()
 	D3D::GetDC()->PSSetShaderResources(5, 1, &normalView);
 	ID3D11ShaderResourceView* depthView = depthRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(6, 1, &depthView);
-	ID3D11ShaderResourceView* realView = realRT->GetSRV();
-	D3D::GetDC()->PSSetShaderResources(7, 1, &realView);
+	ID3D11ShaderResourceView* diffuseView = diffuseRT->GetSRV();
+	D3D::GetDC()->PSSetShaderResources(7, 1, &diffuseView);
 	dirBuffer->SetPSBuffer(2);
 	dirLight->Render();
 	D3D::GetDC()->Draw(4, 0);
-
-}
-
-void ToonShading::LightRender()
-{
-	lightRT->Clear();
-	ID3D11RenderTargetView* rtv = lightRT->GetRTV();
-	D3D::GetDC()->OMSetRenderTargets(1, &rtv, D3D::Get()->GetReadOnlyDSV());
-
-	//lightRT->Set();
-	values->ViewProjection->SetView(view);
-
-	D3DXMATRIX pro;
-	projection->GetMatrix(&pro);
-
-	values->ViewProjection->SetProjection(pro);
-	values->ViewProjection->SetVSBuffer(0);
-
-	ID3D11ShaderResourceView* normalView = normalRT->GetSRV();
-	D3D::GetDC()->PSSetShaderResources(5, 1, &normalView);
-	ID3D11ShaderResourceView* depthView = depthRT->GetSRV();
-	D3D::GetDC()->PSSetShaderResources(6, 1, &depthView);
-	ID3D11ShaderResourceView* lightMeshView = lightMeshRT->GetSRV();
-	D3D::GetDC()->PSSetShaderResources(7, 1, &lightMeshView);
-
-	buffer->Data.Width = static_cast<float>(normalRT->GetWidth());
-	buffer->Data.Height = static_cast<float>(normalRT->GetHeight());
-
-	lightModel->TransformsCopy();
-	lightModel->Render();
 }
 
 void ToonShading::EdgeRender()
@@ -194,18 +168,16 @@ void ToonShading::EdgeRender()
 	projection->GetMatrix(&pro);
 	
 	values->ViewProjection->SetProjection(pro);
-	values->ViewProjection->SetVSBuffer(0);
+	values->ViewProjection->SetVSBuffer(10);
 
 	ID3D11ShaderResourceView* normalView = normalRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(5, 1, &normalView);
 	ID3D11ShaderResourceView* depthView = depthRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(6, 1, &depthView);
-	ID3D11ShaderResourceView* realView = realRT->GetSRV();
-	D3D::GetDC()->PSSetShaderResources(7, 1, &realView);
-	ID3D11ShaderResourceView* lightView = lightRT->GetSRV();
-	D3D::GetDC()->PSSetShaderResources(8, 1, &lightView);
+	ID3D11ShaderResourceView* diffuseView = diffuseRT->GetSRV();
+	D3D::GetDC()->PSSetShaderResources(7, 1, &diffuseView);
 	ID3D11ShaderResourceView* lightMeshView = lightMeshRT->GetSRV();
-	D3D::GetDC()->PSSetShaderResources(9, 1, &lightMeshView);
+	D3D::GetDC()->PSSetShaderResources(8, 1, &lightMeshView);
 
 	buffer->Data.Width = static_cast<float>(normalRT->GetWidth());
 	buffer->Data.Height = static_cast<float>(normalRT->GetHeight());
@@ -222,7 +194,7 @@ void ToonShading::AARender()
 	projection->GetMatrix(&pro);
 	
 	values->ViewProjection->SetProjection(pro);
-	values->ViewProjection->SetVSBuffer(0);
+	values->ViewProjection->SetVSBuffer(10);
 
 	ID3D11ShaderResourceView* view = AART->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(5, 1, &view);
@@ -238,7 +210,7 @@ void ToonShading::ImGuiRender()
 	ImGui::Begin("Buffer");
 
 	{
-		ImGui::SliderInt("Buffer Render", (int*)&lightBuffer->Data.BufferRender, 0, 6);
+		ImGui::SliderInt("Buffer Render", (int*)&lightBuffer->Data.BufferRender, 0, 5);
 	}
 
 	ImGui::End();
@@ -258,7 +230,7 @@ void ToonShading::ResizeScreen()
 
 	depthRT->Create((UINT)desc.Width, (UINT)desc.Height);
 
-	realRT->Create((UINT)desc.Width, (UINT)desc.Height);
+	diffuseRT->Create((UINT)desc.Width, (UINT)desc.Height);
 
 	lightMeshRT->Create((UINT)desc.Width, (UINT)desc.Height);
 

@@ -33,11 +33,11 @@ void ExeGui::Update()
 	}
 }
 
-void ExeGui::PreRender()
+void ExeGui::ShadowRender()
 {
 }
 
-void ExeGui::LightMeshRender()
+void ExeGui::PreRender()
 {
 }
 

@@ -7,9 +7,9 @@ public:
 	~ExportAnimation();
 
 	void Update();
-	
+
+	void ShadowRender();
 	void PreRender();
-	void LightMeshRender();
 	void LightRender();
 	void EdgeRender();
 	void AARender();

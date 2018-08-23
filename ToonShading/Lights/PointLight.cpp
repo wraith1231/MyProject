@@ -148,7 +148,7 @@ void PointLight::PreRender(bool val)
 	}
 }
 
-void PointLight::LightMeshRender()
+void PointLight::LightRender()
 {
 	ID3D11BlendState* prevBlen;
 	FLOAT prevFactor[4];

@@ -81,29 +81,26 @@ void Program::Update()
 void Program::PreRender()
 {
 	SetGlobalBuffers();
-	
+
+	for (Execute* exe : executes)
+		exe->ShadowRender();
+
 	for (Execute* exe : executes)
 		exe->PreRender();
 
-	for (Execute* exe : executes)
-		exe->LightMeshRender();
 }
 
 void Program::Render()
 {
-	//D3D::Get()->SetRenderTarget();
-
 	for (Execute* exe : executes)
 		exe->LightRender();
-	
+
 	for (Execute* exe : executes)
 		exe->EdgeRender();
 }
 
 void Program::PostRender()
 {
-
-	
 	D3D::Get()->SetRenderTarget();
 	
 	for (Execute* exe : executes)
@@ -141,6 +138,14 @@ void Program::SetGlobalBuffers()
 	values->ViewProjection->SetVSBuffer(10);
 	values->ViewProjection->SetDSBuffer(10);
 	values->ViewProjection->SetPSBuffer(10);
+
+	D3DXVECTOR3 eye, lookat, up;
+	up = D3DXVECTOR3(0, 1, 0);
+	lookat = values->GlobalLight->Data.Direction;
+	eye = -values->GlobalLight->Data.Direction * (values->Perspective->GetFarZ() / 2);
+	D3DXMATRIX temp;
+	D3DXMatrixLookAtLH(&temp, &eye, &lookat, &up);
+	D3DXMatrixTranspose(&values->GlobalLight->Data.LightView, &temp);
 
 	values->GlobalLight->SetVSBuffer(0);
 	values->GlobalLight->SetPSBuffer(0);

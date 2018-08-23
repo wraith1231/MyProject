@@ -532,10 +532,10 @@ void GameTerrain::PreRender()
 		tree->PreRender();
 }
 
-void GameTerrain::LightMeshRender()
+void GameTerrain::LightRender()
 {
 	if (pointLight != NULL)
-		pointLight->LightMeshRender();
+		pointLight->LightRender();
 }
 
 void GameTerrain::ImGuiRender()

@@ -32,7 +32,7 @@ private:
 			Data.Color = D3DXCOLOR(0, 0, 0, 1);
 
 			Data.Start = 0.0f;
-			Data.End = 1.0f;
+			Data.End = 1000.0f;
 		}
 
 		struct Struct

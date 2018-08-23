@@ -342,11 +342,11 @@ void GameSettings::PreRender()
 		am->PreRender();
 }
 
-void GameSettings::LightMeshRender()
+void GameSettings::LightRender()
 {
 	if ( terrain != NULL)
 	{
-		terrain->LightMeshRender();
+		terrain->LightRender();
 	}
 }
 

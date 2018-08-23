@@ -72,11 +72,11 @@ void ExportMesh::Update()
 
 }
 
-void ExportMesh::PreRender()
+void ExportMesh::ShadowRender()
 {
 }
 
-void ExportMesh::LightMeshRender()
+void ExportMesh::PreRender()
 {
 }
 

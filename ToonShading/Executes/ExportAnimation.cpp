@@ -35,11 +35,11 @@ void ExportAnimation::Update()
 
 }
 
-void ExportAnimation::PreRender()
+void ExportAnimation::ShadowRender()
 {
 }
 
-void ExportAnimation::LightMeshRender()
+void ExportAnimation::PreRender()
 {
 }
 

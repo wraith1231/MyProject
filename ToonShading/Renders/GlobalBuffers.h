@@ -111,6 +111,7 @@ public:
 		Data.Color = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 		Data.Overcast = 1.0f;
 		Data.Intensity = 0.2f;
+		D3DXMatrixIdentity(&Data.LightView);
 	}
 
 	struct Struct
@@ -122,8 +123,9 @@ public:
 
 		float Overcast;
 		float Intensity;	//±¤¿ø °­µµ
-
 		float Padding2[2];
+
+		D3DXMATRIX LightView;
 	};
 
 	Struct Data;

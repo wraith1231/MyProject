@@ -17,7 +17,7 @@ cbuffer VS_World : register(b1)
     matrix _world;
 }
 
-cbuffer PS_Light : register(b0)
+cbuffer VPS_Light : register(b0)
 {
     float3 _direction;
     float LightPadding;

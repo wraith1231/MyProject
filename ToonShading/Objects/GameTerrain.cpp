@@ -490,6 +490,30 @@ void GameTerrain::Update()
 		water->Update();
 }
 
+void GameTerrain::ShadowRender()
+{
+	UINT stride = sizeof(VertexType);
+	UINT offset = 0;
+
+	D3D::GetDC()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+	D3D::GetDC()->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	buffer->SetVSBuffer(1);
+	terrainBuffer->SetPSBuffer(2);
+	material->SetShader(shadowShader);
+	material->SetBuffer();
+
+	D3D::GetDC()->DrawIndexed(indexSize, 0, 0);
+
+	if (water != NULL)
+		water->ShadowRender();
+
+	treeBuffer->SetVSBuffer(2);
+	for (Tree* tree : trees)
+		tree->ShadowRender();
+}
+
 void GameTerrain::PreRender()
 {
 	if (pointLight != NULL)
@@ -520,6 +544,7 @@ void GameTerrain::PreRender()
 	
 	buffer->SetVSBuffer(1);
 	terrainBuffer->SetPSBuffer(2);
+	material->SetShader(shader);
 	material->SetBuffer();
 	
 	D3D::GetDC()->DrawIndexed(indexSize, 0, 0);
@@ -1141,7 +1166,7 @@ bool GameTerrain::GetHeight(D3DXVECTOR3 & pos)
 void GameTerrain::FirstInit(UINT width, UINT height)
 {
 	tex1 = tex2 = tex3 = tex4 = NULL;
-	shader = NULL;
+	shader = shadowShader = NULL;
 	vertexBuffer = indexBuffer = NULL;
 	pointLight = NULL;
 	spotLight = NULL;
@@ -1164,8 +1189,8 @@ void GameTerrain::FirstInit(UINT width, UINT height)
 	power = 5.0f;
 	splat = D3DXCOLOR(0, 0, 0, 0);
 
-
 	shader = new Shader(Shaders + L"999_Terrain.hlsl");
+	shadowShader = new Shader(Shaders + L"999_Terrain.hlsl", "VS_Shadow", "PS_Shadow");
 	buffer = new WorldBuffer();
 	terrainBuffer = new TerrainBuffer();
 	treeBuffer = new TreeBuffer();
@@ -1404,6 +1429,7 @@ void GameTerrain::Clear()
 	SAFE_RELEASE(vertexBuffer);
 	SAFE_RELEASE(indexBuffer);
 
+	SAFE_DELETE(shadowShader);
 	SAFE_DELETE(shader);
 
 	SAFE_DELETE(tex1);

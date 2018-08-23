@@ -12,6 +12,7 @@ public:
 
 	void Update();
 
+	void ShadowRender();
 	void PreRender();
 	void ImGuiRender();
 

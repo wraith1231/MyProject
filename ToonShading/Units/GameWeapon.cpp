@@ -23,6 +23,10 @@ void GameWeapon::Update()
 
 }
 
+void GameWeapon::ShadowRender()
+{
+}
+
 void GameWeapon::PreRender()
 {
 }

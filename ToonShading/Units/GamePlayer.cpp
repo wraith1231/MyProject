@@ -84,6 +84,12 @@ void GamePlayer::EditUpdate()
 	box->Update(transformed);
 }
 
+void GamePlayer::ShadowRender()
+{
+	bullet->ShadowRender();
+	GameUnit::ShadowRender();
+}
+
 void GamePlayer::PreRender()
 {
 	bullet->PreRender();

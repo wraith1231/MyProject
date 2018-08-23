@@ -1,8 +1,9 @@
 #include "000_Header.hlsl"
 
-
 cbuffer PS_Buffer : register(b3)
 {
+    matrix _bufferProjection;
+
     uint _bufferRender;
     float3 _bufferPadding;
 }
@@ -11,11 +12,13 @@ Texture2D NormalRT : register(t5);
 Texture2D DepthRT : register(t6);
 Texture2D DiffuseRT : register(t7);
 Texture2D LightMeshRT : register(t8);
+Texture2D ShadowMap : register(t9);
 
 SamplerState NormalRTSampler : register(s5);
 SamplerState DepthRTSampler : register(s6);
 SamplerState DiffuseRTSampler : register(s7);
 SamplerState LightMeshRTSampler : register(s8);
+SamplerState ShadowMapSampler : register(s9);
 
 struct PixelInput
 {
@@ -76,8 +79,13 @@ float4 PS(PixelInput input) : SV_TARGET
     {
         return LightMeshRT.Sample(LightMeshRTSampler, input.uv);
     }
-    float4 realColor = LightMeshRT.Sample(LightMeshRTSampler, input.uv);
+    else if (_bufferRender == 5)
+    {
+        return ShadowMap.Sample(ShadowMapSampler, input.uv).rrrr;
+    }
 
+    float4 realColor = LightMeshRT.Sample(LightMeshRTSampler, input.uv);
+    
     float nor = (3.141592f / 180.0f) * 3.0f;
     float dep = 0.005f;
 
@@ -89,7 +97,7 @@ float4 PS(PixelInput input) : SV_TARGET
     float4 depthColor = DepthRT.Sample(DepthRTSampler, input.uv);
     float depth = depthColor.r;
     float3 oPos = depthColor.gba;
-
+    
     float depth1;
     float3 normal1;
     float2 uv = input.uv;
@@ -149,6 +157,40 @@ float4 PS(PixelInput input) : SV_TARGET
         return float4(0, 0, 0, 1);
     if (abs(depth - depth1) > dep)
         return float4(0, 0, 0, 1);
+    
+    if (abs(normal.x - 1.0f) < 0.0001f &&
+        abs(normal.y - 1.0f) < 0.0001f &&
+        abs(normal.z - 1.0f) < 0.0001f)
+    {
+
+    }
+    else
+    {
+        float4 oTemp = float4(oPos, 1);
+        float3 lightPos = normalize(_lightPosition - oPos);
+
+        float4 lDep = mul(oTemp, _lightView);
+        float lDepth = lDep.z / _valueFar;
+        float4 lTex = mul(lDep, _bufferProjection);
+        float2 tex = (float2) 0;
+        tex.x = lTex.x / lTex.w / 2.0f + 0.5f;
+        tex.y = -lTex.y / lTex.w / 2.0f + 0.5f;
+
+        if ((saturate(tex.x) == tex.x) && (saturate(tex.y) == tex.y))
+        {
+            float lDepth1 = ShadowMap.Sample(ShadowMapSampler, tex).r;
+            lDepth1 -= 0.000125f;
+
+            if (lDepth1 < lDepth)
+            {
+                float z1 = lDepth1 * _valueFar;
+                float z2 = lDepth * _valueFar;
+                float dist = (1.0f - (z2 - z1) / _valueFar) * 0.7f; // * 1.2f;
+            
+                realColor *= saturate(dist);
+            }
+        }
+    }
 
     if(_fogUse == 1)
         return lerp(_fogColor, realColor, factor) * (_sunColor * _sunIntensity);

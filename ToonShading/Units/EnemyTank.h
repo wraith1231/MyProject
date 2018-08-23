@@ -12,6 +12,8 @@ public:
 	~EnemyTank();
 
 	void Update();
+	
+	void ShadowRender();
 	void PreRender();
 
 	void PlayAction(Action action) { currentAction = action; }

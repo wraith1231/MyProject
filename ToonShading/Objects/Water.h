@@ -103,7 +103,10 @@ public:
 	~Water();
 
 	void Update();
+	
+	void ShadowRender();
 	void PreRender();
+
 	void ImGuiRender();
 
 	WaterStruct GetWaterParameter();
@@ -123,6 +126,7 @@ private:
 	ID3D11Buffer* vertexBuffer, *indexBuffer;
 
 	Shader* shader;
+	Shader* shadowShader;
 	Material* material;
 
 	WaterVSBuffer* vsBuffer;	//2¹ø

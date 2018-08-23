@@ -10,6 +10,7 @@ public:
 
 	void Update();
 
+	void ShadowRender();
 	void PreRender();
 	void LightRender();
 
@@ -45,11 +46,7 @@ private:
 	static class GameTerrain* terrain;
 
 	static class GamePlayer* player;
-	class GameEnemy* enemy;
 	vector<class GameEnemy*> enemies;
-
-	class GameAnimationModel* model;
-	vector<class GameAnimationModel*> models;
 
 	static vector<class GameUntouchable*> untouchables;
 

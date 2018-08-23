@@ -21,6 +21,7 @@ void DrawModel::Update()
 
 void DrawModel::ShadowRender()
 {
+	settings->ShadowRender();
 }
 
 void DrawModel::PreRender()

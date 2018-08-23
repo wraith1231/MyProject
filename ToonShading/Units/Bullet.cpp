@@ -17,6 +17,7 @@ Bullet::Bullet(ExecuteValues* values)
 	float rad = max.y - min.y;
 
 	shader = new Shader(Shaders + L"999_Mesh.hlsl");
+	shadowShader = new Shader(Shaders + L"999_Mesh.hlsl", "VS_Shadow", "PS_Shadow");
 	for (Material* material : model->Materials())
 		material->SetShader(shader);
 
@@ -32,6 +33,7 @@ Bullet::~Bullet()
 		SAFE_DELETE(bullet);
 	SAFE_DELETE(sphere);
 	
+	SAFE_DELETE(shadowShader);
 	SAFE_DELETE(shader);
 
 	SAFE_DELETE(model);
@@ -115,8 +117,10 @@ void Bullet::Update()
 	}
 }
 
-void Bullet::PreRender()
+void Bullet::ShadowRender()
 {
+	for (Material* material : model->Materials())
+		material->SetShader(shadowShader);
 	for (BulletStruct* bullet : bullets)
 	{
 		model->SetWorld(bullet->World);
@@ -129,7 +133,21 @@ void Bullet::PreRender()
 
 		for (ModelMesh* mesh : model->Meshes())
 			mesh->Render();
-		//model->NormalRender();
+	}
+}
+
+void Bullet::PreRender()
+{
+	for (Material* material : model->Materials())
+		material->SetShader(shader);
+	for (BulletStruct* bullet : bullets)
+	{
+		if (bullet->Visible == false)
+			continue;
+		model->SetWorld(bullet->World);
+
+		for (ModelMesh* mesh : model->Meshes())
+			mesh->Render();
 	}
 }
 

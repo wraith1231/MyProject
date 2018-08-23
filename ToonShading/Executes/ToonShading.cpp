@@ -31,7 +31,7 @@ ToonShading::ToonShading(ExecuteValues* values)
 
 	D3DXMatrixIdentity(&view);
 
-	shadowRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height, DXGI_FORMAT_R16_FLOAT);
+	shadowRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height, DXGI_FORMAT_R32_FLOAT);
 	normalRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);// , DXGI_FORMAT_R32G32_FLOAT);
 	depthRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	diffuseRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
@@ -107,6 +107,8 @@ void ToonShading::Update()
 void ToonShading::ShadowRender()
 {
 	shadowRT->Set();
+
+	values->ViewProjection->GetProjection(lightBuffer->Data.Projection);
 }
 
 void ToonShading::PreRender()
@@ -167,6 +169,8 @@ void ToonShading::EdgeRender()
 	D3D::GetDC()->PSSetShaderResources(7, 1, &diffuseView);
 	ID3D11ShaderResourceView* lightView = lightRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(8, 1, &lightView);
+	ID3D11ShaderResourceView* shadowView = shadowRT->GetSRV();
+	D3D::GetDC()->PSSetShaderResources(9, 1, &shadowView);
 
 	buffer->Data.Width = static_cast<float>(normalRT->GetWidth());
 	buffer->Data.Height = static_cast<float>(normalRT->GetHeight());
@@ -199,7 +203,7 @@ void ToonShading::ImGuiRender()
 	ImGui::Begin("Buffer");
 
 	{
-		ImGui::SliderInt("Buffer Render", (int*)&lightBuffer->Data.BufferRender, 0, 5);
+		ImGui::SliderInt("Buffer Render", (int*)&lightBuffer->Data.BufferRender, 0, 6);
 	}
 
 	ImGui::End();

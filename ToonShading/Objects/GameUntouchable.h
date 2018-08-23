@@ -32,6 +32,7 @@ public:
 	void SelectObjectUpdate();
 	void Unselect();
 
+	void ShadowRender();
 	void PreRender();
 
 	void ImGuiRender();
@@ -55,6 +56,7 @@ private:
 	wstring file;
 
 	Shader* shader;
+	Shader* shadowShader;
 
 	vector<ModelStruct*> transforms;
 };

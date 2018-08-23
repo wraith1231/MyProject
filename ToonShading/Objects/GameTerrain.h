@@ -110,8 +110,10 @@ public:
 
 	void Update();
 
+	void ShadowRender();
 	void PreRender();
 	void LightRender();
+
 	void ImGuiRender();
 
 	bool Intersect(D3DXVECTOR3 cam, D3DXVECTOR3 camDir, float& dis);
@@ -174,6 +176,7 @@ private:
 	Texture* tex3;
 	Texture* tex4;
 
+	Shader* shadowShader;
 	Shader* shader;
 
 	Material* material;

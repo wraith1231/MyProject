@@ -111,7 +111,7 @@ ShadowPixel VS_Shadow(VertexTextureNormal input)
     if (input.position.y > 0)
         output.position += float4(_windDirection * _windPower, 0);
     
-    output.position = mul(output.position, _view);
+    output.position = mul(output.position, _lightView);
     output.vPosition = output.position;
     output.position = mul(output.position, _projection);
     output.uv = input.uv;

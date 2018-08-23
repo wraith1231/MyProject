@@ -40,6 +40,8 @@ public:
 	D3DXMATRIX Transformed();
 
 	virtual void Update() = 0;
+	
+	virtual void ShadowRender() = 0;
 	virtual void PreRender() = 0;
 	virtual void ImGuiRender() = 0;
 

@@ -51,6 +51,8 @@ public:
 	virtual ~GameModel();
 
 	virtual void Update();
+
+	virtual void ShadowRender();
 	virtual void PreRender();
 	virtual void ImGuiRender();
 
@@ -69,6 +71,8 @@ protected:	//private function
 
 protected:	//private valuable
 	Shader* shader;
+	Shader* shadowShader;
+
 	Model* model;
 
 	D3DXVECTOR3 velocity;

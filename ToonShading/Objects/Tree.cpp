@@ -14,6 +14,7 @@ Tree::Tree(wstring fileName, ExecuteValues* values)
 
 
 	shader = new Shader(Shaders + L"999_Tree.hlsl");
+	shadowShader = new Shader(Shaders + L"999_Tree.hlsl", "VS_Shadow", "PS_Shadow");
 	
 	for (Material* mat : model->Materials())
 		mat->SetShader(shader);
@@ -24,6 +25,7 @@ Tree::~Tree()
 {
 	SAFE_DELETE(model);
 
+	SAFE_DELETE(shadowShader);
 	SAFE_DELETE(shader);
 }
 
@@ -47,8 +49,10 @@ void Tree::Update()
 {
 }
 
-void Tree::PreRender()
+void Tree::ShadowRender()
 {
+	for (Material* mat : model->Materials())
+		mat->SetShader(shadowShader);
 	for (TreeStruct tree : trees)
 	{
 		model->SetWorld(tree.Transform);
@@ -58,6 +62,21 @@ void Tree::PreRender()
 		if (tree.Visible == false)
 			continue;
 
+		for (ModelMesh* mesh : model->Meshes())
+			mesh->Render();
+	}
+}
+
+void Tree::PreRender()
+{
+	for (Material* mat : model->Materials())
+		mat->SetShader(shader);
+	for (TreeStruct tree : trees)
+	{
+		if (tree.Visible == false)
+			continue;
+
+		model->SetWorld(tree.Transform);
 		for (ModelMesh* mesh : model->Meshes())
 			mesh->Render();
 	}

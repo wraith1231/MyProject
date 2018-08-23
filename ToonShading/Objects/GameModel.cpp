@@ -10,6 +10,7 @@ GameModel::GameModel(wstring materialFile, wstring meshFile, ExecuteValues* valu
 	model->SetExecuteValue(value);
 
 	shader = new Shader(Shaders + L"999_BoneAnimation.hlsl", "VS_Bone");
+	shadowShader = new Shader(Shaders + L"999_BoneAnimation.hlsl", "VS_Shadow", "PS_Shadow");
 	for (Material* material : model->Materials())
 		material->SetShader(shader);
 
@@ -23,7 +24,10 @@ GameModel::~GameModel()
 {
 	SAFE_DELETE(renderBuffer);
 	SAFE_DELETE(boneBuffer);
+
+	SAFE_DELETE(shadowShader);
 	SAFE_DELETE(shader);
+
 	SAFE_DELETE(model);
 }
 
@@ -81,7 +85,7 @@ void GameModel::Update()
 	model->CopyAbsoluteBoneTo(transform, boneTransforms);
 }
 
-void GameModel::PreRender()
+void GameModel::ShadowRender()
 {
 	if (Visible() == false) return;
 
@@ -94,7 +98,32 @@ void GameModel::PreRender()
 	//
 	if (model->GetVisible() == false) return;
 
+	for (Material* material : model->Materials())
+		material->SetShader(shadowShader);
 
+	for (ModelMesh* mesh : model->Meshes())
+	{
+		int index = mesh->ParentBoneIndex();
+
+		renderBuffer->Data.BoneNumber = index;
+		renderBuffer->SetVSBuffer(3);
+
+		mesh->Render();
+	}
+}
+
+void GameModel::PreRender()
+{
+	if (Visible() == false) return;
+
+	if (model->GetVisible() == false) return;
+
+	boneBuffer->SetVSBuffer(2);
+
+	model->SetWorld(boneTransforms[0]);
+
+	for (Material* material : model->Materials())
+		material->SetShader(shader);
 
 	for (ModelMesh* mesh : model->Meshes())
 	{

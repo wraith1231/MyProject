@@ -26,6 +26,11 @@ void GameUnit::Update()
 	GameAnimationModel::Update();
 }
 
+void GameUnit::ShadowRender()
+{
+	GameAnimationModel::ShadowRender();
+}
+
 void GameUnit::PreRender()
 {
 	GameAnimationModel::PreRender();

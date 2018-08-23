@@ -36,6 +36,7 @@ public:
 
 	void Update();
 
+	void ShadowRender();
 	void PreRender();
 
 	bool CheckIntersect(Objects::BoundingBox* box, UINT& num);
@@ -51,4 +52,5 @@ private:
 	class Model* model;
 
 	Shader* shader;
+	Shader* shadowShader;
 };

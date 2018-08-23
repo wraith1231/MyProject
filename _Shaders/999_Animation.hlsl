@@ -84,6 +84,6 @@ ShadowPixel VS_Shadow(VertexTextureNormalBlend input)
 float PS_Shadow(ShadowPixel input) : SV_TARGET
 {
     float depth = input.vPosition.z / _valueFar;
-
+    
     return depth;
 }

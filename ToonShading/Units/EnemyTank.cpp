@@ -106,6 +106,11 @@ void EnemyTank::Update()
 	GameEnemy::Update();
 }
 
+void EnemyTank::ShadowRender()
+{
+	GameEnemy::ShadowRender();
+}
+
 void EnemyTank::PreRender()
 {
 	GameEnemy::PreRender();

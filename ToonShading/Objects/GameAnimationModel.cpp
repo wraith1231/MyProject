@@ -125,6 +125,11 @@ void GameAnimationModel::Update()
 	model->CopyAbsoluteBoneTo(transformed, boneTransforms);
 }
 
+void GameAnimationModel::ShadowRender()
+{
+	GameModel::ShadowRender();
+}
+
 void GameAnimationModel::PreRender()
 {
 	GameModel::PreRender();

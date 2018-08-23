@@ -24,6 +24,7 @@ public:		//public Function
 	void Update();
 	void EditUpdate();
 
+	void ShadowRender();
 	void PreRender();
 	
 	void ImGuiRender();

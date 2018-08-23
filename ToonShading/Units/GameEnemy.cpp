@@ -88,6 +88,12 @@ void GameEnemy::EditUpdate()
 	model->CopyAbsoluteBoneTo(transformed, boneTransforms);
 }
 
+void GameEnemy::ShadowRender()
+{
+	bullet->ShadowRender();
+	GameUnit::ShadowRender();
+}
+
 void GameEnemy::PreRender()
 {
 	bullet->PreRender();

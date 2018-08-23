@@ -15,6 +15,7 @@ GameUntouchable::GameUntouchable(wstring file, ExecuteValues* value)
 	model->SetExecuteValue(value);
 
 	shader = new Shader(Shaders + L"999_Mesh.hlsl");
+	shadowShader = new Shader(Shaders + L"999_Mesh.hlsl", "VS_Shadow", "PS_Shadow");
 	for (Material* material : model->Materials())
 		material->SetShader(shader);
 
@@ -229,8 +230,10 @@ void GameUntouchable::Unselect()
 }
 
 
-void GameUntouchable::PreRender()
+void GameUntouchable::ShadowRender()
 {
+	for (Material* material : model->Materials())
+		material->SetShader(shadowShader);
 	for (ModelStruct* mod : transforms)
 	{
 		model->SetWorld(mod->Transforms);
@@ -240,6 +243,20 @@ void GameUntouchable::PreRender()
 		if (mod->Visible == false)
 			continue;
 
+		model->Render();
+	}
+}
+
+void GameUntouchable::PreRender()
+{
+	for (Material* material : model->Materials())
+		material->SetShader(shader);
+	for (ModelStruct* mod : transforms)
+	{
+		if (mod->Visible == false)
+			continue;
+
+		model->SetWorld(mod->Transforms);
 		model->Render();
 	}
 }

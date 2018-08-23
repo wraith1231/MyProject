@@ -5,10 +5,11 @@ Water::Water(UINT width, UINT height)
 	: width(width), height(height)
 	, vertexBuffer(NULL), indexBuffer(NULL)
 	, vertices(NULL), indices(NULL)
-	, material(NULL), shader(NULL)
+	, material(NULL), shader(NULL), shadowShader(NULL)
 	, vsBuffer(NULL), psBuffer(NULL), worldBuffer(NULL)
 {
 	shader = new Shader(Shaders + L"999_Water.hlsl");
+	shadowShader = new Shader(Shaders + L"999_Water.hlsl", "VS_Shadow", "PS_Shadow");
 
 	worldBuffer = new WorldBuffer();
 	vsBuffer = new WaterVSBuffer();
@@ -102,6 +103,8 @@ Water::~Water()
 {
 	for (int i = 0; i < 2; i++)
 		SAFE_RELEASE(blendState[i]);
+
+	SAFE_DELETE(shadowShader);
 	SAFE_DELETE(shader);
 	SAFE_DELETE(material);
 
@@ -121,6 +124,24 @@ void Water::Update()
 	vsBuffer->Data.Time += Time::Delta();
 }
 
+void Water::ShadowRender()
+{
+	UINT stride = sizeof(VertexType);
+	UINT offset = 0;
+
+	D3D::GetDC()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+	D3D::GetDC()->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	D3D::GetDC()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	worldBuffer->SetVSBuffer(1);
+	vsBuffer->SetVSBuffer(12);
+	psBuffer->SetPSBuffer(12);
+	material->SetShader(shadowShader);
+	material->SetBuffer();
+
+	D3D::GetDC()->DrawIndexed(indexSize, 0, 0);
+}
+
 void Water::PreRender()
 {
 	//D3D::GetDC()->OMSetBlendState(blendState[1], NULL, 0xFF);
@@ -134,6 +155,7 @@ void Water::PreRender()
 	worldBuffer->SetVSBuffer(1);
 	vsBuffer->SetVSBuffer(12);
 	psBuffer->SetPSBuffer(12);
+	material->SetShader(shader);
 	material->SetBuffer();
 
 	D3D::GetDC()->DrawIndexed(indexSize, 0, 0);

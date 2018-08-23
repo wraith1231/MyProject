@@ -20,6 +20,7 @@ public:
 
 	void Update();
 
+	void ShadowRender();
 	void PreRender();
 
 	wstring FileName() { return fileName; }
@@ -33,6 +34,7 @@ private:
 	wstring fileName;
 
 	Shader* shader;
+	Shader* shadowShader;
 
 	vector<TreeStruct> trees;
 

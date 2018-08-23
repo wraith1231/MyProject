@@ -111,6 +111,8 @@ public:
 		Data.Color = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 		Data.Overcast = 1.0f;
 		Data.Intensity = 0.2f;
+		Data.LightPosition = D3DXVECTOR3(0, 0, 0);
+
 		D3DXMatrixIdentity(&Data.LightView);
 	}
 
@@ -124,6 +126,9 @@ public:
 		float Overcast;
 		float Intensity;	//±¤¿ø °­µµ
 		float Padding2[2];
+
+		D3DXVECTOR3 LightPosition;
+		float Padding3;
 
 		D3DXMATRIX LightView;
 	};

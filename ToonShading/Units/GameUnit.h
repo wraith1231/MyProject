@@ -11,6 +11,7 @@ public:
 
 	virtual void Update();
 
+	virtual void ShadowRender();
 	virtual void PreRender();
 	virtual void ImGuiRender();
 

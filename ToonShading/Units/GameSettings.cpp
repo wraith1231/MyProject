@@ -21,7 +21,6 @@ vector<GameUntouchable*> GameSettings::untouchables = vector<GameUntouchable*>()
 
 GameSettings::GameSettings(ExecuteValues* values)
 	: skyBox(NULL), world(NULL)
-	, enemy(NULL), model(NULL)
 	, inter(false), disposed(false)
 	, untoTemp(NULL), untouchSel(false)
 	, enemyDispose(false), playerDispose(false)
@@ -40,12 +39,12 @@ GameSettings::~GameSettings()
 	SAFE_DELETE(skyBox);
 	SAFE_DELETE(world);
 
-	SAFE_DELETE(enemy);
 	SAFE_DELETE(player);
+	for (GameEnemy* enemy : enemies)
+		SAFE_DELETE(enemy);
 
-	SAFE_DELETE(model);
-	for (GameAnimationModel* am : models)
-		SAFE_DELETE(am);
+	for (GameUntouchable* untou : untouchables)
+		SAFE_DELETE(untou);
 }
 
 void GameSettings::Update()
@@ -263,9 +262,6 @@ void GameSettings::Update()
 		if (world != NULL)
 			world->Update();
 
-		if (enemy != NULL)
-			enemy->Update();
-
 		for (GameEnemy* ene : enemies)
 			ene->Update();
 		if (player != NULL)
@@ -273,10 +269,6 @@ void GameSettings::Update()
 			player->SetCamTarget();
 			player->Update();
 		}
-		if (model != NULL)
-			model->Update();
-		for (GameAnimationModel* am : models)
-			am->Update();
 
 		for (GameEnemy* ene : enemies)
 		{
@@ -318,6 +310,23 @@ void GameSettings::Update()
 	}
 }
 
+void GameSettings::ShadowRender()
+{
+	if (terrain != NULL)
+		terrain->ShadowRender();
+	for (GameUntouchable* untouch : untouchables)
+		untouch->ShadowRender();
+	if (skyBox != NULL)
+		skyBox->ShadowRender();
+	if (world != NULL)
+		world->ShadowRender();
+
+	for (GameEnemy* ene : enemies)
+		ene->ShadowRender();
+	if (player != NULL)
+		player->ShadowRender();
+}
+
 void GameSettings::PreRender()
 {
 	if (terrain != NULL)
@@ -329,17 +338,10 @@ void GameSettings::PreRender()
 	if (world != NULL)
 		world->PreRender();
 	
-	if (enemy != NULL)
-		enemy->PreRender();
 	for (GameEnemy* ene : enemies)
 		ene->PreRender();
 	if (player != NULL)
 		player->PreRender();
-	if (model != NULL)
-		model->PreRender();
-	
-	for (GameAnimationModel* am : models)
-		am->PreRender();
 }
 
 void GameSettings::LightRender()
@@ -602,14 +604,8 @@ void GameSettings::ImguiRender()
 
 		for (GameEnemy* en : enemies)
 			en->ImGuiRender();
-		if (enemy != NULL)
-			enemy->ImGuiRender();
 		if (player != NULL)
 			player->ImGuiRender();
-		if (model != NULL)
-			model->ImGuiRender();
-		for (GameAnimationModel* am : models)
-			am->ImGuiRender();
 	}
 }
 

@@ -29,6 +29,9 @@ cbuffer VPS_Light : register(b0)
 
     float2 LightPadding2; // 마지막 패딩은 없어도 됨
 
+    float3 _lightPosition;
+    float _lightPadding3;
+
     matrix _lightView;
 }
 

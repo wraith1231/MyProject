@@ -138,9 +138,10 @@ void Program::SetGlobalBuffers()
 	//values->ViewFrustum->SetMatrix(view * projection);
 	values->ViewFrustum->ConstructFrustum(values->Perspective->GetFarZ(), projection, view);
 
-	values->ViewProjection->SetVSBuffer(8);
-	values->ViewProjection->SetDSBuffer(8);
-	values->ViewProjection->SetPSBuffer(8);
+	values->ViewProjection->SetVSBuffer(10);
+	values->ViewProjection->SetDSBuffer(10);
+	values->ViewProjection->SetPSBuffer(10);
 
+	values->GlobalLight->SetVSBuffer(0);
 	values->GlobalLight->SetPSBuffer(0);
 }

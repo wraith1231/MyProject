@@ -9,15 +9,13 @@ cbuffer PS_Buffer : register(b3)
 
 Texture2D NormalRT : register(t5);
 Texture2D DepthRT : register(t6);
-Texture2D RealRT : register(t7);
-Texture2D LightRT : register(t8);
-Texture2D LightMeshRT : register(t9);
+Texture2D DiffuseRT : register(t7);
+Texture2D LightMeshRT : register(t8);
 
 SamplerState NormalRTSampler : register(s5);
 SamplerState DepthRTSampler : register(s6);
-SamplerState RealRTSampler : register(s7);
-SamplerState LightRTSampler : register(s8);
-SamplerState LightMeshRTSampler : register(s9);
+SamplerState DiffuseRTSampler : register(s7);
+SamplerState LightMeshRTSampler : register(s8);
 
 struct PixelInput
 {
@@ -55,12 +53,7 @@ float4 PS(PixelInput input) : SV_TARGET
     [branch]
     if (_bufferRender == 0)
     {
-        //return DepthRT.Sample(DepthRTSampler, input.uv);
         float depth = DepthRT.Sample(DepthRTSampler, input.uv).r;
-        //float ld = _valueFar / (depth + _valueNear);
-        //float4 color = (float4)0;
-        //color += float4(1.0 - saturate(ld / 75.0f), 1.0f - saturate(ld / 125.0f), 1.0f - saturate(ld / 200.0f), 0.0f);
-        //return float4(ld.rrrr);
         return float4(depth.rrrr);
     }
     else if (_bufferRender == 1)
@@ -72,122 +65,93 @@ float4 PS(PixelInput input) : SV_TARGET
     else if (_bufferRender == 2)
     {
         float3 normal = NormalRT.Sample(NormalRTSampler, input.uv);
-        //normal.xyz = NormalDecode(normal.xy);
         return float4(normal, 1);
     }
     else if (_bufferRender == 3)
     {
-        float4 diffuse = RealRT.Sample(RealRTSampler, input.uv);
+        float4 diffuse = DiffuseRT.Sample(DiffuseRTSampler, input.uv);
         return diffuse;
     }
     else if (_bufferRender == 4)
     {
         return LightMeshRT.Sample(LightMeshRTSampler, input.uv);
     }
-    //else if (_bufferRender == 5)
-    //{
-    //    float4 lightColor = LightRT.Sample(LightRTSampler, input.uv);
-    //    return lightColor;
-    //}
-    
-    float4 realColor = RealRT.Sample(RealRTSampler, input.uv);
-    float4 lightColor = LightRT.Sample(LightRTSampler, input.uv);
-    //return float4(realColor.rgb + lightColor.rgb - 1, 1.0f);
-    //float4 lightMesh = LightMeshRT.Sample(LightMeshRTSampler, input.uv);
-    //float3 color = realColor.rgb + lightMesh.a * lightMesh.rgb;
-    //return float4(color, 1);
-    
+    float4 realColor = LightMeshRT.Sample(LightMeshRTSampler, input.uv);
+
     float nor = (3.141592f / 180.0f) * 3.0f;
-    float dep = 0.008f;
+    float dep = 0.005f;
 
     float nordot, ndot;
-    bool bd = true;
     float hei = 1.0f / _valueHeight;
     float wid = 1.0f / _valueWidth;
 
-    float fn = 1;
+    float3 normal = NormalRT.Sample(NormalRTSampler, input.uv).rgb;
+    float4 depthColor = DepthRT.Sample(DepthRTSampler, input.uv);
+    float depth = depthColor.r;
+    float3 oPos = depthColor.gba;
 
-    half4 normalColor = NormalRT.Sample(NormalRTSampler, input.uv);
-    //normalColor.rgb = decodeNormal(normalColor.rg);
-    float depthColor = DepthRT.Sample(DepthRTSampler, input.uv).r;
-    //normalColor += 0.000125f;
-
-    float depthColor1;
-    half4 normalColor1;
+    float depth1;
+    float3 normal1;
     float2 uv = input.uv;
    
-    nordot = dot(normalColor.rgb, normalColor.rgb);
+    nordot = dot(normal, normal);
     
     float factor = 0;
     [branch]
     if (_fogUse == 1)
     {
-        factor = saturate((_fogEnd - depthColor) / (_fogEnd - _fogStart));
+        float dist = depth * _valueFar;
+        factor = saturate((_fogEnd - dist) / (_fogEnd - _fogStart));
     
         if (factor < 0.4f)
-            return lerp(_fogColor, realColor + lightColor - 1, factor) * (_sunColor * _sunIntensity);
+            return lerp(_fogColor, realColor, factor) * (_sunColor * _sunIntensity);
     }
-    depthColor *= fn;
-
+    
     uv.y -= hei;
-    normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
-    //normalColor1.rgb = decodeNormal(normalColor1.rg);
-    depthColor1 = DepthRT.Sample(DepthRTSampler, uv).r;
+    normal1 = NormalRT.Sample(NormalRTSampler, uv).rgb;
+    depth1 = DepthRT.Sample(DepthRTSampler, uv).r;
 
-    ndot = dot(normalColor.rgb, normalColor1.rgb);
-    depthColor1 *= fn;
-    //depthColor1 = 1 - depthColor1;
+    ndot = dot(normal, normal1);
     if (abs(nordot - ndot) > nor)
         return float4(0, 0, 0, 1);
-    if (abs(depthColor - depthColor1) > dep)
+    if (abs(depth - depth1) > dep)
         return float4(0, 0, 0, 1);
     
     uv.y += hei;
     uv.x -= wid;
-    normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
-    //normalColor1.rgb = decodeNormal(normalColor1.rg);
-    depthColor1 = DepthRT.Sample(DepthRTSampler, uv).r;
-    
-    ndot = dot(normalColor.rgb, normalColor1.rgb);
-    //depthColor1 = 1 - depthColor1;
-    depthColor1 *= fn;
+    normal1 = NormalRT.Sample(NormalRTSampler, uv).rgb;
+    depth1 = DepthRT.Sample(DepthRTSampler, uv).r;
+
+    ndot = dot(normal, normal1);
     if (abs(nordot - ndot) > nor)
         return float4(0, 0, 0, 1);
-    if (abs(depthColor - depthColor1) > dep)
+    if (abs(depth - depth1) > dep)
         return float4(0, 0, 0, 1);
     
     uv.x += wid;
     uv.x += wid;
-    normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
-    //normalColor1.rgb = decodeNormal(normalColor1.rg);
-    depthColor1 = DepthRT.Sample(DepthRTSampler, uv).r;
-    
-    ndot = dot(normalColor.rgb, normalColor1.rgb);
-    //depthColor1 = 1 - depthColor1;
-    depthColor1 *= fn;
+    normal1 = NormalRT.Sample(NormalRTSampler, uv).rgb;
+    depth1 = DepthRT.Sample(DepthRTSampler, uv).r;
+
+    ndot = dot(normal, normal1);
     if (abs(nordot - ndot) > nor)
         return float4(0, 0, 0, 1);
-    if (abs(depthColor - depthColor1) > dep)
+    if (abs(depth - depth1) > dep)
         return float4(0, 0, 0, 1);
     
     uv.x -= wid;
     uv.y += hei;
-    normalColor1 = NormalRT.Sample(NormalRTSampler, uv);
-    //normalColor1.rgb = decodeNormal(normalColor1.rg);
-    depthColor1 = DepthRT.Sample(DepthRTSampler, uv).r;
-    
-    ndot = dot(normalColor.rgb, normalColor1.rgb);
-    //depthColor1 = 1 - depthColor1;
-    depthColor1 *= fn;
+    normal1 = NormalRT.Sample(NormalRTSampler, uv).rgb;
+    depth1 = DepthRT.Sample(DepthRTSampler, uv).r;
+
+    ndot = dot(normal, normal1);
     if (abs(nordot - ndot) > nor)
         return float4(0, 0, 0, 1);
-    if (abs(depthColor - depthColor1) > dep)
+    if (abs(depth - depth1) > dep)
         return float4(0, 0, 0, 1);
 
-    //return float4(1, 1, 1, 1);
-    
     if(_fogUse == 1)
-        return lerp(_fogColor, realColor + lightColor - 1, factor) * (_sunColor * _sunIntensity);
+        return lerp(_fogColor, realColor, factor) * (_sunColor * _sunIntensity);
     else
-        return (realColor + lightColor - 1) * (_sunColor * _sunIntensity);
+        return (realColor) * (_sunColor * _sunIntensity);
 }

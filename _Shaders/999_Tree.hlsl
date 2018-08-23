@@ -62,7 +62,7 @@ PS_GBUFFEROUTPUT PS(PixelInput input)
 {
     float4 diffuseMap = _diffuseMap.Sample(_diffuseSampler, input.uv);
 
-    clip(diffuseMap.a - 0.9f);
+    clip(diffuseMap.a - 0.8f);
 
     PS_GBUFFEROUTPUT output = (PS_GBUFFEROUTPUT) 0;
     output.color = diffuseMap;
@@ -71,4 +71,61 @@ PS_GBUFFEROUTPUT PS(PixelInput input)
     output.normal.xyz = input.normal;
 
     return output;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Shadow Map
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct ShadowPixel
+{
+    float4 position : SV_POSITION;
+    float3 vPosition : POSITION0;
+    float2 uv : TEXCOORD0;
+};
+
+ShadowPixel VS_Shadow(VertexTextureNormal input)
+{
+    ShadowPixel output;
+    
+    matrix S, R, T, mat;
+    R = _rotate;
+    matrix temp = _viewInverse;
+    S = _world;
+    T = _world;
+    
+    S._41 = S._42 = S._43 = 0;
+    T._11 = T._22 = T._33 = 1;
+    
+    temp._41 = temp._42 = temp._43 = 0.0f;
+    
+    temp._12 = temp._32 = temp._21 = temp._23 = 0.0f;
+    
+    R = mul(R, temp);
+    
+    mat = mul(S, R);
+    mat = mul(mat, T);
+    
+    output.position = mul(input.position, mat);
+    
+    if (input.position.y > 0)
+        output.position += float4(_windDirection * _windPower, 0);
+    
+    output.position = mul(output.position, _view);
+    output.vPosition = output.position;
+    output.position = mul(output.position, _projection);
+    output.uv = input.uv;
+
+    return output;
+}
+
+float PS_Shadow(ShadowPixel input) : SV_TARGET
+{
+    float4 diffuseMap = _diffuseMap.Sample(_diffuseSampler, input.uv);
+
+    clip(diffuseMap.a - 0.8f);
+
+    float depth = input.vPosition.z / _valueFar;
+
+    return depth;
 }

@@ -1,4 +1,11 @@
-cbuffer VS_ViewProjection : register(b8)
+//AS - All Shader
+//VS - Vertex Shader
+//PS - Pixel Shader
+//HS - Hull Shader
+//DS - Domain Shader
+//GS - Geometry Shader
+
+cbuffer AS_ViewProjection : register(b10)
 {
     matrix _view;
     matrix _projection;
@@ -21,6 +28,8 @@ cbuffer PS_Light : register(b0)
     float _sunIntensity;
 
     float2 LightPadding2; // 마지막 패딩은 없어도 됨
+
+    matrix _lightView;
 }
 
 cbuffer PS_Material : register(b1)
@@ -42,28 +51,6 @@ cbuffer VPS_Value : register(b9)
     float _valueHeight;
     float _valueNear;
     float _valueFar;
-}
-
-struct PointLight
-{
-    uint Use;
-    float Intensity;
-    float Range;
-    float Padding1;
-
-    float3 Position;
-    float Padding2;
-    
-    float3 Color;
-    float Padding3;
-};
-
-cbuffer PS_PointLight : register(b10)
-{
-    PointLight _pointLight[32];
-    
-    int _pointLightCount;
-    float3 _pointLightPadding;
 }
 
 struct SpotLight
@@ -347,17 +334,6 @@ float3 GetWorldNormal(float3 normal, float4x4 world)
     return mul(normal, (float3x3) world);
 }
 
-void PointLighting(inout float3 color, in PointLight light, in float3 position, in float3 normal)
-{
-    float dist = length(light.Position - position);
-    float intensity = saturate((light.Range - dist) / light.Range);
-    intensity = pow(intensity, light.Intensity);
-
-    //IntensityCut(intensity);
-
-    color = color + intensity * light.Color;
-}
-
 void SpotLighting(inout float3 color, in SpotLight light, in float3 position, in float3 normal)
 {
     float3 lightDir = normalize(light.Position - position);
@@ -372,22 +348,6 @@ void SpotLighting(inout float3 color, in SpotLight light, in float3 position, in
     //IntensityCut(intensity);
 
     color = color + light.Color * intensity;
-}
-
-void PointLightFunc(inout float3 color, in float3 position, in float3 normal)
-{
-    int count = 0;
-    
-    for (int i = 0; i < 32; i++)
-    {
-        if (_pointLight[i].Use == 1)
-        {
-            count++;
-            PointLighting(color.rgb, _pointLight[i], position, normal);
-        }
-        if (count > _pointLightCount)
-            break;
-    }
 }
 
 void SpotLightFunc(inout float3 color, in float3 position, in float3 normal)

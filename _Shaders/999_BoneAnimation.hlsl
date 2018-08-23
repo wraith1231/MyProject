@@ -49,3 +49,32 @@ PS_GBUFFEROUTPUT PS(PixelInput input)
 
     return output;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Shadow Map
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct ShadowPixel
+{
+    float4 position : SV_POSITION;
+    float3 vPosition : POSITION0;
+};
+
+ShadowPixel VS_Shadow(VertexTextureNormal input)
+{
+    ShadowPixel output;
+    
+    float4 world = mul(input.position, _bones[_boneNumber]);
+    output.position = mul(world, _lightView);
+    output.vPosition = output.position;
+    output.position = mul(output.position, _projection);
+
+    return output;
+}
+
+float PS_Shadow(ShadowPixel input) : SV_TARGET
+{
+    float depth = input.vPosition.z / _valueFar;
+
+    return depth;
+}

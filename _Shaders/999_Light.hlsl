@@ -56,7 +56,7 @@ half4 PS(PixelInput input) : SV_TARGET
     float4 color = (float4) 0;
     
     Diffuse(color.rgb, normal);
-    PointLightFunc(color.rgb, depth.gba, normal);
+    //PointLightFunc(color.rgb, depth.gba, normal);
     SpotLightFunc(color.rgb, depth.gba, normal);
 
     return color;

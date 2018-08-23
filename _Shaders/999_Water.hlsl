@@ -121,3 +121,65 @@ PS_GBUFFEROUTPUT PS(PixelInput input)
 
     return output;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Shadow Map
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct ShadowPixel
+{
+    float4 position : SV_POSITION;
+    float3 vPosition : POSITION0;
+};
+
+ShadowPixel VS_Shadow(VertexTexture input)
+{
+    ShadowPixel output;
+    Wave wave[3] =
+    {
+        { 1.0, 1.0, 0.5, float2(-1, 0) },
+        { 2.0, 0.5, 1.7, float2(-0.7, -0.7) },
+        { 0.6, 1.2, 1.3, float2(-0.3, -0.4) }
+    };
+
+    wave[0].frequancy = _waterWaveFrequancy;
+    wave[0].amplitude = _waterWaveAmplitude;
+    
+    wave[1].frequancy = _waterWaveFrequancy * 3.0f;
+    wave[1].amplitude = _waterWaveAmplitude * 0.33f;
+
+    wave[2].frequancy = _waterWaveFrequancy * 1.5f;
+    wave[2].amplitude = _waterWaveAmplitude * 1.2f;
+
+    float4 pos = input.position;
+    pos.y = _waterHeight;
+
+    float4 world = mul(pos, _world);
+
+    float ddx, ddy;
+    float deriv;
+    float angle;
+    ddx = ddy = 0.0f;
+
+    for (int i = 0; i < 3; i++)
+    {
+        angle = dot(wave[i].direction, world.xz) * wave[i].frequancy + _waterTime * wave[i].phase;
+        world.y += wave[i].amplitude * sin(angle);
+        deriv = wave[i].frequancy * wave[i].amplitude * cos(angle);
+        ddx -= deriv * wave[i].direction.x;
+        ddy -= deriv * wave[i].direction.y;
+    }
+    
+    output.position = mul(world, _lightView);
+    output.vPosition = output.position;
+    output.position = mul(output.position, _projection);
+
+    return output;
+}
+
+float PS_Shadow(ShadowPixel input) : SV_TARGET
+{
+    float depth = input.vPosition.z / _valueFar;
+
+    return depth;
+}

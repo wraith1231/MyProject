@@ -158,9 +158,7 @@ float4 PS(PixelInput input) : SV_TARGET
     if (abs(depth - depth1) > dep)
         return float4(0, 0, 0, 1);
     
-    if (abs(normal.x - 1.0f) < 0.0001f &&
-        abs(normal.y - 1.0f) < 0.0001f &&
-        abs(normal.z - 1.0f) < 0.0001f)
+    if (length(normal) > 1.5f)
     {
 
     }
@@ -172,20 +170,22 @@ float4 PS(PixelInput input) : SV_TARGET
         float4 lDep = mul(oTemp, _lightView);
         float lDepth = lDep.z / _valueFar;
         float4 lTex = mul(lDep, _bufferProjection);
-        float2 tex = (float2) 0;
-        tex.x = lTex.x / lTex.w / 2.0f + 0.5f;
-        tex.y = -lTex.y / lTex.w / 2.0f + 0.5f;
+        float2 tex = float2(lTex.xy / lTex.w);
+        tex.x = tex.x * 0.5f + 0.5f;
+        tex.y = -tex.y * 0.5f + 0.5f;
 
         if ((saturate(tex.x) == tex.x) && (saturate(tex.y) == tex.y))
         {
             float lDepth1 = ShadowMap.Sample(ShadowMapSampler, tex).r;
-            lDepth1 -= 0.000125f;
+            lDepth1 += 0.000125f;
 
             if (lDepth1 < lDepth)
             {
                 float z1 = lDepth1 * _valueFar;
                 float z2 = lDepth * _valueFar;
                 float dist = (1.0f - (z2 - z1) / _valueFar) * 0.7f; // * 1.2f;
+
+                //return float4(dist.rrr, 1);
             
                 realColor *= saturate(dist);
             }

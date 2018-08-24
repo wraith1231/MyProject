@@ -139,13 +139,17 @@ void Program::SetGlobalBuffers()
 	values->ViewProjection->SetDSBuffer(10);
 	values->ViewProjection->SetPSBuffer(10);
 
-	D3DXVECTOR3 eye, lookat, up;
+	D3DXVECTOR3 eye, lookat, up, cam;
 	up = D3DXVECTOR3(0, 1, 0);
-	eye = -values->GlobalLight->Data.Direction * ((values->Perspective->GetFarZ() * 2) / 3 );
-	lookat = eye + values->GlobalLight->Data.Direction;
+	values->MainCamera->GetPosition(&cam);
+	//eye = -values->GlobalLight->Data.Direction * ((values->Perspective->GetFarZ()) / 5 );
+	eye = -values->GlobalLight->Data.Direction * ((values->Perspective->GetFarZ()) / 2);
+	//lookat = eye + values->GlobalLight->Data.Direction;
+	lookat = values->GlobalLight->Data.Direction;
 	D3DXMATRIX temp;
 	D3DXMatrixLookAtLH(&temp, &eye, &lookat, &up);
 	D3DXMatrixTranspose(&values->GlobalLight->Data.LightView, &temp);
+	//values->GlobalLight->Data.LightView = temp;
 	values->GlobalLight->Data.LightPosition = eye;
 
 	values->GlobalLight->SetVSBuffer(0);

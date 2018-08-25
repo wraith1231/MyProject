@@ -20,12 +20,18 @@ Program::Program()
 
 	values = new ExecuteValues();
 	values->ViewProjection = new ViewProjectionBuffer();
+	//values->Perspective = new Perspective(desc.Width, desc.Height);
 	values->Perspective = new Perspective(desc.Width, desc.Height);
 	values->Viewport = new Viewport(desc.Width, desc.Height);
 	values->ViewFrustum = new Objects::Frustum;
 	values->GuiSettings = new GuiSettings();
 	values->GlobalLight = new LightBuffer();
 	values->MainCamera = new ThirdPerson();
+
+	globalPers = new Perspective(desc.Width, desc.Height, (float)D3DX_PI / 2, 0.1f, 1000.0f);
+	D3DXMATRIX p;
+	globalPers->GetMatrix(&p);
+	D3DXMatrixTranspose(&values->GlobalLight->Data.LightProjection, &p);
 
 	executes.push_back(new ToonShading(values));
 	executes.push_back(new ExportMesh(values));
@@ -56,6 +62,7 @@ Program::~Program()
 	SAFE_DELETE(values->Perspective);
 	SAFE_DELETE(values->Viewport);
 	SAFE_DELETE(values->GuiSettings);
+	SAFE_DELETE(globalPers);
 	SAFE_DELETE(values);
 
 	States::Delete();
@@ -143,13 +150,13 @@ void Program::SetGlobalBuffers()
 	up = D3DXVECTOR3(0, 1, 0);
 	values->MainCamera->GetPosition(&cam);
 	//eye = -values->GlobalLight->Data.Direction * ((values->Perspective->GetFarZ()) / 5 );
-	eye = -values->GlobalLight->Data.Direction * ((values->Perspective->GetFarZ()) / 2);
+	//eye = -values->GlobalLight->Data.Direction * ((values->Perspective->GetFarZ()) / 2);
+	eye = cam - values->GlobalLight->Data.Direction * (globalPers->GetFarZ() / 2);
 	//lookat = eye + values->GlobalLight->Data.Direction;
 	lookat = values->GlobalLight->Data.Direction;
 	D3DXMATRIX temp;
 	D3DXMatrixLookAtLH(&temp, &eye, &lookat, &up);
 	D3DXMatrixTranspose(&values->GlobalLight->Data.LightView, &temp);
-	//values->GlobalLight->Data.LightView = temp;
 	values->GlobalLight->Data.LightPosition = eye;
 
 	values->GlobalLight->SetVSBuffer(0);

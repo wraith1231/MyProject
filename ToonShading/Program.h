@@ -21,4 +21,6 @@ private:
 	ExecuteValues* values;
 	vector<class Execute *> executes;
 
+	Perspective* globalPers;
+
 };

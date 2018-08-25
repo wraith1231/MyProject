@@ -169,7 +169,7 @@ float4 PS(PixelInput input) : SV_TARGET
 
         float4 lDep = mul(oTemp, _lightView);
         float lDepth = lDep.z / _valueFar;
-        float4 lTex = mul(lDep, _bufferProjection);
+        float4 lTex = mul(lDep, _lightProjection);
         float2 tex = float2(lTex.xy / lTex.w);
         tex.x = tex.x * 0.5f + 0.5f;
         tex.y = -tex.y * 0.5f + 0.5f;

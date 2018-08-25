@@ -76,7 +76,7 @@ ShadowPixel VS_Shadow(VertexTextureNormalBlend input)
     
     output.position = mul(output.position, _lightView);
     output.vPosition = output.position;
-    output.position = mul(output.position, _projection);
+    output.position = mul(output.position, _lightProjection);
     
     return output;
 }

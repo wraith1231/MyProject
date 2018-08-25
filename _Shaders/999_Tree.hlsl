@@ -113,7 +113,7 @@ ShadowPixel VS_Shadow(VertexTextureNormal input)
     
     output.position = mul(output.position, _lightView);
     output.vPosition = output.position;
-    output.position = mul(output.position, _projection);
+    output.position = mul(output.position, _lightProjection);
     output.uv = input.uv;
 
     return output;

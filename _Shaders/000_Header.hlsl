@@ -33,6 +33,7 @@ cbuffer VPS_Light : register(b0)
     float _lightPadding3;
 
     matrix _lightView;
+    matrix _lightProjection;
 }
 
 cbuffer PS_Material : register(b1)

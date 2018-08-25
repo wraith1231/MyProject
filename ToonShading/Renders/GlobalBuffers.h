@@ -114,6 +114,7 @@ public:
 		Data.LightPosition = D3DXVECTOR3(0, 0, 0);
 
 		D3DXMatrixIdentity(&Data.LightView);
+		D3DXMatrixIdentity(&Data.LightProjection);
 	}
 
 	struct Struct
@@ -131,6 +132,7 @@ public:
 		float Padding3;
 
 		D3DXMATRIX LightView;
+		D3DXMATRIX LightProjection;
 	};
 
 	Struct Data;

@@ -28,10 +28,10 @@ Program::Program()
 	values->GlobalLight = new LightBuffer();
 	values->MainCamera = new ThirdPerson();
 
-	globalPers = new Perspective(desc.Width, desc.Height, (float)D3DX_PI / 2, 0.1f, 1000.0f);
-	D3DXMATRIX p;
-	globalPers->GetMatrix(&p);
-	D3DXMatrixTranspose(&values->GlobalLight->Data.LightProjection, &p);
+	//globalPers = new Perspective(desc.Width, desc.Height, (float)D3DX_PI / 2, 0.1f, 1000.0f);
+	//D3DXMATRIX p;
+	//globalPers->GetMatrix(&p);
+	//D3DXMatrixTranspose(&values->GlobalLight->Data.LightProjection, &p);
 
 	executes.push_back(new ToonShading(values));
 	executes.push_back(new ExportMesh(values));
@@ -62,7 +62,8 @@ Program::~Program()
 	SAFE_DELETE(values->Perspective);
 	SAFE_DELETE(values->Viewport);
 	SAFE_DELETE(values->GuiSettings);
-	SAFE_DELETE(globalPers);
+
+	//SAFE_DELETE(globalPers);
 	SAFE_DELETE(values);
 
 	States::Delete();
@@ -148,16 +149,41 @@ void Program::SetGlobalBuffers()
 
 	D3DXVECTOR3 eye, lookat, up, cam;
 	up = D3DXVECTOR3(0, 1, 0);
-	values->MainCamera->GetPosition(&cam);
-	//eye = -values->GlobalLight->Data.Direction * ((values->Perspective->GetFarZ()) / 5 );
-	//eye = -values->GlobalLight->Data.Direction * ((values->Perspective->GetFarZ()) / 2);
-	eye = cam - values->GlobalLight->Data.Direction * (globalPers->GetFarZ() / 2);
-	//lookat = eye + values->GlobalLight->Data.Direction;
-	lookat = values->GlobalLight->Data.Direction;
-	D3DXMATRIX temp;
-	D3DXMatrixLookAtLH(&temp, &eye, &lookat, &up);
-	D3DXMatrixTranspose(&values->GlobalLight->Data.LightView, &temp);
-	values->GlobalLight->Data.LightPosition = eye;
+
+	D3DXMATRIX v, p;
+	D3DXMatrixIdentity(&v);
+	D3DXMatrixIdentity(&p);
+
+	//Projection
+	p._11 = 2.0f / values->Viewport->GetWidth();
+	p._22 = 2.0f / values->Viewport->GetHeight();
+	p._33 = -2.0f / values->Perspective->GetFarZ();
+	//p._33 = values->Perspective->GetFarZ() / (values->Perspective->GetFarZ() - values->Perspective->GetNearZ());
+	//p._43 = 1.0f;
+	p._44 = 1.0f;
+	//p._34 = -p._33 * values->Perspective->GetNearZ();
+
+	//View
+	D3DXVECTOR3 dir, center;
+	values->MainCamera->GetPosition(&center);
+	center = -center;
+	dir = values->GlobalLight->Data.Direction;
+	D3DXVec3Normalize(&dir, &dir);
+	float len = D3DXVec2Length(&D3DXVECTOR2(dir.x, dir.y));
+	float pitch = acosf(len);
+	float yaw = atanf(dir.x / dir.y);
+	yaw = dir.y < 0 ? yaw - (float)D3DX_PI : yaw;
+	D3DXMATRIX R;
+	D3DXMatrixRotationYawPitchRoll(&R, yaw, pitch, 0.0f);
+	//D3DXMatrixTranslation(&T, center.x, center.y, center.z);
+	R._14 = center.x;
+	R._24 = center.y;
+	R._34 = center.z;
+
+	values->GlobalLight->Data.LightView = v;
+	values->GlobalLight->Data.LightProjection = p;
+	//D3DXMatrixTranspose(&values->GlobalLight->Data.LightView, &v);
+	//D3DXMatrixTranspose(&values->GlobalLight->Data.LightProjection, &p);
 
 	values->GlobalLight->SetVSBuffer(0);
 	values->GlobalLight->SetPSBuffer(0);

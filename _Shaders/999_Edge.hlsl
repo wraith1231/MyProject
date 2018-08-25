@@ -165,8 +165,6 @@ float4 PS(PixelInput input) : SV_TARGET
     else
     {
         float4 oTemp = float4(oPos, 1);
-        float3 lightPos = normalize(_lightPosition - oPos);
-
         float4 lDep = mul(oTemp, _lightView);
         float lDepth = lDep.z / _valueFar;
         float4 lTex = mul(lDep, _lightProjection);

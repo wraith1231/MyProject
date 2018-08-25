@@ -4,6 +4,8 @@
 #include "./Viewer/FreeCam.h"
 #include "./Viewer/ThirdPerson.h"
 
+#include "./Bounding/BoundingBox.h"
+
 #include "./Executes/ExportMesh.h"
 #include "./Executes/ExportAnimation.h"
 #include "./Executes/DrawModel.h"
@@ -147,41 +149,51 @@ void Program::SetGlobalBuffers()
 	values->ViewProjection->SetDSBuffer(10);
 	values->ViewProjection->SetPSBuffer(10);
 
-	D3DXVECTOR3 eye, lookat, up, cam;
-	up = D3DXVECTOR3(0, 1, 0);
-
-	D3DXMATRIX v, p;
-	D3DXMatrixIdentity(&v);
-	D3DXMatrixIdentity(&p);
-
-	//Projection
-	p._11 = 2.0f / values->Viewport->GetWidth();
-	p._22 = 2.0f / values->Viewport->GetHeight();
-	p._33 = -2.0f / values->Perspective->GetFarZ();
-	//p._33 = values->Perspective->GetFarZ() / (values->Perspective->GetFarZ() - values->Perspective->GetNearZ());
-	//p._43 = 1.0f;
-	p._44 = 1.0f;
-	//p._34 = -p._33 * values->Perspective->GetNearZ();
-
-	//View
-	D3DXVECTOR3 dir, center;
-	values->MainCamera->GetPosition(&center);
-	center = -center;
-	dir = values->GlobalLight->Data.Direction;
-	D3DXVec3Normalize(&dir, &dir);
-	float len = D3DXVec2Length(&D3DXVECTOR2(dir.x, dir.y));
-	float pitch = acosf(len);
-	float yaw = atanf(dir.x / dir.y);
-	yaw = dir.y < 0 ? yaw - (float)D3DX_PI : yaw;
-	D3DXMATRIX R;
-	D3DXMatrixRotationYawPitchRoll(&R, yaw, pitch, 0.0f);
-	//D3DXMatrixTranslation(&T, center.x, center.y, center.z);
-	R._14 = center.x;
-	R._24 = center.y;
-	R._34 = center.z;
-
-	values->GlobalLight->Data.LightView = v;
-	values->GlobalLight->Data.LightProjection = p;
+	//D3DXMATRIX v, p;
+	//D3DXMatrixIdentity(&v);
+	//D3DXMatrixIdentity(&p);
+	//
+	////view
+	//vector<D3DXVECTOR3> corner;
+	////D3DXVECTOR3 corner[8];
+	//for (UINT i = 0; i < 8; i++)
+	//	corner.push_back(values->ViewFrustum->GetCorner(i));
+	//Objects::BoundingBox* box = NULL;
+	//Objects::BoundingBox::CreateFromPoints(corner, &box);
+	//
+	//D3DXVECTOR3 boxMax = box->GetMax(), boxMin = box->GetMin();
+	//SAFE_DELETE(box);
+	//
+	//D3DXVECTOR3 boxSize = boxMax - boxMin;
+	//D3DXVECTOR3 centroid = boxMin + boxSize * 0.5f;
+	//
+	//float dist = D3DXVec3Length(&D3DXVECTOR3(centroid - boxMin));
+	//D3DXVECTOR3 dir;
+	//D3DXVec3Normalize(&dir, &values->GlobalLight->Data.Direction);
+	//D3DXVECTOR3 lightPos = centroid + (dir * dist);
+	//v = Math::CreateLookAt(lightPos, centroid, D3DXVECTOR3(0, 1, 0));
+	//
+	////projection
+	//for (UINT i = 0; i < 8; i++)
+	//	corner[i] = Math::Transform(corner[i], v);
+	//	//D3DXVec3TransformCoord(&corner[i], &corner[i], &v);
+	//D3DXVECTOR3 max, min;
+	//max = D3DXVECTOR3(-999999, -999999, -999999);
+	//min = -max;
+	//for (UINT i = 0; i < 8; i++)
+	//{
+	//	max = Math::Max(max, corner[i]);
+	//	min = Math::Min(min, corner[i]);
+	//}
+	//
+	////float clipDist = fabs(max.z - min.z);
+	//
+	////left = min.x, right = max.x, bottom = min.y, top = max.y, zn = 0.0f, zf = clipDist
+	//p = Math::CreateOrthographicOffCenter(min.x, max.x, min.y, max.y, -max.z, -min.z);
+	//
+	////values->GlobalLight->Data.LightView = v;
+	////values->GlobalLight->Data.LightProjection = p;
+	//
 	//D3DXMatrixTranspose(&values->GlobalLight->Data.LightView, &v);
 	//D3DXMatrixTranspose(&values->GlobalLight->Data.LightProjection, &p);
 

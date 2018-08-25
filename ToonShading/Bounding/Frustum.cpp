@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Frustum.h"
 
+#include "ObjectsRay.h"
 #include "BoundingBox.h"
 
 Objects::Frustum::Frustum()
@@ -63,6 +64,50 @@ void Objects::Frustum::ConstructFrustum(float screenFar, D3DXMATRIX projection, 
 	planes[5].c = mat._34 + mat._32;
 	planes[5].d = mat._44 + mat._42;
 	D3DXPlaneNormalize(&planes[5], &planes[5]);
+
+	Objects::Ray* ray = ComputeIntersection(planes[0], planes[2]);
+	corner[0] = ComputeIntersection(planes[4], ray);
+	corner[3] = ComputeIntersection(planes[5], ray);
+
+	ray = ComputeIntersection(planes[3], planes[0]);
+	corner[1] = ComputeIntersection(planes[4], ray);
+	corner[2] = ComputeIntersection(planes[5], ray);
+
+	ray = ComputeIntersection(planes[2], planes[1]);
+	corner[4] = ComputeIntersection(planes[4], ray);
+	corner[7] = ComputeIntersection(planes[5], ray);
+
+	ray = ComputeIntersection(planes[1], planes[3]);
+	corner[5] = ComputeIntersection(planes[4], ray);
+	corner[6] = ComputeIntersection(planes[5], ray);
+}
+
+D3DXVECTOR3 Objects::Frustum::ComputeIntersection(D3DXPLANE plane, Objects::Ray * ray)
+{
+	D3DXVECTOR3 normal = D3DXVECTOR3(plane.a, plane.b, plane.c);
+
+	float d = (-plane.d - D3DXVec3Dot(&normal, &ray->Position)) / D3DXVec3Dot(&normal, &ray->Direction);
+	return ray->Position + (ray->Direction * d);
+
+	return D3DXVECTOR3();
+}
+
+Objects::Ray * Objects::Frustum::ComputeIntersection(D3DXPLANE p1, D3DXPLANE p2)
+{
+	Objects::Ray* ray = new Objects::Ray();
+
+	D3DXVECTOR3 n1, n2;
+	n1 = D3DXVECTOR3(p1.a, p1.b, p1.c);
+	n2 = D3DXVECTOR3(p2.a, p2.b, p2.c);
+
+	D3DXVec3Cross(&ray->Direction, &n1, &n2);
+	D3DXVECTOR3 d = ray->Direction;
+	float single = d.x * d.x + d.y * d.y + d.z * d.z;
+	D3DXVECTOR3 t1 = (-p1.d * n2) + (p2.d * n1);
+	D3DXVec3Cross(&ray->Position, &t1, &ray->Direction);
+	ray->Position /= single;
+
+	return ray;
 }
 
 bool Objects::Frustum::CheckBox(Objects::BoundingBox * box)
@@ -178,4 +223,11 @@ bool Objects::Frustum::CheckRectangle(float xCenter, float yCenter, float zCente
 	}
 
 	return true;
+}
+
+D3DXVECTOR3 Objects::Frustum::GetCorner(UINT num)
+{
+	if (num >= 8) return D3DXVECTOR3();
+	
+	return corner[num];
 }

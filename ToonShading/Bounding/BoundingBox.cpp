@@ -4,78 +4,83 @@
 #include "ObjectsPlane.h"
 #include "ObjectsRay.h"
 
-Objects::BoundingBox::BoundingBox(D3DXVECTOR3 max, D3DXVECTOR3 min)
+Objects::BoundingBox::BoundingBox(D3DXVECTOR3 max, D3DXVECTOR3 min, bool makeBuffer)
+	: shader(NULL), buffer(NULL), worldBuffer(NULL)
+	, indexBuffer(NULL), vertexBuffer(NULL)
 {
-	worldBuffer = new WorldBuffer;
 	this->max = max;
 	this->min = min;
 	oMax = max;
 	oMin = min;
 
-	shader = new Shader(Shaders + L"040_Objects.hlsl");
-	buffer = new BoxBuffer();
-
-	vertex.resize(8);
-	for (size_t i = 0; i < 8; i++)
-		vertex[i].color = D3DXCOLOR(0, 0, 0, 1);
-	vertex[0].position = D3DXVECTOR3(min.x, min.y, min.z);
-	vertex[1].position = D3DXVECTOR3(min.x, min.y, max.z);
-	vertex[2].position = D3DXVECTOR3(max.x, min.y, max.z);
-	vertex[3].position = D3DXVECTOR3(max.x, min.y, min.z);
-	
-	vertex[4].position = D3DXVECTOR3(min.x, max.y, min.z);
-	vertex[5].position = D3DXVECTOR3(min.x, max.y, max.z);
-	vertex[6].position = D3DXVECTOR3(max.x, max.y, max.z);
-	vertex[7].position = D3DXVECTOR3(max.x, max.y, min.z);
-
-	index.push_back(0); index.push_back(1);
-	index.push_back(1); index.push_back(2);
-	index.push_back(2); index.push_back(3);
-	index.push_back(3); index.push_back(0);
-						
-	index.push_back(4); index.push_back(5);
-	index.push_back(5); index.push_back(6);
-	index.push_back(6); index.push_back(7);
-	index.push_back(7); index.push_back(4);
-						
-	index.push_back(0); index.push_back(4);
-	index.push_back(1); index.push_back(5);
-	index.push_back(2); index.push_back(6);
-	index.push_back(3); index.push_back(7);
-
-	UINT vertexCount = vertex.size();
-	UINT indexCount = index.size();
-
-	HRESULT hr;
-	D3D11_BUFFER_DESC desc;
-	D3D11_SUBRESOURCE_DATA data;
-
-	//1. Vertex Buffer
+	if (makeBuffer == true)
 	{
-		ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.ByteWidth = sizeof(VertexColor) * vertexCount;
-		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		worldBuffer = new WorldBuffer;
+		shader = new Shader(Shaders + L"040_Objects.hlsl");
+		buffer = new BoxBuffer();
 
-		ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
-		data.pSysMem = &vertex[0];
+		vertex.resize(8);
+		for (size_t i = 0; i < 8; i++)
+			vertex[i].color = D3DXCOLOR(0, 0, 0, 1);
+		vertex[0].position = D3DXVECTOR3(min.x, min.y, min.z);
+		vertex[1].position = D3DXVECTOR3(min.x, min.y, max.z);
+		vertex[2].position = D3DXVECTOR3(max.x, min.y, max.z);
+		vertex[3].position = D3DXVECTOR3(max.x, min.y, min.z);
 
-		hr = D3D::GetDevice()->CreateBuffer(&desc, &data, &vertexBuffer);
-		assert(SUCCEEDED(hr));
-	}
+		vertex[4].position = D3DXVECTOR3(min.x, max.y, min.z);
+		vertex[5].position = D3DXVECTOR3(min.x, max.y, max.z);
+		vertex[6].position = D3DXVECTOR3(max.x, max.y, max.z);
+		vertex[7].position = D3DXVECTOR3(max.x, max.y, min.z);
 
-	//2. Index Buffer
-	{
-		ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.ByteWidth = sizeof(UINT) * indexCount;
-		desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		index.push_back(0); index.push_back(1);
+		index.push_back(1); index.push_back(2);
+		index.push_back(2); index.push_back(3);
+		index.push_back(3); index.push_back(0);
 
-		ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
-		data.pSysMem = &index[0];
+		index.push_back(4); index.push_back(5);
+		index.push_back(5); index.push_back(6);
+		index.push_back(6); index.push_back(7);
+		index.push_back(7); index.push_back(4);
 
-		hr = D3D::GetDevice()->CreateBuffer(&desc, &data, &indexBuffer);
-		assert(SUCCEEDED(hr));
+		index.push_back(0); index.push_back(4);
+		index.push_back(1); index.push_back(5);
+		index.push_back(2); index.push_back(6);
+		index.push_back(3); index.push_back(7);
+
+		UINT vertexCount = vertex.size();
+		UINT indexCount = index.size();
+
+		HRESULT hr;
+		D3D11_BUFFER_DESC desc;
+		D3D11_SUBRESOURCE_DATA data;
+
+		//1. Vertex Buffer
+		{
+			ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+			desc.Usage = D3D11_USAGE_DEFAULT;
+			desc.ByteWidth = sizeof(VertexColor) * vertexCount;
+			desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+			ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+			data.pSysMem = &vertex[0];
+
+			hr = D3D::GetDevice()->CreateBuffer(&desc, &data, &vertexBuffer);
+			assert(SUCCEEDED(hr));
+		}
+
+		//2. Index Buffer
+		{
+			ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+			desc.Usage = D3D11_USAGE_DEFAULT;
+			desc.ByteWidth = sizeof(UINT) * indexCount;
+			desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+			ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+			data.pSysMem = &index[0];
+
+			hr = D3D::GetDevice()->CreateBuffer(&desc, &data, &indexBuffer);
+			assert(SUCCEEDED(hr));
+		}
 	}
 }
 
@@ -158,7 +163,8 @@ void Objects::BoundingBox::Update(D3DXMATRIX world)
 	D3DXVec3TransformCoord(&max, &oMax, &world);
 	D3DXVec3TransformCoord(&min, &oMin, &world);
 
-	worldBuffer->SetMatrix(world);
+	if(worldBuffer != NULL)
+		worldBuffer->SetMatrix(world);
 }
 
 void Objects::BoundingBox::Update(D3DXVECTOR3 pos)
@@ -166,12 +172,15 @@ void Objects::BoundingBox::Update(D3DXVECTOR3 pos)
 	max = oMax + pos;
 	min = oMin + pos;
 
-	D3DXMATRIX mat = worldBuffer->GetMatrix();
-	mat._41 = pos.x;
-	mat._42 = pos.y;
-	mat._43 = pos.z;
+	if (worldBuffer != NULL)
+	{
+		D3DXMATRIX mat = worldBuffer->GetMatrix();
+		mat._41 = pos.x;
+		mat._42 = pos.y;
+		mat._43 = pos.z;
 
-	worldBuffer->SetMatrix(mat);
+		worldBuffer->SetMatrix(mat);
+	}
 }
 
 void Objects::BoundingBox::Render()

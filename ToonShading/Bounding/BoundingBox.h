@@ -23,7 +23,7 @@ namespace Objects
 		};
 
 	public:
-		BoundingBox(D3DXVECTOR3 max, D3DXVECTOR3 min);
+		BoundingBox(D3DXVECTOR3 max, D3DXVECTOR3 min, bool makeBuffer = true);
 		~BoundingBox();
 
 		static void CreateFromPoints(vector<D3DXVECTOR3> points, Objects::BoundingBox** box);

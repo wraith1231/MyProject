@@ -24,4 +24,9 @@ public:
 
 	static float Distance(D3DXVECTOR3 v1, D3DXVECTOR3 v2);
 	//static float DistanceSquared(D3DXVECTOR3 v1, D3DXVECTOR3 v2);
+
+	static D3DXMATRIX CreateLookAt(D3DXVECTOR3 pos, D3DXVECTOR3 target, D3DXVECTOR3 up);
+	static D3DXMATRIX CreateOrthographicOffCenter(float left, float right, float bottom, float top, float zNearPlane, float zFarPlane);
+
+	static D3DXVECTOR3 Transform(D3DXVECTOR3 pos, D3DXMATRIX mat);
 };

@@ -112,6 +112,53 @@ float Math::Distance(D3DXVECTOR3 v1, D3DXVECTOR3 v2)
 
 	return sqrtf(result);
 }
+D3DXMATRIX Math::CreateLookAt(D3DXVECTOR3 pos, D3DXVECTOR3 target, D3DXVECTOR3 up)
+{
+	D3DXMATRIX m;
+	D3DXMatrixIdentity(&m);
+	D3DXVECTOR3 vec3, vec31, vec32, vec31c;
+	D3DXVec3Normalize(&vec3, &D3DXVECTOR3(pos - target));
+	D3DXVec3Cross(&vec31c, &up, &vec3);
+	D3DXVec3Normalize(&vec31, &vec31c);
+	D3DXVec3Cross(&vec32, &vec3, &vec31);
+
+	float dotx, doty, dotz;
+	dotx = -D3DXVec3Dot(&vec31, &pos);
+	doty = -D3DXVec3Dot(&vec32, &pos);
+	dotz = -D3DXVec3Dot(&vec3, &pos);
+
+	m = D3DXMATRIX
+	{
+		vec31.x, vec32.x, vec3.x, 0.0f,
+		vec31.y, vec32.y, vec3.y, 0.0f,
+		vec31.z, vec32.z, vec3.z, 0.0f,
+		dotx, doty, dotz, 1.0f
+	}; 
+
+	return m;
+}
+D3DXMATRIX Math::CreateOrthographicOffCenter(float left, float right, float bottom, float top, float zNearPlane, float zFarPlane)
+{
+	D3DXMATRIX m;
+	D3DXMatrixIdentity(&m);
+	m._11 = 2.0f / (right - left);
+	m._22 = 2.0f / (top - bottom);
+	m._33 = 1.0f / (zNearPlane - zFarPlane);
+	m._41 = (left + right) / (left - right);
+	m._42 = (top + bottom) / (bottom - top);
+	m._43 = zNearPlane / (zNearPlane - zFarPlane);
+	m._44 = 1.0f;
+
+	return m;
+}
+D3DXVECTOR3 Math::Transform(D3DXVECTOR3 pos, D3DXMATRIX mat)
+{
+	float x = pos.x * mat._11 + pos.y * mat._21 + pos.z * mat._31 + mat._41;
+	float y = pos.x * mat._12 + pos.y * mat._22 + pos.z * mat._32 + mat._42;
+	float z = pos.x * mat._13 + pos.y * mat._23 + pos.z * mat._33 + mat._43;
+
+	return D3DXVECTOR3(x, y, z);
+}
 /*
 float Math::DistanceSquared(D3DXVECTOR3 v1, D3DXVECTOR3 v2)
 {

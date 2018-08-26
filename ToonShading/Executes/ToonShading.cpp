@@ -31,7 +31,7 @@ ToonShading::ToonShading(ExecuteValues* values)
 
 	D3DXMatrixIdentity(&view);
 
-	shadowRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height, DXGI_FORMAT_R32_FLOAT);
+	shadowRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height, DXGI_FORMAT_R16_FLOAT);
 	normalRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);// , DXGI_FORMAT_R32G32_FLOAT);
 	depthRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	diffuseRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
@@ -39,8 +39,6 @@ ToonShading::ToonShading(ExecuteValues* values)
 	AART = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 
 	{
-		D3DDesc desc;
-		D3D::GetDesc(&desc);
 
 		projection = new Orthographic(-desc.Width * 0.5f, desc.Width * 0.5f, -desc.Height * 0.5f, desc.Height * 0.5f, 0.1f, 1000.0f);
 		D3DXMATRIX p;
@@ -111,8 +109,6 @@ void ToonShading::Update()
 void ToonShading::ShadowRender()
 {
 	shadowRT->Set();
-
-	values->ViewProjection->GetProjection(lightBuffer->Data.Projection);
 }
 
 void ToonShading::PreRender()
@@ -222,6 +218,8 @@ void ToonShading::ResizeScreen()
 
 	buffer->Data.Near = values->Perspective->GetNearZ();
 	buffer->Data.Far = values->Perspective->GetFarZ();
+
+	shadowRT->Create((UINT)desc.Width, (UINT)desc.Height, DXGI_FORMAT_R16_FLOAT);
 
 	normalRT->Create((UINT)desc.Width, (UINT)desc.Height);
 

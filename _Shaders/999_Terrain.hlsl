@@ -103,7 +103,7 @@ PS_GBUFFEROUTPUT PS(PixelInput input)
     output.color = float4(color, input.alpha);
     output.depth = float4(input.vPosition.z / _valueFar, input.oPosition.xyz);
     //output.normal.xy = NormalEncode(input.normal.xyz);
-    output.normal.xyz = input.normal;
+    output.normal.xyz = NormalEncode3to3(input.normal);
 
     return output;
 }

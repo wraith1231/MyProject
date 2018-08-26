@@ -29,19 +29,15 @@ public:
 	public:
 		LightBuffer() : ShaderBuffer(&Data, sizeof(Struct))
 		{
-			D3DXMatrixIdentity(&Data.Projection);
 			Data.BufferRender = 0;
 		}
 
 		struct Struct
 		{
-			D3DXMATRIX Projection;
-
 			UINT BufferRender;
 			float Padding[3];
 		} Data;
 	};
-
 	class DirBuffer : public ShaderBuffer
 	{
 	public:

@@ -42,21 +42,10 @@ Program::Program()
 	
 	executes.push_back(model);
 	executes.push_back(new ExeGui(values));
-
-	D3DXVECTOR3 max, min;
-	max = D3DXVECTOR3(0.5f, 0.5f, 0.5f);
-	min = -max;
-
-	box = new Objects::BoundingBox(max, min);
-	cen = light = D3DXVECTOR3(0, 0, 0);
-	ray = NULL;
 }
 
 Program::~Program()
 {
-	SAFE_DELETE(ray);
-	SAFE_DELETE(box);
-
 	for (Execute* exe : executes)
 		SAFE_DELETE(exe);
 
@@ -99,15 +88,6 @@ void Program::PreRender()
 
 	for (Execute* exe : executes)
 		exe->PreRender();
-
-	box->Update(light);
-	box->Render();
-
-	box->Update(cen);
-	box->Render();
-
-	if (ray != NULL)
-		ray->Render();
 }
 
 void Program::Render()
@@ -158,32 +138,14 @@ void Program::SetGlobalBuffers()
 	values->ViewProjection->SetDSBuffer(10);
 	values->ViewProjection->SetPSBuffer(10);
 
-	D3DXMATRIX v, rx, ry;
-	D3DXVECTOR3 cam, camDirec;
-	D3DXVECTOR2 camDir;
+	D3DXMATRIX v;
+	D3DXVECTOR3 cam;
 	values->MainCamera->GetPosition(&cam);
-	values->MainCamera->GetForward(&camDirec);
-	D3DXVECTOR3 center = cam + camDirec * values->Perspective->GetFarZ() / 2;
-	
+
 	D3DXVECTOR3 lightPos, dir;
 	dir = values->GlobalLight->Data.Direction;
 	D3DXVec3Normalize(&dir, &dir);
-	lightPos = center - dir * values->Perspective->GetFarZ() / 2;
-	//lightPos = cam - dir * values->Perspective->GetFarZ() / 2;
-
-	if (Keyboard::Get()->Down(VK_SPACE) == true)
-	{
-		if (ray == NULL)
-			ray = new Objects::Ray(lightPos, dir);
-		else
-			ray->Update(lightPos, dir);
-		light = lightPos;
-		cen = center;
-	}
-	if (Keyboard::Get()->Down(VK_UP) == true)
-	{
-		values->MainCamera->SetPosition(lightPos.x, lightPos.y, lightPos.z);
-	}
+	lightPos = cam - dir * values->Perspective->GetFarZ() * 0.5f;
 
 	D3DXMatrixLookAtLH(&v, &lightPos, &(lightPos + values->GlobalLight->Data.Direction), &D3DXVECTOR3(0, 1, 0));
 	D3DXMatrixTranspose(&values->GlobalLight->Data.LightView, &v);

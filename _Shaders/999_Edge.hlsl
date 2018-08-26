@@ -2,8 +2,6 @@
 
 cbuffer PS_Buffer : register(b3)
 {
-    matrix _bufferProjection;
-
     uint _bufferRender;
     float3 _bufferPadding;
 }
@@ -38,18 +36,6 @@ PixelInput VS(VertexTextureNormal input)
     
     return output;
 }
-
-half3 decodeNormal(half2 enc)
-{
-    half2 fenc = enc * 4 - 2;
-    half f = dot(fenc, fenc);
-    half g = sqrt(1 - f / 4);
-    half3 n;
-    n.xy = fenc * g;
-    n.z = 1 - f / 2;
-    return n;
-}
-
 
 float4 PS(PixelInput input) : SV_TARGET
 {
@@ -94,6 +80,7 @@ float4 PS(PixelInput input) : SV_TARGET
     float wid = 1.0f / _valueWidth;
 
     float3 normal = NormalRT.Sample(NormalRTSampler, input.uv).rgb;
+    normal = NormalDecode3to3(normal);
     float4 depthColor = DepthRT.Sample(DepthRTSampler, input.uv);
     float depth = depthColor.r;
     float3 oPos = depthColor.gba;
@@ -117,6 +104,7 @@ float4 PS(PixelInput input) : SV_TARGET
     
     uv.y -= hei;
     normal1 = NormalRT.Sample(NormalRTSampler, uv).rgb;
+    normal1 = NormalDecode3to3(normal1);
     depth1 = DepthRT.Sample(DepthRTSampler, uv).r;
 
     ndot = dot(normal, normal1);
@@ -128,6 +116,7 @@ float4 PS(PixelInput input) : SV_TARGET
     uv.y += hei;
     uv.x -= wid;
     normal1 = NormalRT.Sample(NormalRTSampler, uv).rgb;
+    normal1 = NormalDecode3to3(normal1);
     depth1 = DepthRT.Sample(DepthRTSampler, uv).r;
 
     ndot = dot(normal, normal1);
@@ -139,6 +128,7 @@ float4 PS(PixelInput input) : SV_TARGET
     uv.x += wid;
     uv.x += wid;
     normal1 = NormalRT.Sample(NormalRTSampler, uv).rgb;
+    normal1 = NormalDecode3to3(normal1);
     depth1 = DepthRT.Sample(DepthRTSampler, uv).r;
 
     ndot = dot(normal, normal1);
@@ -150,6 +140,7 @@ float4 PS(PixelInput input) : SV_TARGET
     uv.x -= wid;
     uv.y += hei;
     normal1 = NormalRT.Sample(NormalRTSampler, uv).rgb;
+    normal1 = NormalDecode3to3(normal1);
     depth1 = DepthRT.Sample(DepthRTSampler, uv).r;
 
     ndot = dot(normal, normal1);
@@ -158,11 +149,8 @@ float4 PS(PixelInput input) : SV_TARGET
     if (abs(depth - depth1) > dep)
         return float4(0, 0, 0, 1);
     
-    if (length(normal) > 1.5f)
-    {
 
-    }
-    else
+    if (length(normal) < 1.5f)
     {
         float4 oTemp = float4(oPos, 1);
         float4 lDep = mul(oTemp, _lightView);
@@ -175,21 +163,19 @@ float4 PS(PixelInput input) : SV_TARGET
         if ((saturate(tex.x) == tex.x) && (saturate(tex.y) == tex.y))
         {
             float lDepth1 = ShadowMap.Sample(ShadowMapSampler, tex).r;
-            lDepth1 += 0.000125f;
+            lDepth1 += 0.00125f;
 
             if (lDepth1 < lDepth)
             {
                 float z1 = lDepth1 * _valueFar;
                 float z2 = lDepth * _valueFar;
-                float dist = (1.0f - (z2 - z1) / _valueFar) * 0.7f; // * 1.2f;
+                float dist = (1.0f - (z2 - z1) / _valueFar) * 0.4f;
 
-                //return float4(dist.rrr, 1);
-            
                 realColor *= saturate(dist);
             }
         }
     }
-
+    
     if(_fogUse == 1)
         return lerp(_fogColor, realColor, factor) * (_sunColor * _sunIntensity);
     else

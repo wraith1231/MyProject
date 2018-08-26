@@ -130,7 +130,21 @@ struct PS_GBUFFEROUTPUT
     float4 color : SV_TARGET2;
 };
 
-float2 NormalEncode(float3 normal)
+float3 NormalEncode3to3(float3 normal)
+{
+    float3 output = (normal + 1.0f) * 0.5f;
+
+    return output;
+}
+
+float3 NormalDecode3to3(float3 normal)
+{
+    float3 output = (normal * 2.0f) - 1.0f;
+
+    return output;
+}
+
+float2 NormalEncode3to2(float3 normal)
 {
     float2 output = (float2) 0;
     
@@ -153,7 +167,7 @@ half3 decodeNormal(half2 enc)
     return n;
 }
 */
-float3 NormalDecode(float2 encnor)
+float3 NormalDecode2to3(float2 encnor)
 {
     float3 output = (float3) 0;
 

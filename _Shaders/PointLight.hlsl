@@ -1,10 +1,5 @@
 #include "000_Header.hlsl"
 
-cbuffer DS_PointLight : register(b1)
-{
-    matrix _pointLightProjection;
-}
-
 cbuffer PS_PointLight : register(b2)
 {
     float3 _pointLightPos;
@@ -118,6 +113,7 @@ float4 PS(DS_OUTPUT input) : SV_TARGET
     float4 depth = DepthRT.Sample(DepthRTSampler, input.uv);
     float3 oPos = depth.gba;
     float3 normal = NormalRT.Sample(NormalRTSampler, input.uv);
+    normal = NormalDecode3to3(normal);
     float4 diffuse = RealRT.Sample(RealRTSampler, input.uv);
     
     float3 tolight = _pointLightPos - oPos;

@@ -52,6 +52,7 @@ float4 PS(VS_OUTPUT input) : SV_TARGET
     float4 depth = DepthRT.Sample(DepthRTSampler, input.uv);
     float3 oPos = depth.gba;
     float3 normal = NormalRT.Sample(NormalRTSampler, input.uv);
+    normal = NormalDecode3to3(normal);
     float4 diffuse = RealRT.Sample(RealRTSampler, input.uv);
 
     float up = normal.y * 0.5f + 0.5f;

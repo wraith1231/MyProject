@@ -20,8 +20,4 @@ private:
 private:
 	ExecuteValues* values;
 	vector<class Execute *> executes;
-
-	Objects::BoundingBox* box;
-	Objects::Ray* ray;
-	D3DXVECTOR3 light, cen;
 };

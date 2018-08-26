@@ -48,6 +48,7 @@ half4 PS(PixelInput input) : SV_TARGET
     //return LightMeshRT.Sample(LightMeshRTSampler, input.uv);
     //float4 light = LightMeshRT.Sample(LightMeshRTSampler, input.uv);
     float3 normal = NormalRT.Sample(NormalRTSampler, input.uv).rgb;
+    normal = NormalDecode3to3(normal);
     //half3 normal;
     //normal.rg = NormalRT.Sample(NormalRTSampler, input.uv).rg;
     //normal = NormalDecode(normal.xy);

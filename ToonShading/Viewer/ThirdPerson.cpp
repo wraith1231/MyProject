@@ -50,7 +50,11 @@ void ThirdPerson::Update()
 
 			if (camRot.x < -(float)D3DX_PI / 9) camRot.x = (float)-D3DX_PI / 9;
 			if (camRot.x >= (float)D3DX_PI / 9) camRot.x = (float)D3DX_PI / 9;
+
+			if (camRot.y >= (float)D3DX_PI * 2) camRot.y -= (float)D3DX_PI * 2;
+			if (camRot.y < 0.0f) camRot.y += (float)D3DX_PI * 2;
 		}
+
 		D3DXMATRIXA16 mxR, mxRX, mxRY;
 		D3DXMatrixRotationX(&mxRX, camRot.x);
 		D3DXMatrixRotationY(&mxRY, camRot.y);
@@ -123,6 +127,12 @@ void ThirdPerson::Update()
 				rotation.x += move.y * 2.5f * Time::Delta();
 				rotation.y += move.x * 2.5f * Time::Delta();
 			}
+
+			if (rotation.x >= (float)D3DX_PI * 2) rotation.x -= (float)D3DX_PI * 2;
+			if (rotation.y >= (float)D3DX_PI * 2) rotation.y -= (float)D3DX_PI * 2;
+
+			if (rotation.x < 0.0f) rotation.x += (float)D3DX_PI * 2;
+			if (rotation.y < 0.0f) rotation.y += (float)D3DX_PI * 2;
 
 			SetRotation(rotation.x, rotation.y);
 		}

@@ -21,6 +21,7 @@ private:
 	ExecuteValues* values;
 	vector<class Execute *> executes;
 
-	//Perspective* globalPers;
-
+	Objects::BoundingBox* box;
+	Objects::Ray* ray;
+	D3DXVECTOR3 light, cen;
 };

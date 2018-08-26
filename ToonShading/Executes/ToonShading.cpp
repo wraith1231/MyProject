@@ -42,7 +42,11 @@ ToonShading::ToonShading(ExecuteValues* values)
 		D3DDesc desc;
 		D3D::GetDesc(&desc);
 
-		projection = new Orthographic(0, desc.Width, 0, desc.Height);
+		projection = new Orthographic(-desc.Width * 0.5f, desc.Width * 0.5f, -desc.Height * 0.5f, desc.Height * 0.5f, 0.1f, 1000.0f);
+		D3DXMATRIX p;
+		projection->GetMatrix(&p);
+		D3DXMatrixTranspose(&values->GlobalLight->Data.LightProjection, &p);
+		projection->Set(0, desc.Width, 0, desc.Height);
 	}
 	
 	buffer = new Buffer;

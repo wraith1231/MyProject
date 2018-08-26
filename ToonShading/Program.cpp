@@ -5,6 +5,7 @@
 #include "./Viewer/ThirdPerson.h"
 
 #include "./Bounding/BoundingBox.h"
+#include "./Bounding/ObjectsRay.h"
 
 #include "./Executes/ExportMesh.h"
 #include "./Executes/ExportAnimation.h"
@@ -22,7 +23,6 @@ Program::Program()
 
 	values = new ExecuteValues();
 	values->ViewProjection = new ViewProjectionBuffer();
-	//values->Perspective = new Perspective(desc.Width, desc.Height);
 	values->Perspective = new Perspective(desc.Width, desc.Height);
 	values->Viewport = new Viewport(desc.Width, desc.Height);
 	values->ViewFrustum = new Objects::Frustum;
@@ -30,17 +30,9 @@ Program::Program()
 	values->GlobalLight = new LightBuffer();
 	values->MainCamera = new ThirdPerson();
 
-	//globalPers = new Perspective(desc.Width, desc.Height, (float)D3DX_PI / 2, 0.1f, 1000.0f);
-	//D3DXMATRIX p;
-	//globalPers->GetMatrix(&p);
-	//D3DXMatrixTranspose(&values->GlobalLight->Data.LightProjection, &p);
-
 	executes.push_back(new ToonShading(values));
 	executes.push_back(new ExportMesh(values));
 	executes.push_back(new ExportAnimation(values));
-
-	//values->jsonRoot = new Json::Value();
-	//Json::ReadData(values->jsonRoot);
 
 	//values->MainCamera = new FreeCam(100);
 	//values->MainCamera->SetPosition(0.0f, 10.0f, -10.0f);
@@ -50,10 +42,21 @@ Program::Program()
 	
 	executes.push_back(model);
 	executes.push_back(new ExeGui(values));
+
+	D3DXVECTOR3 max, min;
+	max = D3DXVECTOR3(0.5f, 0.5f, 0.5f);
+	min = -max;
+
+	box = new Objects::BoundingBox(max, min);
+	cen = light = D3DXVECTOR3(0, 0, 0);
+	ray = NULL;
 }
 
 Program::~Program()
 {
+	SAFE_DELETE(ray);
+	SAFE_DELETE(box);
+
 	for (Execute* exe : executes)
 		SAFE_DELETE(exe);
 
@@ -65,7 +68,6 @@ Program::~Program()
 	SAFE_DELETE(values->Viewport);
 	SAFE_DELETE(values->GuiSettings);
 
-	//SAFE_DELETE(globalPers);
 	SAFE_DELETE(values);
 
 	States::Delete();
@@ -98,6 +100,14 @@ void Program::PreRender()
 	for (Execute* exe : executes)
 		exe->PreRender();
 
+	box->Update(light);
+	box->Render();
+
+	box->Update(cen);
+	box->Render();
+
+	if (ray != NULL)
+		ray->Render();
 }
 
 void Program::Render()
@@ -142,60 +152,41 @@ void Program::SetGlobalBuffers()
 	values->ViewProjection->SetView(view);
 	values->ViewProjection->SetProjection(projection);
 
-	//values->ViewFrustum->SetMatrix(view * projection);
 	values->ViewFrustum->ConstructFrustum(values->Perspective->GetFarZ(), projection, view);
 
 	values->ViewProjection->SetVSBuffer(10);
 	values->ViewProjection->SetDSBuffer(10);
 	values->ViewProjection->SetPSBuffer(10);
 
-	//D3DXMATRIX v, p;
-	//D3DXMatrixIdentity(&v);
-	//D3DXMatrixIdentity(&p);
-	//
-	////view
-	//vector<D3DXVECTOR3> corner;
-	////D3DXVECTOR3 corner[8];
-	//for (UINT i = 0; i < 8; i++)
-	//	corner.push_back(values->ViewFrustum->GetCorner(i));
-	//Objects::BoundingBox* box = NULL;
-	//Objects::BoundingBox::CreateFromPoints(corner, &box);
-	//
-	//D3DXVECTOR3 boxMax = box->GetMax(), boxMin = box->GetMin();
-	//SAFE_DELETE(box);
-	//
-	//D3DXVECTOR3 boxSize = boxMax - boxMin;
-	//D3DXVECTOR3 centroid = boxMin + boxSize * 0.5f;
-	//
-	//float dist = D3DXVec3Length(&D3DXVECTOR3(centroid - boxMin));
-	//D3DXVECTOR3 dir;
-	//D3DXVec3Normalize(&dir, &values->GlobalLight->Data.Direction);
-	//D3DXVECTOR3 lightPos = centroid + (dir * dist);
-	//v = Math::CreateLookAt(lightPos, centroid, D3DXVECTOR3(0, 1, 0));
-	//
-	////projection
-	//for (UINT i = 0; i < 8; i++)
-	//	corner[i] = Math::Transform(corner[i], v);
-	//	//D3DXVec3TransformCoord(&corner[i], &corner[i], &v);
-	//D3DXVECTOR3 max, min;
-	//max = D3DXVECTOR3(-999999, -999999, -999999);
-	//min = -max;
-	//for (UINT i = 0; i < 8; i++)
-	//{
-	//	max = Math::Max(max, corner[i]);
-	//	min = Math::Min(min, corner[i]);
-	//}
-	//
-	////float clipDist = fabs(max.z - min.z);
-	//
-	////left = min.x, right = max.x, bottom = min.y, top = max.y, zn = 0.0f, zf = clipDist
-	//p = Math::CreateOrthographicOffCenter(min.x, max.x, min.y, max.y, -max.z, -min.z);
-	//
-	////values->GlobalLight->Data.LightView = v;
-	////values->GlobalLight->Data.LightProjection = p;
-	//
-	//D3DXMatrixTranspose(&values->GlobalLight->Data.LightView, &v);
-	//D3DXMatrixTranspose(&values->GlobalLight->Data.LightProjection, &p);
+	D3DXMATRIX v, rx, ry;
+	D3DXVECTOR3 cam, camDirec;
+	D3DXVECTOR2 camDir;
+	values->MainCamera->GetPosition(&cam);
+	values->MainCamera->GetForward(&camDirec);
+	D3DXVECTOR3 center = cam + camDirec * values->Perspective->GetFarZ() / 2;
+	
+	D3DXVECTOR3 lightPos, dir;
+	dir = values->GlobalLight->Data.Direction;
+	D3DXVec3Normalize(&dir, &dir);
+	lightPos = center - dir * values->Perspective->GetFarZ() / 2;
+	//lightPos = cam - dir * values->Perspective->GetFarZ() / 2;
+
+	if (Keyboard::Get()->Down(VK_SPACE) == true)
+	{
+		if (ray == NULL)
+			ray = new Objects::Ray(lightPos, dir);
+		else
+			ray->Update(lightPos, dir);
+		light = lightPos;
+		cen = center;
+	}
+	if (Keyboard::Get()->Down(VK_UP) == true)
+	{
+		values->MainCamera->SetPosition(lightPos.x, lightPos.y, lightPos.z);
+	}
+
+	D3DXMatrixLookAtLH(&v, &lightPos, &(lightPos + values->GlobalLight->Data.Direction), &D3DXVECTOR3(0, 1, 0));
+	D3DXMatrixTranspose(&values->GlobalLight->Data.LightView, &v);
 
 	values->GlobalLight->SetVSBuffer(0);
 	values->GlobalLight->SetPSBuffer(0);

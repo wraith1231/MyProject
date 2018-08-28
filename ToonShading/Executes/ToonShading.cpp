@@ -39,7 +39,6 @@ ToonShading::ToonShading(ExecuteValues* values)
 	AART = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 
 	{
-
 		projection = new Orthographic(-desc.Width * 0.5f, desc.Width * 0.5f, -desc.Height * 0.5f, desc.Height * 0.5f, 0.1f, 1000.0f);
 		D3DXMATRIX p;
 		projection->GetMatrix(&p);
@@ -139,11 +138,13 @@ void ToonShading::LightRender()
 	D3D::GetDC()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	ID3D11ShaderResourceView* normalView = normalRT->GetSRV();
-	D3D::GetDC()->PSSetShaderResources(5, 1, &normalView);
+	D3D::GetDC()->PSSetShaderResources(0, 1, &normalView);
 	ID3D11ShaderResourceView* depthView = depthRT->GetSRV();
-	D3D::GetDC()->PSSetShaderResources(6, 1, &depthView);
+	D3D::GetDC()->PSSetShaderResources(1, 1, &depthView);
 	ID3D11ShaderResourceView* diffuseView = diffuseRT->GetSRV();
-	D3D::GetDC()->PSSetShaderResources(7, 1, &diffuseView);
+	D3D::GetDC()->PSSetShaderResources(2, 1, &diffuseView);
+	ID3D11ShaderResourceView* shadowView = shadowRT->GetSRV();
+	D3D::GetDC()->PSSetShaderResources(3, 1, &shadowView);
 	dirBuffer->SetPSBuffer(2);
 	dirLight->Render();
 	D3D::GetDC()->Draw(4, 0);

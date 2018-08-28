@@ -92,6 +92,8 @@ void Program::PreRender()
 
 void Program::Render()
 {
+	SetGlobalBuffers();
+
 	for (Execute* exe : executes)
 		exe->LightRender();
 
@@ -148,6 +150,7 @@ void Program::SetGlobalBuffers()
 	lightPos = cam - dir * values->Perspective->GetFarZ() * 0.5f;
 
 	D3DXMatrixLookAtLH(&v, &lightPos, &(lightPos + values->GlobalLight->Data.Direction), &D3DXVECTOR3(0, 1, 0));
+	values->GlobalLight->Data.LightPosition = lightPos;
 	D3DXMatrixTranspose(&values->GlobalLight->Data.LightView, &v);
 
 	values->GlobalLight->SetVSBuffer(0);

@@ -1081,13 +1081,7 @@ void GameTerrain::PointLightDispose(D3DXVECTOR3 pos)
 {
 	if (pointLightDispose == true)
 	{
-		UINT num = pointLight->AddPointLight(pos);
-		//if (num < pointLight->PointLightMaxSize())
-		//{
-		//	pointLightDispose = false;
-		//	pointLightSelect = true;
-		//	pointLight->LightSelect(true, num);
-		//}
+		UINT num = pointLight->AddPointLight(pos, D3DXVECTOR3(1, 1, 1), 1.0f, 10.0f, true);
 	}
 }
 

@@ -12,13 +12,13 @@ cbuffer PS_PointLight : register(b2)
     float2 _pointLightPadding2;
 }
 
-Texture2D NormalRT : register(t5);
-Texture2D DepthRT : register(t6);
-Texture2D RealRT : register(t7);
+Texture2D NormalRT : register(t0);
+Texture2D DepthRT : register(t1);
+Texture2D DiffuseRT : register(t2);
 
-SamplerState NormalRTSampler : register(s5);
-SamplerState DepthRTSampler : register(s6);
-SamplerState RealRTSampler : register(s7);
+SamplerState NormalRTSampler : register(s0);
+SamplerState DepthRTSampler : register(s1);
+SamplerState DiffuseRTSampler : register(s2);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Vertex Shader
@@ -114,16 +114,18 @@ float4 PS(DS_OUTPUT input) : SV_TARGET
     float3 oPos = depth.gba;
     float3 normal = NormalRT.Sample(NormalRTSampler, input.uv);
     normal = NormalDecode3to3(normal);
-    float4 diffuse = RealRT.Sample(RealRTSampler, input.uv);
+    float4 diffuse = DiffuseRT.Sample(DiffuseRTSampler, input.uv);
     
     float3 tolight = _pointLightPos - oPos;
-    float3 toEye = GetViewPosition() - oPos;
+    float3 viewPos = _viewInverse._41_42_43;
+    
+    float3 toEye = viewPos - oPos;
     float dist = length(tolight);
 
-    tolight /= dist;
+    tolight = normalize(tolight);
     float ndotl = saturate(dot(tolight, normal));
     float3 fc = diffuse.rgb * ndotl;
-
+    
     toEye = normalize(toEye);
     float3 halfway = normalize(toEye + tolight);
     float ndoth = saturate(dot(halfway, normal));
@@ -132,7 +134,7 @@ float4 PS(DS_OUTPUT input) : SV_TARGET
     float distToLightNorm = 1.0f - saturate(dist * _pointLightRangeRcp);
     float attn = distToLightNorm * distToLightNorm;
     fc *= _pointLightColor * attn;
-
+    
     return float4(fc, 1.0f);
 
 }

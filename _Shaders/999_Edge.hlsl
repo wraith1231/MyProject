@@ -149,33 +149,6 @@ float4 PS(PixelInput input) : SV_TARGET
     if (abs(depth - depth1) > dep)
         return float4(0, 0, 0, 1);
     
-
-    if (length(normal) < 1.5f)
-    {
-        float4 oTemp = float4(oPos, 1);
-        float4 lDep = mul(oTemp, _lightView);
-        float lDepth = lDep.z / _valueFar;
-        float4 lTex = mul(lDep, _lightProjection);
-        float2 tex = float2(lTex.xy / lTex.w);
-        tex.x = tex.x * 0.5f + 0.5f;
-        tex.y = -tex.y * 0.5f + 0.5f;
-
-        if ((saturate(tex.x) == tex.x) && (saturate(tex.y) == tex.y))
-        {
-            float lDepth1 = ShadowMap.Sample(ShadowMapSampler, tex).r;
-            lDepth1 += 0.00125f;
-
-            if (lDepth1 < lDepth)
-            {
-                float z1 = lDepth1 * _valueFar;
-                float z2 = lDepth * _valueFar;
-                float dist = (1.0f - (z2 - z1) / _valueFar) * 0.4f;
-
-                realColor *= saturate(dist);
-            }
-        }
-    }
-    
     if(_fogUse == 1)
         return lerp(_fogColor, realColor, factor) * (_sunColor * _sunIntensity);
     else

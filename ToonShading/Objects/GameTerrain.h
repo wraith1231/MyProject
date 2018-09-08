@@ -136,6 +136,10 @@ public:
 	void SpotLightDispose(D3DXVECTOR3 pos);
 	void SpotLightSelect(Objects::Ray* ray);
 
+	bool CapsuleLightDispose() { return capsuleLightDispose; }
+	void CapsuleLightDispose(D3DXVECTOR3 pos);
+	void CapsuleLightSelect(Objects::Ray* ray);
+
 	bool GetHeight(float x, float z, float& y);
 	bool GetHeight(D3DXVECTOR3& pos);
 
@@ -225,11 +229,12 @@ private:
 	bool useWater;
 
 	//Light
-	bool pointLightDispose, spotLightDispose;
-	bool pointLightSelect, spotLightSelect;
+	bool pointLightDispose, spotLightDispose, capsuleLightDispose;
+	bool pointLightSelect, spotLightSelect, capsuleLightSelect;
 
 	class PointLight* pointLight;
 	class SpotLight* spotLight;
+	class CapsuleLight* capsuleLight;
 
 	//Fog
 	bool useFog;

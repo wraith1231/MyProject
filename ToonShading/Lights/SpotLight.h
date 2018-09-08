@@ -1,6 +1,5 @@
 #pragma once
 
-#define SPOTLIGHTSIZE 32
 namespace Objects
 {
 	class BoundingBox;
@@ -9,29 +8,29 @@ namespace Objects
 
 struct SpotLightSave
 {
-	float InnerAngle;
-	float OuterAngle;
-
 	D3DXVECTOR3 Position;
-
 	D3DXVECTOR3 Color;
-
 	D3DXVECTOR3 Direction;
+
+	float RangeRcp;
+	float CosOuter;
+	float CosInner;
 };
 
 class SpotLight
 {
 public:
-	SpotLight();
+	SpotLight(ExecuteValues* values = NULL);
 	~SpotLight();
 
-	UINT AddSpotLight(D3DXVECTOR3 position = D3DXVECTOR3(0, 0, 0), D3DXVECTOR3 color = D3DXVECTOR3(1, 1, 1), D3DXVECTOR3 dir = D3DXVECTOR3(0, -1, 0),
-		float inner = 0.75f, float outer = 0.25f);
+	UINT AddSpotLight(D3DXVECTOR3 Position = D3DXVECTOR3(0, 0, 0), D3DXVECTOR3 Color = D3DXVECTOR3(1, 1, 1), D3DXVECTOR3 Dir = D3DXVECTOR3(1, 0, 0),
+		float Range = 10.0f, float CosOuter = 1.0f, float CosInner = 0.0f, bool add = false);
 	UINT SpotLightSize();
-	UINT SpotLightMaxSize() { return SPOTLIGHTSIZE; }
 
 	void PreRender();
 	void PreRender(bool val);
+	void LightRender();
+
 	void ImGuiRender();
 
 	bool LightUse(UINT num, SpotLightSave& data);
@@ -46,50 +45,57 @@ private:
 	public:
 		Buffer() : ShaderBuffer(&Data, sizeof(Data))
 		{
-			for (size_t i = 0; i < SPOTLIGHTSIZE; i++)
-			{
-				Data.Light[i].Use = 0;
-				Data.Light[i].InnerAngle = 0.75f;
-				Data.Light[i].OuterAngle = 0.25f;
-				Data.Light[i].Position = D3DXVECTOR3(0, 0, 0);
-				Data.Light[i].Color = D3DXVECTOR3(1, 1, 1);
-				Data.Light[i].Direction = D3DXVECTOR3(0, -1, 0);
-			}
-
-			Data.Count = 0;
+			Data.Position = D3DXVECTOR3(0, 0, 0);
+			Data.RangeRcp = 10.0f;
+			Data.Direction = D3DXVECTOR3(0, -1.0f, 0);
+			Data.CosOuter = 15.0f;
+			Data.Color = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
+			Data.CosAttnRange = 5.0f;
 		}
-
-		struct Lights
-		{
-			UINT Use;
-			float InnerAngle;
-			float OuterAngle;
-			float Padding1;
-
-			D3DXVECTOR3 Position;
-			float Padding2;
-
-			D3DXVECTOR3 Color;
-			float Padding3;
-
-			D3DXVECTOR3 Direction;
-			float Padding4;
-		};
 
 		struct Struct
 		{
-			Lights Light[SPOTLIGHTSIZE];
+			D3DXVECTOR3 Position;
+			float RangeRcp;
 
-			int Count;
-			float Padding[3];
+			D3DXVECTOR3 Direction;
+			float CosOuter;
+
+			D3DXVECTOR3 Color;
+			float CosAttnRange;
 		} Data;
 	};
+	class DSBuffer : public ShaderBuffer
+	{
+	public:
+		DSBuffer() : ShaderBuffer(&Data, sizeof(Struct))
+		{
+			Data.SinAngle = 0.0f;
+			Data.CosAngle = 0.0f;
+		}
+
+		struct Struct
+		{
+			float SinAngle;
+			float CosAngle;
+			float Padding[2];
+
+		} Data;
+	};
+
 public:
+	ExecuteValues* values;
 	Objects::BoundingBox* box;
 
 	Buffer* buffer;
+	DSBuffer* dsBuffer;
 
 	bool lightSelect;
 	UINT selectNum;
 
+	vector<SpotLightSave> lights;
+
+	Shader* psShader;
+	ID3D11BlendState* blend;
+	ID3D11RasterizerState* rasterize;
 };

@@ -1,6 +1,5 @@
 #pragma once
 
-#define POINTLIGHTSIZE 32
 namespace Objects
 {
 	class BoundingBox;
@@ -24,7 +23,6 @@ public:
 
 	UINT AddPointLight(D3DXVECTOR3 position = D3DXVECTOR3(0, 0, 0), D3DXVECTOR3 color = D3DXVECTOR3(1, 1, 1), float intensity =  1.0f, float range = 10.0f, bool add = false);
 	UINT PointLightSize();
-	UINT PointLightMaxSize() { return POINTLIGHTSIZE; }
 
 	void PreRender();
 	void PreRender(bool val);
@@ -47,8 +45,6 @@ private:
 			Data.Position = D3DXVECTOR3(0, 0, 0);
 			Data.RangeRcp = 1.0f;
 			Data.Color = D3DXVECTOR3(1, 1, 1);
-			Data.LightPersValue = D3DXVECTOR2(1, 1);
-
 		}
 
 		struct Struct
@@ -58,36 +54,6 @@ private:
 
 			D3DXVECTOR3 Color;
 			float Padding1;
-
-			D3DXVECTOR2 LightPersValue;
-			float Padding2[2];
-		} Data;
-	};
-	class DSBuffer : public ShaderBuffer
-	{
-	public:
-		DSBuffer() : ShaderBuffer(&Data, sizeof(Struct))
-		{
-			D3DXMatrixIdentity(&Data.mat);
-		}
-
-		struct Struct
-		{
-			D3DXMATRIX mat;
-		} Data;
-	};
-	class MeshBuffer : public ShaderBuffer
-	{
-	public:
-		MeshBuffer() : ShaderBuffer(&Data, sizeof(Struct))
-		{
-			Data.Number = 0;
-		}
-
-		struct Struct
-		{
-			UINT Number;
-			float Padding[3];
 		} Data;
 	};
 
@@ -96,8 +62,6 @@ public:
 	Objects::BoundingBox* box;
 
 	Buffer* buffer;
-	DSBuffer* dsBuffer;
-	MeshBuffer* meshBuffer;
 
 	bool lightSelect;
 	UINT selectNum;

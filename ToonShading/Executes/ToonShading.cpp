@@ -39,6 +39,10 @@ ToonShading::ToonShading(ExecuteValues* values)
 	AART = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 
 	{
+		//D3DXMATRIX p;
+		//D3DXMatrixPerspectiveFovLH(&p, (float)D3DX_PI * 0.5f, 1.0f, 0.1f, 100.0f);
+		//D3DXMatrixTranspose(&values->GlobalLight->Data.LightProjection, &p);
+
 		projection = new Orthographic(-desc.Width * 0.5f, desc.Width * 0.5f, -desc.Height * 0.5f, desc.Height * 0.5f, 0.1f, 1000.0f);
 		D3DXMATRIX p;
 		projection->GetMatrix(&p);
@@ -148,10 +152,13 @@ void ToonShading::LightRender()
 	dirBuffer->SetPSBuffer(2);
 	dirLight->Render();
 	D3D::GetDC()->Draw(4, 0);
+
 }
 
 void ToonShading::EdgeRender()
 {
+	Shader::ClearShader();
+
 	AART->Set();
 
 	values->ViewProjection->SetView(view);

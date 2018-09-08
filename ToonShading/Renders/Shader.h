@@ -10,9 +10,10 @@ public:
 
 	void Render();
 
-	void CreateHullShader(wstring shaderFile, string hsName = "HS");
-	void CreateDomainShader(wstring shaderFile, string dsName = "DS");
-	void CreateGeometryShader(wstring shaderFile, string gsName = "GS");
+	void CreateHullShader(string hsName = "HS");
+	void CreateDomainShader(string dsName = "DS");
+	void CreateGeometryShader(string gsName = "GS");
+	void CreateComputeShader(string csName = "CS");
 
 	static void ClearShader();
 
@@ -31,12 +32,14 @@ private:
 	string hsName;
 	string dsName;
 	string gsName;
+	string csName;
 	
 	ID3D11VertexShader* vertexShader;
 	ID3D11PixelShader* pixelShader;
 	ID3D11HullShader* hullShader;
 	ID3D11DomainShader* domainShader;
 	ID3D11GeometryShader* geometryShader;
+	ID3D11ComputeShader* computeShader;
 
 	ID3D11InputLayout* inputLayout;
 
@@ -45,6 +48,7 @@ private:
 	ID3DBlob* hullBlob;
 	ID3DBlob* domainBlob;
 	ID3DBlob* geometryBlob;
+	ID3DBlob* computeBlob;
 
 	ID3D11ShaderReflection* reflection;
 };

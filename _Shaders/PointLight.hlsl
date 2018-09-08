@@ -7,9 +7,6 @@ cbuffer PS_PointLight : register(b2)
 
     float3 _pointLightColor;
     float _pointLightPadding1;
-    
-    float2 _pointLightPersVal;
-    float2 _pointLightPadding2;
 }
 
 Texture2D NormalRT : register(t0);

@@ -225,9 +225,11 @@ void GameSettings::Update()
 			{
 				terrain->PointLightDispose(cam + camDir * dis);
 				terrain->SpotLightDispose(cam + camDir * dis);
+				terrain->CapsuleLightDispose(cam + camDir * dis);
 				Objects::Ray* ray = new Objects::Ray(cam, camDir);
 				terrain->PointLightSelect(ray);
 				terrain->SpotLightSelect(ray);
+				terrain->CapsuleLightSelect(ray);
 				SAFE_DELETE(ray);
 			}
 		}

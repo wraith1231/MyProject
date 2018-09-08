@@ -9,6 +9,7 @@
 
 #include "../Lights/PointLight.h"
 #include "../Lights/SpotLight.h"
+#include "../Lights/CapsuleLight.h"
 #include "../Lights/Fog.h"
 
 #include "../Utilities/BinaryFile.h"
@@ -162,13 +163,31 @@ void GameTerrain::SaveTerrain(wstring saveFile)
 		}
 	}
 
+	//Capsule Light
+	{
+		w->UInt(capsuleLight->CapsuleLightSize());
+		if (capsuleLight->CapsuleLightSize() > 0)
+		{
+			UINT count = 0;
+			for (UINT i = 0; i < capsuleLight->CapsuleLightSize(); i++)
+			{
+				CapsuleLightSave temp;
+				if (capsuleLight->LightUse(i, temp) == true)
+				{
+					w->Byte(&temp, sizeof(CapsuleLightSave));
+				}
+			}
+
+		}
+	}
+
 	//Spot Light
 	{
 		w->UInt(spotLight->SpotLightSize());
 		if (spotLight->SpotLightSize() > 0)
 		{
 			UINT count = 0;
-			for (UINT i = 0; i < spotLight->SpotLightMaxSize(); i++)
+			for (UINT i = 0; i < spotLight->SpotLightSize(); i++)
 			{
 				SpotLightSave temp;
 				if (spotLight->LightUse(i, temp) == true)
@@ -346,6 +365,19 @@ void GameTerrain::LoadTerrain(wstring saveFile)
 		}
 	}
 
+	//Capsule Light
+	{
+		UINT size = r->UInt();
+		for (UINT i = 0; i < size; i++)
+		{
+			CapsuleLightSave* temp = new CapsuleLightSave;
+			r->Byte((void**)&temp, sizeof(CapsuleLightSave));
+
+			capsuleLight->AddCapsuleLight(temp->Position, temp->Color, temp->Direction, temp->RangeRcp, temp->Length, temp->HalfSegmentation, temp->Range);
+			SAFE_DELETE(temp);
+		}
+	}
+
 	//Spot Light
 	{
 		UINT size = r->UInt();
@@ -353,8 +385,8 @@ void GameTerrain::LoadTerrain(wstring saveFile)
 		{
 			SpotLightSave* temp = new SpotLightSave;
 			r->Byte((void**)&temp, sizeof(SpotLightSave));
-
-			spotLight->AddSpotLight(temp->Position, temp->Color, temp->Direction, temp->InnerAngle, temp->OuterAngle);
+	
+			spotLight->AddSpotLight(temp->Position, temp->Color, temp->Direction, temp->RangeRcp, temp->CosOuter, temp->CosInner);
 			SAFE_DELETE(temp);
 		}
 	}
@@ -459,7 +491,10 @@ void GameTerrain::Update()
 {
 	terrainBuffer->Data.On = (UINT)editMode;
 
-	if (editMode == true && pointLightDispose == false && pointLightSelect == false && spotLightDispose == false && spotLightSelect == false)
+	if (editMode == true && 
+		pointLightDispose == false && pointLightSelect == false 
+		&& spotLightDispose == false && spotLightSelect == false
+		&& capsuleLightDispose == false && capsuleLightSelect == false)
 	{
 		terrainBuffer->Data.Point = selTer;
 	}
@@ -520,6 +555,9 @@ void GameTerrain::PreRender()
 		pointLight->PreRender(pointLightSelect);
 	if (spotLight != NULL)
 		spotLight->PreRender(spotLightSelect);
+	if (capsuleLight != NULL)
+		capsuleLight->PreRender(capsuleLightSelect);
+
 	if (fog != NULL)
 		fog->PreRender();
 
@@ -561,6 +599,10 @@ void GameTerrain::LightRender()
 {
 	if (pointLight != NULL)
 		pointLight->LightRender();
+	if (capsuleLight != NULL)
+		capsuleLight->LightRender();
+	if (spotLight != NULL)
+		spotLight->LightRender();
 }
 
 void GameTerrain::ImGuiRender()
@@ -579,6 +621,11 @@ void GameTerrain::ImGuiRender()
 			{
 				editMode = !editMode;
 				pointLightDispose = false;
+				pointLightSelect = false;
+				spotLightDispose = false;
+				spotLightSelect = false;
+				capsuleLightDispose = false;
+				capsuleLightSelect = false;
 			}
 
 			ImGui::Separator();
@@ -594,6 +641,8 @@ void GameTerrain::ImGuiRender()
 					pointLightSelect = false;
 					spotLightDispose = false;
 					spotLightSelect = false;
+					capsuleLightDispose = false;
+					capsuleLightSelect = false;
 				}
 				else
 				{
@@ -611,6 +660,8 @@ void GameTerrain::ImGuiRender()
 					pointLightSelect = !pointLightSelect;
 					spotLightDispose = false;
 					spotLightSelect = false;
+					capsuleLightDispose = false;
+					capsuleLightSelect = false;
 				}
 				else
 					pointLightSelect = false;
@@ -627,10 +678,12 @@ void GameTerrain::ImGuiRender()
 					pointLightSelect = false;
 					spotLightDispose = !spotLightDispose;
 					spotLightSelect = false;
+					capsuleLightDispose = false;
+					capsuleLightSelect = false;
 				}
 				else
 				{
-					pointLightDispose = false;
+					spotLightDispose = false;
 				}
 			}
 			if (ImGui::MenuItem("Spot Light Select"))
@@ -644,9 +697,48 @@ void GameTerrain::ImGuiRender()
 					pointLightSelect = false;
 					spotLightDispose = false;
 					spotLightSelect = !spotLightSelect;
+					capsuleLightDispose = false;
+					capsuleLightSelect = false;
 				}
 				else
+					spotLightSelect = false;
+			}
+
+			if (ImGui::MenuItem("Capsule Light Dispose"))
+			{
+				if (editMode == false)
+					editMode = true;
+
+				if (editMode == true)
+				{
+					pointLightDispose = false;
 					pointLightSelect = false;
+					spotLightDispose = false;
+					spotLightSelect = false;
+					capsuleLightDispose = !capsuleLightDispose;
+					capsuleLightSelect = false;
+				}
+				else
+				{
+					capsuleLightDispose = false;
+				}
+			}
+			if (ImGui::MenuItem("Capsule Light Select"))
+			{
+				if (editMode == false)
+					editMode = true;
+
+				if (editMode == true)
+				{
+					pointLightDispose = false;
+					pointLightSelect = false;
+					spotLightDispose = false;
+					spotLightSelect = false;
+					capsuleLightDispose = false;
+					capsuleLightSelect = !capsuleLightSelect;
+				}
+				else
+					capsuleLightSelect = false;
 			}
 
 			ImGui::Separator();
@@ -683,7 +775,9 @@ void GameTerrain::ImGuiRender()
 	ImGui::EndMainMenuBar();
 
 	//imgui
-	if (editMode == true && pointLightDispose == false && spotLightDispose == false && pointLightSelect == false && spotLightSelect == false)
+	if (editMode == true 
+		&& pointLightDispose == false && spotLightDispose == false && capsuleLightDispose == false
+		&& pointLightSelect == false && spotLightSelect == false && capsuleLightSelect == false)
 	{
 		ImGui::Begin("Terrain Edit");
 
@@ -770,6 +864,9 @@ void GameTerrain::ImGuiRender()
 
 	if (pointLightSelect == true)
 		pointLight->ImGuiRender();
+
+	if (capsuleLightSelect == true)
+		capsuleLight->ImGuiRender();
 }
 
 bool GameTerrain::Intersect(D3DXVECTOR3 cam, D3DXVECTOR3 camDir, float & dis)
@@ -826,12 +923,17 @@ void GameTerrain::EditMode(bool val)
 
 		pointLightDispose = false;
 		pointLightSelect = false;
+
+		capsuleLightDispose = false;
+		capsuleLightSelect = false;
 	}
 }
 
 void GameTerrain::EditTerrain()
 {
-	if (pointLightDispose == true || pointLightSelect == true || spotLightDispose == true || spotLightSelect == true)
+	if (pointLightDispose == true || pointLightSelect == true 
+		|| spotLightDispose == true || spotLightSelect == true
+		|| capsuleLightDispose == true || capsuleLightSelect == true)
 		return;
 
 	if (terrainBuffer->Data.Type == 0)
@@ -1097,13 +1199,7 @@ void GameTerrain::SpotLightDispose(D3DXVECTOR3 pos)
 {
 	if (spotLightDispose == true)
 	{
-		UINT num = spotLight->AddSpotLight(pos);
-		if (num < spotLight->SpotLightMaxSize())
-		{
-			spotLightDispose = false;
-			spotLightSelect = true;
-			spotLight->LightSelect(true, num);
-		}
+		UINT num = spotLight->AddSpotLight(pos, D3DXVECTOR3(1, 1, 1), D3DXVECTOR3(0, -1, 0), 10.0f, 1.0f, 0.0f, true);
 	}
 }
 
@@ -1112,6 +1208,22 @@ void GameTerrain::SpotLightSelect(Objects::Ray * ray)
 	if (spotLightSelect == true)
 	{
 		spotLight->LightSelect(ray);
+	}
+}
+
+void GameTerrain::CapsuleLightDispose(D3DXVECTOR3 pos)
+{
+	if (capsuleLightDispose == true)
+	{
+		UINT num = capsuleLight->AddCapsuleLight(pos, D3DXVECTOR3(1, 1, 1), D3DXVECTOR3(1, 0, 0), 10.0f, 10.0f, 1.0f, 10.0f, true);
+	}
+}
+
+void GameTerrain::CapsuleLightSelect(Objects::Ray * ray)
+{
+	if (capsuleLightSelect == true)
+	{
+		capsuleLight->LightSelect(ray);
 	}
 }
 
@@ -1164,6 +1276,7 @@ void GameTerrain::FirstInit(UINT width, UINT height)
 	vertexBuffer = indexBuffer = NULL;
 	pointLight = NULL;
 	spotLight = NULL;
+	capsuleLight = NULL;
 	quadTreeRoot = NULL;
 	fog = NULL;
 
@@ -1171,6 +1284,7 @@ void GameTerrain::FirstInit(UINT width, UINT height)
 	editMode = changed = treeDisposed = useWater = useFog = false;
 	pointLightDispose = pointLightSelect = false;
 	spotLightDispose = spotLightSelect = false;
+	capsuleLightDispose = capsuleLightSelect = false;
 	heightSet = treeDelay = offset = windPower = 0.0f;
 	widthEdit = width;
 	heightEdit = height;
@@ -1190,7 +1304,8 @@ void GameTerrain::FirstInit(UINT width, UINT height)
 	treeBuffer = new TreeBuffer();
 	D3DXMatrixRotationY(&treeBuffer->Data.Rotate, (float)D3DX_PI);
 	pointLight = new PointLight(values);
-	spotLight = new SpotLight();
+	spotLight = new SpotLight(values);
+	capsuleLight = new CapsuleLight(values);
 
 	QuadTreeMake(widthEdit, heightEdit);
 

@@ -3,8 +3,12 @@
 
 #include "../Bounding/BoundingBox.h"
 #include "../Bounding/ObjectsRay.h"
+#include "../Bounding/BoundingSphere.h"
 
-SpotLight::SpotLight()
+#include "../Objects/MeshSphere.h"
+
+SpotLight::SpotLight(ExecuteValues* values)
+	: values(values)
 {
 	buffer = new Buffer();
 
@@ -13,93 +17,187 @@ SpotLight::SpotLight()
 	min = -max;
 
 	box = new Objects::BoundingBox(max, min);
+
+	psShader = new Shader(Shaders + L"SpotLight.hlsl");
+	psShader->CreateHullShader();
+	psShader->CreateDomainShader();
+
+	{
+		D3D11_BLEND_DESC desc;
+
+		desc.AlphaToCoverageEnable = FALSE;
+		desc.IndependentBlendEnable = FALSE;
+
+		D3D11_RENDER_TARGET_BLEND_DESC def =
+		{
+			TRUE,
+			D3D11_BLEND_ONE, D3D11_BLEND_ONE, D3D11_BLEND_OP_ADD,
+			D3D11_BLEND_ONE, D3D11_BLEND_ONE, D3D11_BLEND_OP_ADD,
+			D3D11_COLOR_WRITE_ENABLE_ALL,
+		};
+		for (UINT i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++)
+			desc.RenderTarget[i] = def;
+		States::CreateBlend(&desc, &blend);
+	}
+	{
+		D3D11_RASTERIZER_DESC desc =
+		{
+			D3D11_FILL_SOLID,
+			D3D11_CULL_FRONT,
+			FALSE,
+			D3D11_DEFAULT_DEPTH_BIAS,
+			D3D11_DEFAULT_DEPTH_BIAS_CLAMP,
+			D3D11_DEFAULT_SLOPE_SCALED_DEPTH_BIAS,
+			FALSE,
+			FALSE,
+			FALSE,
+			FALSE
+		};
+		desc.CullMode = D3D11_CULL_FRONT;
+		D3D::GetDevice()->CreateRasterizerState(&desc, &rasterize);
+	}
+
+	dsBuffer = new DSBuffer();
 }
 
 SpotLight::~SpotLight()
 {
-	SAFE_DELETE(box);
+	SAFE_RELEASE(rasterize);
+	SAFE_RELEASE(blend);
+
+	SAFE_DELETE(dsBuffer);
 	SAFE_DELETE(buffer);
+
+	SAFE_DELETE(psShader);
+
+	SAFE_DELETE(box);
 }
 
-UINT SpotLight::AddSpotLight(D3DXVECTOR3 position, D3DXVECTOR3 color, D3DXVECTOR3 dir,	float inner, float outer)
+UINT SpotLight::AddSpotLight(D3DXVECTOR3 Position, D3DXVECTOR3 Color, D3DXVECTOR3 Dir, float Range, float CosOuter, float CosInner, bool add)
 {
-	for (size_t i = 0; i < 32; i++)
-	{
-		if (buffer->Data.Light[i].Use == 0)
-		{
-			buffer->Data.Light[i].Use = 1;
-			buffer->Data.Light[i].Position = position;
-			buffer->Data.Light[i].Color = color;
-			buffer->Data.Light[i].Direction = dir;
-			buffer->Data.Light[i].InnerAngle = inner;
-			buffer->Data.Light[i].OuterAngle = outer;
+	SpotLightSave temp;
+	temp.Position = Position;
+	if (add == true)
+		temp.Position.y += 2.0f;
+	temp.Color = Color;
+	temp.Direction = Dir;
 
-			buffer->Data.Count++;
+	temp.RangeRcp = Range;
+	temp.CosOuter = CosOuter;
+	temp.CosInner = CosInner;
 
-			return i;
-		}
-	}
+	lights.push_back(temp);
 
-	return SPOTLIGHTSIZE;
+	return lights.size() - 1;
 }
 
 UINT SpotLight::SpotLightSize()
 {
-	return buffer->Data.Count;
+	return lights.size();
 }
 
 void SpotLight::PreRender()
 {
-	buffer->SetPSBuffer(11);
+	buffer->SetPSBuffer(10);
 
 	if (lightSelect == true)
 	{
-		box->Update(buffer->Data.Light[selectNum].Position);
-		box->SetColor(D3DXCOLOR(buffer->Data.Light[selectNum].Color.x, buffer->Data.Light[selectNum].Color.y, buffer->Data.Light[selectNum].Color.z, 1.0f));
+		box->Update(lights[selectNum].Position);
+		box->SetColor(D3DXCOLOR(lights[selectNum].Color.x, lights[selectNum].Color.y, lights[selectNum].Color.z, 1.0f));
 		box->Render();
 	}
 }
 
 void SpotLight::PreRender(bool val)
 {
-	buffer->SetPSBuffer(11);
+	buffer->SetPSBuffer(10);
 
 	if (val == true)
 	{
-		for (size_t i = 0; i < SPOTLIGHTSIZE; i++)
+		for (size_t i = 0; i < lights.size(); i++)
 		{
-			if (buffer->Data.Light[i].Use == false) continue;
-
-			box->Update(buffer->Data.Light[i].Position);
-			box->SetColor(D3DXCOLOR(buffer->Data.Light[i].Color.x, buffer->Data.Light[i].Color.y, buffer->Data.Light[i].Color.z, 1.0f));
+			box->Update(lights[i].Position);
+			box->SetColor(D3DXCOLOR(lights[i].Color.x, lights[i].Color.y, lights[i].Color.z, 1.0f));
 			box->Render();
 		}
 	}
+}
+
+void SpotLight::LightRender()
+{
+	ID3D11BlendState* prevBlen;
+	FLOAT prevFactor[4];
+	UINT prevMask;
+	D3D::GetDC()->OMGetBlendState(&prevBlen, prevFactor, &prevMask);
+	D3D::GetDC()->OMSetBlendState(blend, prevFactor, prevMask);
+
+	ID3D11RasterizerState* prevRaster;
+	D3D::GetDC()->RSGetState(&prevRaster);
+	D3D::GetDC()->RSSetState(rasterize);
+
+	for (SpotLightSave light : lights)
+	{
+		if (values->ViewFrustum->CheckSphere(light.Position.x, light.Position.y, light.Position.z, light.RangeRcp) == false) continue;
+
+		dsBuffer->Data.SinAngle = sinf(light.CosOuter);
+		dsBuffer->Data.CosAngle = cosf(light.CosOuter);
+
+		buffer->Data.Position = light.Position;
+		buffer->Data.Direction = -light.Direction;
+		buffer->Data.Color = light.Color;
+		
+		float inner, outer;
+		inner = cosf(light.CosInner);
+		outer = cosf(light.CosOuter);
+
+		buffer->Data.CosAttnRange = inner - outer;
+		buffer->Data.CosOuter = outer;
+		buffer->Data.RangeRcp = 1.0f / light.RangeRcp;
+
+		D3D::GetDC()->IASetInputLayout(NULL);
+		D3D::GetDC()->IASetVertexBuffers(0, 0, NULL, NULL, NULL);
+		D3D::GetDC()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST);
+
+		buffer->SetPSBuffer(2);
+		dsBuffer->SetDSBuffer(2);
+		psShader->Render();
+		D3D::GetDC()->Draw(1, 0);
+	}
+
+	D3D::GetDC()->RSSetState(prevRaster);
+	D3D::GetDC()->OMSetBlendState(prevBlen, prevFactor, prevMask);
+
+	Shader::ClearShader();
 }
 
 void SpotLight::ImGuiRender()
 {
 	if (lightSelect == true)
 	{
-		ImGui::Begin("Spot Light");
+		ImGui::Begin("Point Light");
 
 		{
-			ImGui::Text("Count : %d", buffer->Data.Count);
-			UINT b = buffer->Data.Light[selectNum].Use;
-			ImGui::Checkbox("Use", (bool*)&buffer->Data.Light[selectNum].Use);
-			if (b != buffer->Data.Light[selectNum].Use)
+			ImGui::Text("Count : %d", lights.size());
+			bool b = true;
+			ImGui::Checkbox("Use", &b);
+			if (b == false)
 			{
-				if (b == 1)
-					buffer->Data.Count--;
-				else
-					buffer->Data.Count++;
+				lights.erase(lights.begin() + selectNum);
+				selectNum = 0;
+				lightSelect = false;
+
+				ImGui::End();
+				return;
 			}
 
-			ImGui::InputFloat3("Position", buffer->Data.Light[selectNum].Position);
-			ImGui::ColorEdit3("Color", buffer->Data.Light[selectNum].Color);
-			ImGui::InputFloat3("Direction", buffer->Data.Light[selectNum].Direction);
-			ImGui::InputFloat("Inner Angle", &buffer->Data.Light[selectNum].InnerAngle);
-			ImGui::InputFloat("Outer Angle", &buffer->Data.Light[selectNum].OuterAngle);
+			ImGui::InputFloat3("Position", lights[selectNum].Position);
+			ImGui::ColorEdit3("Color", lights[selectNum].Color);
+			ImGui::SliderFloat3("Direction", lights[selectNum].Direction, -1.0f, 1.0f);
+			D3DXVec3Normalize(&lights[selectNum].Direction, &lights[selectNum].Direction);
+
+			ImGui::InputFloat("Range", &lights[selectNum].RangeRcp);
+			ImGui::SliderFloat("Cos Inner", &lights[selectNum].CosInner, 0.0f, 1.0f);
+			ImGui::SliderFloat("Cos Outer", &lights[selectNum].CosOuter, 0.0f, 1.0f);
 		}
 
 		ImGui::End();
@@ -107,25 +205,26 @@ void SpotLight::ImGuiRender()
 
 }
 
-bool SpotLight::LightUse(UINT num, SpotLightSave & data)
+bool SpotLight::LightUse(UINT num, SpotLightSave& data)
 {
-	if (buffer->Data.Light[num].Use == false)
-		return false;
+	if (num >= lights.size()) return false;
 
-	data.Color = buffer->Data.Light[num].Color;
-	data.Position = buffer->Data.Light[num].Position;
-	data.Direction = buffer->Data.Light[num].Direction;
-	data.InnerAngle = buffer->Data.Light[num].InnerAngle;
-	data.OuterAngle = buffer->Data.Light[num].OuterAngle;
+	data.Position = lights[num].Position;
+	data.Direction = lights[num].Direction;
+	data.Color = lights[num].Color;
 
-	return buffer->Data.Light[num].Use == 1;
+	data.RangeRcp = lights[num].RangeRcp;
+	data.CosInner = lights[num].CosInner;
+	data.CosOuter = lights[num].CosOuter;
+
+	return true;
 }
 
 void SpotLight::LightSelect(Objects::Ray* ray)
 {
-	for (size_t i = 0; i < SPOTLIGHTSIZE; i++)
+	for (size_t i = 0; i < lights.size(); i++)
 	{
-		box->Update(buffer->Data.Light[i].Position);
+		box->Update(lights[i].Position);
 
 		if (box->Intersects(ray) == true)
 		{

@@ -18,11 +18,9 @@ PointLight::PointLight(ExecuteValues* values)
 
 	box = new Objects::BoundingBox(max, min);
 
-	meshBuffer = new MeshBuffer();
-
 	psShader = new Shader(Shaders + L"PointLight.hlsl");
-	psShader->CreateHullShader(Shaders + L"PointLight.hlsl");
-	psShader->CreateDomainShader(Shaders + L"PointLight.hlsl");
+	psShader->CreateHullShader();
+	psShader->CreateDomainShader();
 
 	{
 		D3D11_BLEND_DESC desc;
@@ -60,8 +58,6 @@ PointLight::PointLight(ExecuteValues* values)
 		desc.CullMode = D3D11_CULL_FRONT;
 		D3D::GetDevice()->CreateRasterizerState(&desc, &rasterize);
 	}
-
-	dsBuffer = new DSBuffer();
 }
 
 PointLight::~PointLight()
@@ -69,8 +65,6 @@ PointLight::~PointLight()
 	SAFE_RELEASE(rasterize);
 	SAFE_RELEASE(blend);
 
-	SAFE_DELETE(dsBuffer);
-	SAFE_DELETE(meshBuffer);
 	SAFE_DELETE(buffer);
 
 	SAFE_DELETE(psShader);
@@ -83,7 +77,7 @@ UINT PointLight::AddPointLight(D3DXVECTOR3 position, D3DXVECTOR3 color, float in
 	PointLightSave temp;
 	temp.Position = position;
 	if(add == true)
-		temp.Position.y += 5.0f;
+		temp.Position.y += 2.0f;
 	temp.Color = color;
 	temp.intenstiy = intensity;
 	temp.range = range;
@@ -135,9 +129,6 @@ void PointLight::LightRender()
 	ID3D11RasterizerState* prevRaster;
 	D3D::GetDC()->RSGetState(&prevRaster);
 	D3D::GetDC()->RSSetState(rasterize);
-	values->ViewProjection->GetProjection(dsBuffer->Data.mat);
-	D3DXMatrixTranspose(&dsBuffer->Data.mat, &dsBuffer->Data.mat);
-	dsBuffer->SetDSBuffer(1);
 
 	for (PointLightSave light : lights)
 	{

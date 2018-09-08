@@ -23,7 +23,7 @@ PixelInput VS(VertexColor input)
     return output;
 }
 
-float4 PS(PixelInput input) : SV_TARGET
+float4 PS(PixelInput input) : SV_TARGET2
 {
     return input.color + _color;
 }

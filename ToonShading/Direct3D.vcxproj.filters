@@ -226,19 +226,19 @@
       <Filter>Units\UnitInfo</Filter>
     </ClInclude>
     <ClInclude Include="Objects\GameSkyBox.h">
-      <Filter>Objects\Models\Terrain</Filter>
+      <Filter>Objects\Terrain</Filter>
     </ClInclude>
     <ClInclude Include="Objects\GameTerrain.h">
-      <Filter>Objects\Models\Terrain</Filter>
+      <Filter>Objects\Terrain</Filter>
     </ClInclude>
     <ClInclude Include="Objects\GameWorld.h">
-      <Filter>Objects\Models\Terrain</Filter>
+      <Filter>Objects\Terrain</Filter>
     </ClInclude>
     <ClInclude Include="Objects\Water.h">
-      <Filter>Objects\Models\Terrain</Filter>
+      <Filter>Objects\Terrain</Filter>
     </ClInclude>
     <ClInclude Include="Objects\Tree.h">
-      <Filter>Objects\Models\Terrain</Filter>
+      <Filter>Objects\Terrain</Filter>
     </ClInclude>
     <ClInclude Include="Lights\PointLight.h">
       <Filter>Lights</Filter>
@@ -272,6 +272,9 @@
     </ClInclude>
     <ClInclude Include="Objects\MeshSphere.h">
       <Filter>Objects\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="Lights\CapsuleLight.h">
+      <Filter>Lights</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -329,14 +332,14 @@
     <Filter Include="Units\UnitInfo">
       <UniqueIdentifier>{4e4f23f7-4c9b-4fc6-b4a1-6592e65f2267}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Objects\Models\Terrain">
-      <UniqueIdentifier>{52ec6f5a-3eac-416d-94af-2dbfe2b04759}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Lights">
       <UniqueIdentifier>{f0c2eeed-9c33-4e6d-bcbc-50584ea05a5e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Objects\Meshes">
       <UniqueIdentifier>{6f5871e6-eab1-40b4-b487-398db442154e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects\Terrain">
+      <UniqueIdentifier>{52ec6f5a-3eac-416d-94af-2dbfe2b04759}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -520,19 +523,19 @@
       <Filter>Units\Weapon</Filter>
     </ClCompile>
     <ClCompile Include="Objects\GameTerrain.cpp">
-      <Filter>Objects\Models\Terrain</Filter>
+      <Filter>Objects\Terrain</Filter>
     </ClCompile>
     <ClCompile Include="Objects\GameSkyBox.cpp">
-      <Filter>Objects\Models\Terrain</Filter>
+      <Filter>Objects\Terrain</Filter>
     </ClCompile>
     <ClCompile Include="Objects\GameWorld.cpp">
-      <Filter>Objects\Models\Terrain</Filter>
+      <Filter>Objects\Terrain</Filter>
     </ClCompile>
     <ClCompile Include="Objects\Water.cpp">
-      <Filter>Objects\Models\Terrain</Filter>
+      <Filter>Objects\Terrain</Filter>
     </ClCompile>
     <ClCompile Include="Objects\Tree.cpp">
-      <Filter>Objects\Models\Terrain</Filter>
+      <Filter>Objects\Terrain</Filter>
     </ClCompile>
     <ClCompile Include="Lights\PointLight.cpp">
       <Filter>Lights</Filter>
@@ -566,6 +569,9 @@
     </ClCompile>
     <ClCompile Include="Objects\MeshSphere.cpp">
       <Filter>Objects\Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="Lights\CapsuleLight.cpp">
+      <Filter>Lights</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

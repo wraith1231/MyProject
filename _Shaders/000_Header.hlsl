@@ -49,7 +49,7 @@ cbuffer PS_Material : register(b1)
     float MaterialPadding[2];
 }
 
-cbuffer VPS_Value : register(b9)
+cbuffer VPS_Value : register(b11)
 {
     float _valueWidth;
     float _valueHeight;
@@ -57,32 +57,7 @@ cbuffer VPS_Value : register(b9)
     float _valueFar;
 }
 
-struct SpotLight
-{
-    uint Use;
-    float InnerAngle;
-    float OuterAngle;
-    float Padding1;
-
-    float3 Position;
-    float Padding2;
-
-    float3 Color;
-    float Padding3;
-
-    float3 Direction;
-    float Padding4;
-};
-
-cbuffer PS_SpotLight : register(b11)
-{
-    SpotLight _spotLight[32];
-
-    int _spotLightCount;
-    float3 _spotLightPadding;
-}
-
-cbuffer WaterVsBuffer : register(b12)
+cbuffer VS_WaterBuffer : register(b12)
 {
     float2 _waterTextureScale;
     float _waterWaveFrequancy;
@@ -96,7 +71,7 @@ cbuffer WaterVsBuffer : register(b12)
     float3 _waterVSPadding;
 }
 
-cbuffer WaterPSBuffer : register(b12)
+cbuffer PS_WaterBuffer : register(b12)
 {
     float4 _waterDeepColor;
     float4 _waterShallowColor;
@@ -350,36 +325,4 @@ float4 GetDiffuseColor(float4 color, float3 direction, float3 normal)
 float3 GetWorldNormal(float3 normal, float4x4 world)
 {
     return mul(normal, (float3x3) world);
-}
-
-void SpotLighting(inout float3 color, in SpotLight light, in float3 position, in float3 normal)
-{
-    float3 lightDir = normalize(light.Position - position);
-
-    float intensity = 0;
-    float lightAngle = dot(-light.Direction, lightDir);
-
-    [branch] // 조건에 맞는 것만 실행
-    if (lightAngle > 0.0f)
-        intensity = smoothstep(light.OuterAngle, light.InnerAngle, lightAngle);
-
-    //IntensityCut(intensity);
-
-    color = color + light.Color * intensity;
-}
-
-void SpotLightFunc(inout float3 color, in float3 position, in float3 normal)
-{
-    int count = 0;
-    
-    for (int i = 0; i < 32; i++)
-    {
-        if (_spotLight[i].Use == 1)
-        {
-            count++;
-            SpotLighting(color.rgb, _spotLight[i], position, normal);
-        }
-        if (count > _spotLightCount)
-            break;
-    }
 }

@@ -105,9 +105,6 @@
     <ClInclude Include="Model\ModelBone.h">
       <Filter>Model</Filter>
     </ClInclude>
-    <ClInclude Include="Model\ModelAnimation.h">
-      <Filter>Model</Filter>
-    </ClInclude>
     <ClInclude Include="Fbx\BoneWeights.h">
       <Filter>Fbx</Filter>
     </ClInclude>
@@ -276,6 +273,9 @@
     <ClInclude Include="Lights\CapsuleLight.h">
       <Filter>Lights</Filter>
     </ClInclude>
+    <ClInclude Include="Objects\Grass.h">
+      <Filter>Objects\Terrain</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Executes">
@@ -429,9 +429,6 @@
     <ClCompile Include="Model\ModelBone.cpp">
       <Filter>Model</Filter>
     </ClCompile>
-    <ClCompile Include="Model\ModelAnimation.cpp">
-      <Filter>Model</Filter>
-    </ClCompile>
     <ClCompile Include="Model\ModelAnimationClip.cpp">
       <Filter>Model</Filter>
     </ClCompile>
@@ -572,6 +569,9 @@
     </ClCompile>
     <ClCompile Include="Lights\CapsuleLight.cpp">
       <Filter>Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Grass.cpp">
+      <Filter>Objects\Terrain</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -21,4 +21,7 @@ public:
 
 private:
 	class GameSettings* settings;
+
+	class ModelAnimPlayer* player;
+	class Model* model;
 };

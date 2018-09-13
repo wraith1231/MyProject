@@ -46,7 +46,6 @@
     <ClInclude Include="Lights\PointLight.h" />
     <ClInclude Include="Lights\SpotLight.h" />
     <ClInclude Include="Model\Model.h" />
-    <ClInclude Include="Model\ModelAnimation.h" />
     <ClInclude Include="Model\ModelAnimationClip.h" />
     <ClInclude Include="Model\ModelAnimationPlayer.h" />
     <ClInclude Include="Model\ModelBone.h" />
@@ -64,6 +63,7 @@
     <ClInclude Include="Objects\GameUntouchable.h" />
     <ClInclude Include="Objects\GameWorld.h" />
     <ClInclude Include="Objects\AnimationKeyframe.h" />
+    <ClInclude Include="Objects\Grass.h" />
     <ClInclude Include="Objects\MeshCapsule.h" />
     <ClInclude Include="Objects\MeshCone.h" />
     <ClInclude Include="Objects\MeshCube.h" />
@@ -136,7 +136,6 @@
     <ClCompile Include="Lights\SpotLight.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Model\Model.cpp" />
-    <ClCompile Include="Model\ModelAnimation.cpp" />
     <ClCompile Include="Model\ModelAnimationClip.cpp" />
     <ClCompile Include="Model\ModelAnimationPlayer.cpp" />
     <ClCompile Include="Model\ModelBone.cpp" />
@@ -151,6 +150,7 @@
     <ClCompile Include="Objects\GameTerrain.cpp" />
     <ClCompile Include="Objects\GameUntouchable.cpp" />
     <ClCompile Include="Objects\GameWorld.cpp" />
+    <ClCompile Include="Objects\Grass.cpp" />
     <ClCompile Include="Objects\MeshCapsule.cpp" />
     <ClCompile Include="Objects\MeshCone.cpp" />
     <ClCompile Include="Objects\MeshCube.cpp" />

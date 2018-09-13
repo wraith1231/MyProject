@@ -3,6 +3,7 @@
 
 #include "Tree.h"
 #include "Water.h"
+#include "Grass.h"
 
 #include "../Bounding/BoundingBox.h"
 #include "../Bounding/ObjectsRay.h"
@@ -212,15 +213,17 @@ void GameTerrain::SaveTerrain(wstring saveFile)
 		}
 	}
 
-	//Tree
+	//Grass
 	{
 		w->Float(windPower);
-		w->UInt(trees.size());
-		for (Tree* tree : trees)
+		w->UInt(grasses.size());
+		for (Grass* grass : grasses)
 		{
-			w->String(String::ToString(tree->FileName()));
-			w->UInt(tree->Trees().size());
-			w->Byte(&tree->Trees()[0], sizeof(TreeStruct) * tree->Trees().size());
+			w->String(String::ToString(grass->FileName()));
+			w->UInt(grass->GrassSize());
+			vector<VertexGrass> temp;
+			grass->GrassDataCopy(temp);
+			w->Byte(&temp[0], sizeof(VertexGrass) * grass->GrassSize());
 		}
 	}
 
@@ -405,7 +408,7 @@ void GameTerrain::LoadTerrain(wstring saveFile)
 		}
 	}
 
-	//tree
+	//Grass
 	{
 		windPower = r->Float();
 		UINT num = r->UInt();
@@ -415,16 +418,15 @@ void GameTerrain::LoadTerrain(wstring saveFile)
 			file = Path::GetFileLocalPath(file);
 			UINT size = r->UInt();
 
-			vector<TreeStruct> temp;
-			temp.assign(size, TreeStruct());
+			vector<VertexGrass> temp;
+			temp.assign(size, VertexGrass());
 			void* ptr = (void*)&temp[0];
-			r->Byte(&ptr, sizeof(TreeStruct) * size);
+			r->Byte(&ptr, sizeof(VertexGrass) * size);
 
-			Tree* tree = new Tree(file);
-			tree->TreeLoad(temp);
-			trees.push_back(tree);
+			Grass* grass = new Grass(file, values);
+			grass->GrassDataPaste(temp);
+			grasses.push_back(grass);
 		}
-
 	}
 
 	r->Close();
@@ -510,16 +512,9 @@ void GameTerrain::Update()
 	(
 		vertexBuffer, 0, NULL, vertices, sizeof(VertexType) * vertexSize, 0
 	);
-	treeDelay += Time::Delta();
-
-	offset += windPower * Time::Delta();
-	if (offset > D3DX_PI * 2) offset -= static_cast<float>(D3DX_PI * 2);
-	treeBuffer->Data.Power = sinf(offset);
+	grassDelay += Time::Delta();
 
 	QuadTreeUpdate();
-
-	for (Tree* tree : trees)
-		tree->Update();
 
 	if (water != NULL && useWater == true)
 		water->Update();
@@ -544,9 +539,10 @@ void GameTerrain::ShadowRender()
 	if (water != NULL)
 		water->ShadowRender();
 
-	treeBuffer->SetVSBuffer(2);
-	for (Tree* tree : trees)
-		tree->ShadowRender();
+	grassBuffer->SetGSBuffer(2);
+	for (Grass* grass : grasses)
+		grass->ShadowRender();
+
 }
 
 void GameTerrain::PreRender()
@@ -589,10 +585,10 @@ void GameTerrain::PreRender()
 
 	if (water != NULL)
 		water->PreRender();
-	
-	treeBuffer->SetVSBuffer(2);
-	for (Tree* tree : trees)
-		tree->PreRender();
+
+	grassBuffer->SetGSBuffer(2);
+	for (Grass* grass : grasses)
+		grass->PreRender();
 }
 
 void GameTerrain::LightRender()
@@ -841,12 +837,20 @@ void GameTerrain::ImGuiRender()
 			}
 			else if (editType == 4)
 			{
-				if (ImGui::Button("Tree Texture"))
+				if (ImGui::Button("Grass Texture"))
 				{
-					TreeFile();
+					GrassFile();
 				}
-				ImGui::SliderFloat("Tree Scale", &treeScale, 0.1f, 20.0f);
-				ImGui::SliderInt("Tree Num", (int*)&treeNum, 1, 20);
+				ImGui::SliderFloat("Grass Scale", &grassScale, 0.1f, 20.0f);
+				ImGui::SliderInt("Grass Num", (int*)&grassNum, 1, 20);
+				
+				ImGui::Checkbox("Grass Delete", &grassDelete);
+
+				UINT quan = 0;
+				for (Grass* grass : grasses)
+					quan += grass->GrassSize();
+
+				ImGui::Text("Grass Quantity : %d", quan);
 			}
 		}
 
@@ -916,10 +920,11 @@ void GameTerrain::EditMode(bool val)
 
 	if (editMode == false)
 	{
-		if (treeDisposed == false)
-			SAFE_DELETE(treeSet);
-		treeSet = NULL;
-		treeDisposed = false;
+		if (grassDisposed == false)
+			SAFE_DELETE(grassSet);
+		grassSet = NULL;
+		grassDisposed = false;
+		grassDelete = false;
 
 		pointLightDispose = false;
 		pointLightSelect = false;
@@ -1026,10 +1031,10 @@ void GameTerrain::EditTerrain()
 		}//editType < 4
 		else if (editType == 4)
 		{
-			if (treeSet != NULL && treeDelay >= 0.5f)
+			if (grassSet != NULL && grassDelay >= 0.05f && grassDelete == false)
 			{
-				treeDelay = 0.0f;
-				for (UINT i = 0; i < treeNum; i++)
+				grassDelay = 0.0f;
+				for (UINT i = 0; i < grassNum; i++)
 				{
 					float minx = selTer.x - terrainBuffer->Data.Distance;
 					float minz = selTer.z - terrainBuffer->Data.Distance;
@@ -1041,17 +1046,30 @@ void GameTerrain::EditTerrain()
 					float y;
 					if (GetHeight(x, z, y) == true)
 					{
-						treeSet->AddTree(treeScale, D3DXVECTOR3(x, y, z));
+						grassSet->AddGrass(D3DXVECTOR3(x, y, z), D3DXVECTOR2(grassScale, grassScale));
 
-						if (treeDisposed == false)
+						if (grassDisposed == false)
 						{
-							treeDisposed = true;
-							trees.push_back(treeSet);
+							grassDisposed = true;
+							grasses.push_back(grassSet);
 						}
 					}
 				} //for i
+			} //grassSet != NULL
+			else if (grassDelete == true)
+			{
+				for (UINT i = 0; i < grasses.size();)
+				{
+					grasses[i]->DeleteGrass(selTer, terrainBuffer->Data.Distance, 0);
 
-			} //treeSet != NULL
+					if (grasses[i]->GrassSize() < 1)
+					{
+						grasses.erase(grasses.begin() + i);
+					}
+					else ++i;
+				}
+			}
+
 		} //editType == 4
 	}	//terrainBuffer->Data.type == 0
 	else if (terrainBuffer->Data.Type == 1)
@@ -1142,10 +1160,10 @@ void GameTerrain::EditTerrain()
 		}//editType < 4
 		else if (editType == 4)
 		{
-			if (treeSet != NULL && treeDelay >= 0.5f)
+			if (grassSet != NULL && grassDelay >= 0.05f && grassDelete == false)
 			{
-				treeDelay = 0.0f;
-				for (UINT i = 0; i < treeNum; i++)
+				grassDelay = 0.0f;
+				for (UINT i = 0; i < grassNum; i++)
 				{
 					float minx = selTer.x - terrainBuffer->Data.Distance;
 					float minz = selTer.z - terrainBuffer->Data.Distance;
@@ -1157,18 +1175,29 @@ void GameTerrain::EditTerrain()
 					float y;
 					if (GetHeight(x, z, y) == true)
 					{
-						treeSet->AddTree(treeScale, D3DXVECTOR3(x, y, z));
+						grassSet->AddGrass(D3DXVECTOR3(x, y, z), D3DXVECTOR2(grassScale, grassScale));
 
-						if (treeDisposed == false)
+						if (grassDisposed == false)
 						{
-							treeDisposed = true;
-							trees.push_back(treeSet);
+							grassDisposed = true;
+							grasses.push_back(grassSet);
 						}
 					}
 				} //for i
+			} //grassSet != NULL
+			else if (grassDelete == true)
+			{
+				for (UINT i = 0; i < grasses.size();)
+				{
+					grasses[i]->DeleteGrass(selTer, terrainBuffer->Data.Distance, 0);
 
-			} //treeSet != NULL
-
+					if (grasses[i]->GrassSize() < 1)
+					{
+						grasses.erase(grasses.begin() + i);
+					}
+					else ++i;
+				}
+			}
 		}//editType == 4
 	}
 
@@ -1274,35 +1303,44 @@ void GameTerrain::FirstInit(UINT width, UINT height)
 	tex1 = tex2 = tex3 = tex4 = NULL;
 	shader = shadowShader = NULL;
 	vertexBuffer = indexBuffer = NULL;
+
 	pointLight = NULL;
 	spotLight = NULL;
 	capsuleLight = NULL;
+
 	quadTreeRoot = NULL;
 	fog = NULL;
 
 	terrainFile = L"";
-	editMode = changed = treeDisposed = useWater = useFog = false;
+	editMode = changed = useWater = useFog = false;
+
 	pointLightDispose = pointLightSelect = false;
 	spotLightDispose = spotLightSelect = false;
 	capsuleLightDispose = capsuleLightSelect = false;
-	heightSet = treeDelay = offset = windPower = 0.0f;
+	heightSet = offset = windPower = 0.0f;
 	widthEdit = width;
 	heightEdit = height;
 
-	treeSet = NULL;
 	water = NULL;
+	grassSet = NULL;
+
 	editType = 0;
-	treeNum = 1;
-	treeScale = 1.0f;
+
+	grassDisposed = grassDelete = false;
+	grassNum = 1;
+	grassScale = 1.0f;
+	grassDelay = 0.0f;
+
 	power = 5.0f;
 	splat = D3DXCOLOR(0, 0, 0, 0);
 
 	shader = new Shader(Shaders + L"999_Terrain.hlsl");
 	shadowShader = new Shader(Shaders + L"999_Terrain.hlsl", "VS_Shadow", "PS_Shadow");
+	
 	buffer = new WorldBuffer();
 	terrainBuffer = new TerrainBuffer();
-	treeBuffer = new TreeBuffer();
-	D3DXMatrixRotationY(&treeBuffer->Data.Rotate, (float)D3DX_PI);
+	grassBuffer = new GrassBuffer();
+	
 	pointLight = new PointLight(values);
 	spotLight = new SpotLight(values);
 	capsuleLight = new CapsuleLight(values);
@@ -1528,11 +1566,11 @@ void GameTerrain::Clear()
 
 	SAFE_DELETE(water);
 
-	for (Tree* tree : trees)
-		SAFE_DELETE(tree);
-	trees.clear();
+	for (Grass* grass : grasses)
+		SAFE_DELETE(grass);
+	grasses.clear();
 
-	SAFE_DELETE(treeBuffer);
+	SAFE_DELETE(grassBuffer);
 	SAFE_DELETE(terrainBuffer);
 
 	SAFE_RELEASE(vertexBuffer);
@@ -1553,7 +1591,7 @@ void GameTerrain::Clear()
 	SAFE_DELETE_ARRAY(indices);
 }
 
-void GameTerrain::TreeFile(wstring file)
+void GameTerrain::GrassFile(wstring file)
 {
 	D3DDesc descc;
 	D3D::GetDesc(&descc);
@@ -1561,18 +1599,28 @@ void GameTerrain::TreeFile(wstring file)
 	if (file.length() < 1)
 	{
 		function<void(wstring)> f;
-		f = bind(&GameTerrain::TreeFile, this, placeholders::_1);
+		f = bind(&GameTerrain::GrassFile, this, placeholders::_1);
 
 		Path::OpenFileDialog(L"", Path::ImageFilter, Textures, f, descc.Handle);
 
 		return;
 	}
 
-	if (treeDisposed == false && treeSet != NULL)
-		SAFE_DELETE(treeSet);
+	for (Grass* grass : grasses)
+	{
+		if (grass->FileName() == file)
+		{
+			grassSet = grass;
+			grassDisposed = true;
+			return;
+		}
+	}
 
-	treeSet = new Tree(file, values);
-	treeDisposed = false;
+	if (grassDisposed == false && grassSet != NULL)
+		SAFE_DELETE(grassSet);
+
+	grassSet = new Grass(file, values);
+	grassDisposed = false;
 }
 
 float GameTerrain::SplatColor(float origin, float brush, float inten)

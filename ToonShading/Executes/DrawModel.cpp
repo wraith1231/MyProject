@@ -2,6 +2,7 @@
 #include "DrawModel.h"
 
 #include "../Units/GameSettings.h"
+#include "../Model/ModelAnimationPlayer.h"
 
 DrawModel::DrawModel(ExecuteValues* values)
 	: Execute(values)

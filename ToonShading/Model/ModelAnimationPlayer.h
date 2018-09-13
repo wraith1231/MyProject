@@ -15,9 +15,9 @@ public:
 	//이건 아마 clip쪽에 뺄듯
 	void Update();
 
-	void NormalRender();
-	void DepthRender();
-	void Render();
+	void ShadowRender();
+	void PreRender();
+	void ImGuiRender();
 
 	Mode GetMode() { return mode; }
 	void SetMode(UINT num) { mode = (Mode)num; }
@@ -28,8 +28,6 @@ public:
 	int GetCurrentKeyframe() { return currentKeyFrame; }
 	void SetCurrentKeyFrame(float time);
 	int GetTotalFrame();
-
-	void PostRender();
 
 	wstring GetAnimName() { return animName; }
 
@@ -42,9 +40,8 @@ private:
 	//void GatherBones(vector<class ModelBone*>& bones, class ModelBone* bone);
 
 private:
+	Shader* shadowShader;
 	Shader* shader;
-	Shader* shader2;
-	Shader* shader3;
 
 	Model* model;
 	class ModelAnimClip* currentClip;

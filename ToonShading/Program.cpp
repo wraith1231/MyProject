@@ -82,6 +82,7 @@ void Program::Update()
 void Program::PreRender()
 {
 	SetGlobalBuffers();
+	SetLightBuffer();
 
 	for (Execute* exe : executes)
 		exe->ShadowRender();
@@ -138,8 +139,12 @@ void Program::SetGlobalBuffers()
 
 	values->ViewProjection->SetVSBuffer(10);
 	values->ViewProjection->SetDSBuffer(10);
+	values->ViewProjection->SetGSBuffer(10);
 	values->ViewProjection->SetPSBuffer(10);
+}
 
+void Program::SetLightBuffer()
+{
 	D3DXMATRIX v;
 	D3DXVECTOR3 cam;
 	values->MainCamera->GetPosition(&cam);
@@ -154,5 +159,6 @@ void Program::SetGlobalBuffers()
 	D3DXMatrixTranspose(&values->GlobalLight->Data.LightView, &v);
 
 	values->GlobalLight->SetVSBuffer(0);
+	values->GlobalLight->SetGSBuffer(0);
 	values->GlobalLight->SetPSBuffer(0);
 }

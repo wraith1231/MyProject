@@ -1,6 +1,6 @@
 #include "000_Header.hlsl"
 
-cbuffer PS_DIRLIGHT : register(b2)
+cbuffer PS_DirLight : register(b2)
 {
     float3 _dirAmbientDown;
     float _dirPadding1;

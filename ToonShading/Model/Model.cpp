@@ -4,7 +4,6 @@
 #include "ModelMesh.h"
 #include "ModelBone.h"
 #include "ModelAnimationClip.h"
-#include "ModelAnimation.h"
 #include "ModelCapsule.h"
 
 #include "../Bounding/GizmoAxis.h"

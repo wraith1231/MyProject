@@ -41,6 +41,8 @@ public:
 
 	D3DXVECTOR3 LB, LT, RB, RT;
 
+	ID3D11Buffer* vertexBuffer, *indexBuffer;
+
 	QuadTree* root;
 	QuadTree* child[4];
 };
@@ -74,25 +76,16 @@ public:
 			float Padding2;
 		} Data;
 	};
-	class TreeBuffer : public ShaderBuffer
+	class GrassBuffer : public ShaderBuffer
 	{
 	public:
-		TreeBuffer() : ShaderBuffer(&Data, sizeof(Data))
+		GrassBuffer() : ShaderBuffer(&Data, sizeof(Data))
 		{
-			D3DXMatrixIdentity(&Data.Rotate);
-
-			Data.WindDirection = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
-
 			Data.Power = 0.0f;
 		}
 
 		struct Struct
 		{
-			D3DXMATRIX Rotate;
-
-			D3DXVECTOR3 WindDirection;
-			float Padding1;
-
 			float Power;
 			float Padding2[3];
 		} Data;
@@ -153,7 +146,7 @@ private:
 
 	void Clear();
 
-	void TreeFile(wstring file = L"");
+	void GrassFile(wstring file = L"");
 
 	float SplatColor(float origin, float brush, float inten);
 	D3DXCOLOR SplatColor(D3DXCOLOR origin, D3DXCOLOR brush, float inten);
@@ -212,17 +205,9 @@ private:
 	//splatting
 	D3DXCOLOR splat;
 
-	//for tree
-	TreeBuffer* treeBuffer;
+	//for Grasss
+	GrassBuffer* grassBuffer;
 	float offset, windPower;
-
-	//edit-tree
-	class Tree* treeSet;
-	vector<class Tree*> trees;
-	bool treeDisposed;
-	UINT treeNum;
-	float treeScale;
-	float treeDelay;
 
 	//Water
 	class Water* water;
@@ -239,6 +224,14 @@ private:
 	//Fog
 	bool useFog;
 	class Fog* fog;
+
+	//Grass
+	class Grass* grassSet;
+	vector<class Grass*> grasses;
+	bool grassDisposed, grassDelete;
+	UINT grassNum;
+	float grassScale;
+	float grassDelay;
 };
 
 //물까지가 초급, 깊이~알파가 중급, 지연 렌더링이 고급

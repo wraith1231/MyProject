@@ -78,20 +78,12 @@ public:
 	void ResizeScreen();
 
 private:
-	class Model* edgeModel;
-	class Model* aaModel;
-	D3DXMATRIX view;
-
 	RenderTarget* shadowRT;
 	RenderTarget* normalRT;
 	RenderTarget* depthRT;
 	RenderTarget* diffuseRT;
 	RenderTarget* lightRT;
 	RenderTarget* AART;
-
-	Orthographic* projection;
-
-	WorldBuffer* worldBuffer;
 
 	Shader* edgeShader;
 	Shader* aaShader;

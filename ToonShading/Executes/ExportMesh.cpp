@@ -8,6 +8,21 @@ ExportMesh::ExportMesh(ExecuteValues* values)
 {
 	Fbx::Exporter* exporter = NULL;
 
+	//exporter = new Fbx::Exporter(Assets + L"dude/dude.fbx");
+	//exporter->ExportMaterial(Models + L"dude/", L"dude");
+	//exporter->ExportMesh(Models + L"dude/", L"dude");
+	//exporter->ExportAnimation(Models + L"dude/", L"walk");
+	//SAFE_DELETE(exporter);
+
+	//exporter = new Fbx::Exporter(Assets + L"GOBLIN@2HitComboDaggers.fbx");
+	//exporter->ExportAnimation(Models + L"Goblin/", L"2Hit");
+	//exporter->ExportMaterial(Models + L"Goblin/", L"Goblin");
+	//exporter->ExportMesh(Models + L"Goblin/", L"Goblin");
+	//SAFE_DELETE(exporter);
+	//exporter = new Fbx::Exporter(Assets + L"Sapphi/Sapphiart@idle.fbx");
+	//exporter->ExportAnimation(Models + L"Meshes/", L"Idle");
+	//SAFE_DELETE(exporter);
+
 	//exporter = new Fbx::Exporter(Assets + L"Meshes/Capsule.fbx");
 	//exporter->ExportMaterial(Models + L"Meshes/", L"Capsule");
 	//exporter->ExportMesh(Models + L"Meshes/", L"Capsule");

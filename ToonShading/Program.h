@@ -16,6 +16,7 @@ public:
 
 private:
 	void SetGlobalBuffers();
+	void SetLightBuffer();
 
 private:
 	ExecuteValues* values;

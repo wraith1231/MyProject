@@ -135,7 +135,10 @@ void Shader::CreateInputLayout()
 		elementDesc.SemanticIndex = paramDesc.SemanticIndex;
 		elementDesc.InputSlot = 0;
 		elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-		elementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		if(elementDesc.SemanticName[0] != 'I')
+			elementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		else
+			elementDesc.InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;
 		elementDesc.InstanceDataStepRate = 0;
 
 		if (paramDesc.Mask == 1)

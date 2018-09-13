@@ -9,27 +9,10 @@ ToonShading::ToonShading(ExecuteValues* values)
 	D3DDesc desc;
 	D3D::GetDesc(&desc);
 
-	edgeModel = new Model();
-	edgeModel->ReadMaterial(Models + L"Mesh/Quad.material");
-	edgeModel->ReadMesh(Models + L"Mesh/Quad.mesh");
-
-	aaModel = new Model();
-	aaModel->ReadMaterial(Models + L"Mesh/Quad.material");
-	aaModel->ReadMesh(Models + L"Mesh/Quad.mesh");
-
 	dirLight = new Shader(Shaders + L"DirLight.hlsl");
 
 	edgeShader = new Shader(Shaders + L"999_Edge.hlsl");
 	aaShader = new Shader(Shaders + L"999_FXAA.hlsl");
-
-	for (Material* material : edgeModel->Materials())
-		material->SetShader(edgeShader);
-	for (Material* material : aaModel->Materials())
-		material->SetShader(aaShader);
-
-	worldBuffer = new WorldBuffer();
-
-	D3DXMatrixIdentity(&view);
 
 	shadowRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height, DXGI_FORMAT_R16_FLOAT);
 	normalRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);// , DXGI_FORMAT_R32G32_FLOAT);
@@ -43,11 +26,11 @@ ToonShading::ToonShading(ExecuteValues* values)
 		//D3DXMatrixPerspectiveFovLH(&p, (float)D3DX_PI * 0.5f, 1.0f, 0.1f, 100.0f);
 		//D3DXMatrixTranspose(&values->GlobalLight->Data.LightProjection, &p);
 
-		projection = new Orthographic(-desc.Width * 0.5f, desc.Width * 0.5f, -desc.Height * 0.5f, desc.Height * 0.5f, 0.1f, 1000.0f);
+		Orthographic* projection = new Orthographic(-desc.Width * 0.5f, desc.Width * 0.5f, -desc.Height * 0.5f, desc.Height * 0.5f, 0.1f, 1000.0f);
 		D3DXMATRIX p;
 		projection->GetMatrix(&p);
 		D3DXMatrixTranspose(&values->GlobalLight->Data.LightProjection, &p);
-		projection->Set(0, desc.Width, 0, desc.Height);
+		SAFE_DELETE(projection);
 	}
 	
 	buffer = new Buffer;
@@ -56,16 +39,6 @@ ToonShading::ToonShading(ExecuteValues* values)
 	lightBuffer = new LightBuffer;
 
 	xplus = yplus = zplus = 0.0f;
-
-	D3DXMATRIX S, R, T;
-	D3DXMatrixScaling(&S, desc.Width, desc.Height, 1.0f);
-	D3DXMatrixRotationY(&R, (float)D3DX_PI);
-	D3DXMatrixTranslation(&T, desc.Width / 2, desc.Height / 2, 0.5f);
-
-	edgeModel->Bone(0)->Transform(S*R*T); 
-
-	D3DXMatrixTranslation(&T, desc.Width / 2, desc.Height / 2, 0.4f);
-	aaModel->Bone(0)->Transform(S*R*T);
 
 	{
 		D3D11_DEPTH_STENCIL_DESC desc;
@@ -92,17 +65,12 @@ ToonShading::~ToonShading()
 	SAFE_DELETE(aaShader);
 	SAFE_DELETE(edgeShader);
 
-	SAFE_DELETE(aaModel);
-	SAFE_DELETE(edgeModel);
-
 	SAFE_DELETE(AART);
 	SAFE_DELETE(lightRT);
 	SAFE_DELETE(normalRT);
 	SAFE_DELETE(depthRT);
 	SAFE_DELETE(diffuseRT);
 	SAFE_DELETE(shadowRT);
-
-	SAFE_DELETE(projection);
 }
 
 void ToonShading::Update()
@@ -111,14 +79,16 @@ void ToonShading::Update()
 
 void ToonShading::ShadowRender()
 {
+	buffer->Data.Width = static_cast<float>(normalRT->GetWidth());
+	buffer->Data.Height = static_cast<float>(normalRT->GetHeight());
+	buffer->SetVSBuffer(11);
+	buffer->SetPSBuffer(11);
+
 	shadowRT->Set();
 }
 
 void ToonShading::PreRender()
 {
-	buffer->SetPSBuffer(9);
-	buffer->SetVSBuffer(9);
-
 	normalRT->Clear();
 	depthRT->Clear();
 	diffuseRT->Clear();
@@ -159,51 +129,43 @@ void ToonShading::EdgeRender()
 {
 	Shader::ClearShader();
 
-	AART->Set();
-
-	values->ViewProjection->SetView(view);
-	
-	D3DXMATRIX pro;
-	projection->GetMatrix(&pro);
-	
-	values->ViewProjection->SetProjection(pro);
-	values->ViewProjection->SetVSBuffer(10);
+	AART->Clear();
+	ID3D11RenderTargetView* rtv = AART->GetRTV();
+	D3D::GetDC()->OMSetRenderTargets(1, &rtv, D3D::Get()->GetReadOnlyDSV());
 
 	ID3D11ShaderResourceView* normalView = normalRT->GetSRV();
-	D3D::GetDC()->PSSetShaderResources(5, 1, &normalView);
+	D3D::GetDC()->PSSetShaderResources(0, 1, &normalView);
 	ID3D11ShaderResourceView* depthView = depthRT->GetSRV();
-	D3D::GetDC()->PSSetShaderResources(6, 1, &depthView);
+	D3D::GetDC()->PSSetShaderResources(1, 1, &depthView);
 	ID3D11ShaderResourceView* diffuseView = diffuseRT->GetSRV();
-	D3D::GetDC()->PSSetShaderResources(7, 1, &diffuseView);
+	D3D::GetDC()->PSSetShaderResources(2, 1, &diffuseView);
 	ID3D11ShaderResourceView* lightView = lightRT->GetSRV();
-	D3D::GetDC()->PSSetShaderResources(8, 1, &lightView);
+	D3D::GetDC()->PSSetShaderResources(3, 1, &lightView);
 	ID3D11ShaderResourceView* shadowView = shadowRT->GetSRV();
-	D3D::GetDC()->PSSetShaderResources(9, 1, &shadowView);
+	D3D::GetDC()->PSSetShaderResources(4, 1, &shadowView);
 
-	buffer->Data.Width = static_cast<float>(normalRT->GetWidth());
-	buffer->Data.Height = static_cast<float>(normalRT->GetHeight());
 	lightBuffer->SetPSBuffer(3);
-	edgeModel->TransformsCopy();
-	edgeModel->Render();
+
+	edgeShader->Render();
+	D3D::GetDC()->IASetInputLayout(NULL);
+	D3D::GetDC()->IASetVertexBuffers(0, 0, NULL, NULL, NULL);
+	D3D::GetDC()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	D3D::GetDC()->Draw(4, 0);
+
+	//edgeModel->TransformsCopy();
+	//edgeModel->Render();
 }
 
 void ToonShading::AARender()
 {
-	values->ViewProjection->SetView(view);
-	
-	D3DXMATRIX pro;
-	projection->GetMatrix(&pro);
-	
-	values->ViewProjection->SetProjection(pro);
-	values->ViewProjection->SetVSBuffer(10);
-
 	ID3D11ShaderResourceView* view = AART->GetSRV();
-	D3D::GetDC()->PSSetShaderResources(5, 1, &view);
+	D3D::GetDC()->PSSetShaderResources(0, 1, &view);
 
-	buffer->Data.Width = static_cast<float>(AART->GetWidth());
-	buffer->Data.Height = static_cast<float>(AART->GetHeight());
-	aaModel->TransformsCopy();
-	aaModel->Render();
+	aaShader->Render();
+	D3D::GetDC()->IASetInputLayout(NULL);
+	D3D::GetDC()->IASetVertexBuffers(0, 0, NULL, NULL, NULL);
+	D3D::GetDC()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	D3D::GetDC()->Draw(4, 0);
 }
 
 void ToonShading::ImGuiRender()
@@ -221,8 +183,6 @@ void ToonShading::ResizeScreen()
 {
 	D3DDesc desc;
 	D3D::GetDesc(&desc);
-
-	projection->Set(0, desc.Width, 0, desc.Height);//, -1.0f);
 
 	buffer->Data.Near = values->Perspective->GetNearZ();
 	buffer->Data.Far = values->Perspective->GetFarZ();

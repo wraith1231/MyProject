@@ -6,17 +6,17 @@ cbuffer PS_Buffer : register(b3)
     float3 _bufferPadding;
 }
 
-Texture2D NormalRT : register(t5);
-Texture2D DepthRT : register(t6);
-Texture2D DiffuseRT : register(t7);
-Texture2D LightMeshRT : register(t8);
-Texture2D ShadowMap : register(t9);
+Texture2D NormalRT : register(t0);
+Texture2D DepthRT : register(t1);
+Texture2D DiffuseRT : register(t2);
+Texture2D LightMeshRT : register(t3);
+Texture2D ShadowMap : register(t4);
 
-SamplerState NormalRTSampler : register(s5);
-SamplerState DepthRTSampler : register(s6);
-SamplerState DiffuseRTSampler : register(s7);
-SamplerState LightMeshRTSampler : register(s8);
-SamplerState ShadowMapSampler : register(s9);
+SamplerState NormalRTSampler : register(s0);
+SamplerState DepthRTSampler : register(s1);
+SamplerState DiffuseRTSampler : register(s2);
+SamplerState LightMeshRTSampler : register(s3);
+SamplerState ShadowMapSampler : register(s4);
 
 struct PixelInput
 {
@@ -24,15 +24,22 @@ struct PixelInput
     float2 uv : TEXCOORD0;
 };
 
-PixelInput VS(VertexTextureNormal input)
+static const float2 arrBasePos[4] =
+{
+    float2(-1.0f, 1.0f),
+    float2(1.0f, 1.0f),
+    float2(-1.0f, -1.0f),
+    float2(1.0f, -1.0f),
+};
+
+PixelInput VS(uint VertexID : SV_VERTEXID)//VertexTextureNormalinput)
 {
     PixelInput output;
 
-    output.position = mul(input.position, _world);
-    output.position = mul(output.position, _view);
-    output.position = mul(output.position, _projection);
-    
-    output.uv = input.uv;
+    output.position = float4(arrBasePos[VertexID], 0.0f, 1.0f);
+    output.uv = saturate(output.position.xy);
+    output.uv.y = 1.0f - output.uv.y;
+    //output.view = GetViewPosition().xyz;
     
     return output;
 }

@@ -1,23 +1,8 @@
 #include "000_Header.hlsl"
 #include "FXAA.hlsl"
 
-//cbuffer VS_Value : register(b2)
-//{
-//    float _vsWidth;
-//    float _vsHeight;
-//    float _vsNear;
-//    float _vsFar;
-//}
-//cbuffer PS_Value : register(b2)
-//{
-//    float _valueWidth;
-//    float _valueHeight;
-//    float _valueNear;
-//    float _valueFar;
-//}
-
-Texture2D RenderTarget : register(t5);
-SamplerState RenderTargetSampler : register(s5);
+Texture2D RenderTarget : register(t0);
+SamplerState RenderTargetSampler : register(s0);
 
 struct PixelInput
 {
@@ -26,17 +11,24 @@ struct PixelInput
     float2 zw : TEXCOORD1;
 };
 
-PixelInput VS(VertexTextureNormal input)
+static const float2 arrBasePos[4] =
+{
+    float2(-1.0f, 1.0f),
+    float2(1.0f, 1.0f),
+    float2(-1.0f, -1.0f),
+    float2(1.0f, -1.0f),
+};
+
+PixelInput VS(uint vertexID : SV_VERTEXID)
 {
     PixelInput output;
-
-    output.position = mul(input.position, _world);
-    output.position = mul(output.position, _view);
-    output.position = mul(output.position, _projection);
+    
+    output.position = float4(arrBasePos[vertexID].xy, 0.0f, 1.0f);
+    output.uv = saturate(output.position.xy);
+    output.uv.y = 1.0f - output.uv.y;
     
     float2 rcpFrame = float2(1.0f / _valueWidth, 1.0f / _valueHeight);
-    output.uv = input.uv;
-    output.zw = input.uv - (rcpFrame * (0.5 + 1.0 / 4.0));
+    output.zw = output.uv - (rcpFrame * (0.5 + 1.0 / 4.0));
     
     return output;
 }

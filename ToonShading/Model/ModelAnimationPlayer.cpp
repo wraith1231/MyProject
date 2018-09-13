@@ -16,8 +16,7 @@ ModelAnimPlayer::ModelAnimPlayer(Model * model, wstring animName)
 	, animName(animName)
 {
 	shader = new Shader(Shaders + L"999_Animation.hlsl");
-	shader2 = new Shader(Shaders + L"999_Animation.hlsl", "VS_Normal", "PS_Normal");
-	shader3 = new Shader(Shaders + L"999_Animation.hlsl", "VS_Depth", "PS_Depth");
+	shadowShader = new Shader(Shaders + L"999_Animation.hlsl", "VS_Shadow", "PS_Shadow");
 	//shader = new Shader(Shaders + L"999_Mesh.hlsl");
 	
 	vector<Material*>& materials = model->Materials();
@@ -38,8 +37,7 @@ ModelAnimPlayer::ModelAnimPlayer(Model * model, wstring animName)
 ModelAnimPlayer::~ModelAnimPlayer()
 {
 	SAFE_DELETE(shader);
-	SAFE_DELETE(shader2);
-	SAFE_DELETE(shader3);
+	SAFE_DELETE(shadowShader);
 }
 
 void ModelAnimPlayer::Update()
@@ -58,9 +56,7 @@ void ModelAnimPlayer::Update()
 	
 			UpdateBone();
 			model->Buffer()->SetBones(&skinTransform[0], skinTransform.size());
-		}
-		
-	
+		}	
 		return;
 	}
 
@@ -71,29 +67,18 @@ void ModelAnimPlayer::Update()
 
 }
 
-void ModelAnimPlayer::NormalRender()
+void ModelAnimPlayer::ShadowRender()
 {
 	model->Buffer()->SetVSBuffer(2);
 
 	vector<Material*>& materials = model->Materials();
 	for (Material* material : materials)
-		material->SetShader(shader2);
+		material->SetShader(shadowShader);
 	for (ModelMesh* mesh : model->Meshes())
 		mesh->Render();
 }
 
-void ModelAnimPlayer::DepthRender()
-{
-	model->Buffer()->SetVSBuffer(2);
-
-	vector<Material*>& materials = model->Materials();
-	for (Material* material : materials)
-		material->SetShader(shader3);
-	for (ModelMesh* mesh : model->Meshes())
-		mesh->Render();
-}
-
-void ModelAnimPlayer::Render()
+void ModelAnimPlayer::PreRender()
 {
 	model->Buffer()->SetVSBuffer(2);
 
@@ -132,7 +117,7 @@ int ModelAnimPlayer::GetTotalFrame()
 	return currentClip->TotalFrame();
 }
 
-void ModelAnimPlayer::PostRender()
+void ModelAnimPlayer::ImGuiRender()
 {
 	ImGui::Begin("player");
 
@@ -182,13 +167,13 @@ void ModelAnimPlayer::UpdateBone()
 
 		D3DXMATRIX matInvBindPos = bone->AbsoluteTransform();
 
-		//D3DXVECTOR3 temp = D3DXVECTOR3(matInvBindPos._21, matInvBindPos._22, matInvBindPos._23);
-		//matInvBindPos._21 = matInvBindPos._31;
-		//matInvBindPos._22 = matInvBindPos._32;
-		//matInvBindPos._23 = matInvBindPos._33;
-		//matInvBindPos._31 = temp.x;
-		//matInvBindPos._32 = temp.y;
-		//matInvBindPos._33 = temp.z;
+		D3DXVECTOR3 temp = D3DXVECTOR3(matInvBindPos._21, matInvBindPos._22, matInvBindPos._23);
+		matInvBindPos._21 = matInvBindPos._31;
+		matInvBindPos._22 = matInvBindPos._32;
+		matInvBindPos._23 = matInvBindPos._33;
+		matInvBindPos._31 = temp.x;
+		matInvBindPos._32 = temp.y;
+		matInvBindPos._33 = temp.z;
 		D3DXMatrixInverse(&matInvBindPos, NULL, &matInvBindPos);
 
 		ModelKeyframe* frame = currentClip->Keyframe(bone->Name());

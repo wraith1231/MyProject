@@ -29,11 +29,6 @@ public:
 		return transform;
 	}
 
-	D3DXMATRIX GetOriginTransform()
-	{
-		return oriTransform;
-	}
-
 	void AbsoluteTransform(D3DXMATRIX& transform)
 	{
 		this->absoluteTransform = transform;
@@ -66,7 +61,7 @@ private:
 
 	vector<ModelBone *> childs;
 
-	D3DXMATRIX transform, oriTransform;
+	D3DXMATRIX transform;
 	D3DXMATRIX absoluteTransform;
 
 	GizmoAxis* gizmo;

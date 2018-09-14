@@ -203,7 +203,6 @@ void Models::ReadMeshData(wstring file)
 		bone->parentIndex = r->Int();
 		bone->transform = r->Matrix();
 		bone->absoluteTransform = r->Matrix();
-		bone->oriTransform = bone->transform;
 
 		bones.push_back(bone);
 	}

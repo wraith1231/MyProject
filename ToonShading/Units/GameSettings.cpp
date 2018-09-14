@@ -24,7 +24,7 @@ GameSettings::GameSettings(ExecuteValues* values)
 	, inter(false), disposed(false)
 	, untoTemp(NULL), untouchSel(false)
 	, enemyDispose(false), playerDispose(false)
-	, editMode(false), enemySel(false)
+	, editMode(true), enemySel(false)
 	, sceneFile(L"")
 	, values(values)
 {

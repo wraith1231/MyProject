@@ -39,7 +39,6 @@ PixelInput VS(uint VertexID : SV_VERTEXID)//VertexTextureNormalinput)
     output.position = float4(arrBasePos[VertexID], 0.0f, 1.0f);
     output.uv = saturate(output.position.xy);
     output.uv.y = 1.0f - output.uv.y;
-    //output.view = GetViewPosition().xyz;
     
     return output;
 }

@@ -202,8 +202,10 @@ void Fbx::Exporter::ReadBoneData(FbxNode * node, int index, int parent)
 
 			//bone->Transform = Utility::ToMatrix(node->EvaluateLocalTransform(), bXna);
 			//bone->AbsoluteTransform = Utility::ToMatrix(node->EvaluateGlobalTransform(), bXna);
-			//bone->Transform = Utility::ToMatrix(node->EvaluateLocalTransform());
-			//bone->AbsoluteTransform = Utility::ToMatrix(node->EvaluateGlobalTransform());
+			//bone->Transform = Utility::XAxisPIRotate() * Utility::ToMatrix(node->EvaluateLocalTransform());
+			//bone->AbsoluteTransform = Utility::XAxisPIRotate() * Utility::ToMatrix(node->EvaluateGlobalTransform());
+			bone->Transform = Utility::ToMatrix(node->EvaluateLocalTransform());
+			bone->AbsoluteTransform = Utility::ToMatrix(node->EvaluateGlobalTransform());
 
 			boneDatas.push_back(bone);
 
@@ -235,7 +237,8 @@ void Fbx::Exporter::ReadMeshData(FbxNode * node, int parentBone)
 		int vertexInPolygon = mesh->GetPolygonSize(p);
 		assert(vertexInPolygon == 3);
 
-		for (int vi = vertexInPolygon - 1; vi >= 0; vi--)
+		//for (int vi = vertexInPolygon - 1; vi >= 0; vi--)
+		for (int vi = 0; vi < vertexInPolygon; vi++)
 		{
 			FbxVertex* vertex = new FbxVertex;
 			int cpIndex = mesh->GetPolygonVertex(p, vi);
@@ -244,14 +247,16 @@ void Fbx::Exporter::ReadMeshData(FbxNode * node, int parentBone)
 
 			FbxVector4 position = mesh->GetControlPointAt(cpIndex);
 			D3DXVECTOR3 temp = Utility::ToVector3(position);
-			D3DXVec3TransformCoord(&vertex->Vertex.position, &temp, &Utility::Negative(bXna));
+			//D3DXVec3TransformCoord(&vertex->Vertex.position, &temp, &Utility::Negative(bXna));
+			D3DXVec3TransformCoord(&vertex->Vertex.position, &temp, &Utility::XAxisPIRotate());
 			//vertex->Vertex.position = temp;
 			FbxVector4 normal;
 			mesh->GetPolygonVertexNormal(p, vi, normal);
 			normal.Normalize();
 			temp = Utility::ToVector3(normal);
 			//사실 이거 w가 0이라 곱해지는 값이 없어서 그냥 coord로 해줘도 상관은 없음
-			D3DXVec3TransformNormal(&vertex->Vertex.normal, &temp, &Utility::Negative(bXna));
+			//D3DXVec3TransformNormal(&vertex->Vertex.normal, &temp, &Utility::Negative(bXna));
+			D3DXVec3TransformNormal(&vertex->Vertex.normal, &temp, &Utility::XAxisPIRotate());
 			//vertex->Vertex.normal = temp;
 
 			vertex->MaterialName = Utility::GetMaterialName(mesh, p, cpIndex);
@@ -298,15 +303,19 @@ void Fbx::Exporter::ReadSkinData()
 				string linkName = cluster->GetLink()->GetName();
 				UINT boneIndex = GetBoneIndexByName(linkName);
 
-
 				FbxAMatrix transform;
 				FbxAMatrix linkTransform;
-
+				
 				cluster->GetTransformMatrix(transform);
 				cluster->GetTransformLinkMatrix(linkTransform);
 
-				D3DXMatrixIdentity(&boneDatas[boneIndex]->Transform);
-				D3DXMatrixIdentity(&boneDatas[boneIndex]->AbsoluteTransform);
+				//boneDatas[boneIndex]->Transform = Utility::XAxisPIRotate() * Utility::ToMatrix(transform);
+				//boneDatas[boneIndex]->AbsoluteTransform = Utility::XAxisPIRotate() * Utility::ToMatrix(linkTransform);
+				boneDatas[boneIndex]->Transform = Utility::ToMatrix(transform);
+				boneDatas[boneIndex]->AbsoluteTransform = Utility::ToMatrix(linkTransform);
+
+				//D3DXMatrixIdentity(&boneDatas[boneIndex]->Transform);
+				//D3DXMatrixIdentity(&boneDatas[boneIndex]->AbsoluteTransform);
 
 				for (int indexCount = 0; indexCount < cluster->GetControlPointIndicesCount(); indexCount++)
 				{
@@ -478,8 +487,9 @@ void Fbx::Exporter::ReadAnimation(FbxAnimation * animation, FbxNode * node, int 
 
 				FbxAMatrix matrix = node->EvaluateLocalTransform(animationTime);	//아무것도 않넣으면 가장 기본적인게 나오고 시간을 넣으면 해당 시간으로 변환된 로컬 transform이 넘어온다
 				//D3DXMATRIX transform = Utility::ToMatrix(matrix, bXna);
+				//D3DXMATRIX transform = Utility::XAxisPIRotate() * Utility::ToMatrix(matrix) * Utility::XAxisPIRotate();
 				D3DXMATRIX transform = Utility::ToMatrix(matrix);
-				
+
 				FbxKeyFrameData data;
 
 				D3DXMatrixDecompose(&data.Scale, &data.Rotation, &data.Translate, &transform);

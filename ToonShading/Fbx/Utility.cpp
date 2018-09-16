@@ -25,6 +25,15 @@ D3DXMATRIX Fbx::Utility::Negative(bool bXna)
 	}
 }
 
+D3DXMATRIX Fbx::Utility::XAxisPIRotate()
+{
+	D3DXMATRIX ret;
+
+	D3DXMatrixRotationX(&ret, (float)D3DX_PI);
+
+	return ret;
+}
+
 D3DXVECTOR2 Fbx::Utility::ToVector2(FbxVector2 & vec)
 {
 	return D3DXVECTOR2((float)vec.mData[0], (float)vec.mData[1]);

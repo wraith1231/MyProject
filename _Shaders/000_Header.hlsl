@@ -10,6 +10,10 @@ cbuffer AS_ViewProjection : register(b10)
     matrix _view;
     matrix _projection;
     matrix _viewInverse;
+
+    float _elapsedTime;
+    float _runningTime;
+    float2 _VPPadding;
 }
 
 cbuffer VS_World : register(b1)

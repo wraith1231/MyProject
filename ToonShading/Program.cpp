@@ -74,6 +74,7 @@ void Program::Update()
 	float intensity = Math::Clamp(dot * 1.5f, 0, 1);
 	
 	values->GlobalLight->Data.Intensity = intensity;
+	values->ViewProjection->AddTime(Time::Delta());
 
 	for (Execute* exe : executes)
 		exe->Update();
@@ -156,7 +157,8 @@ void Program::SetLightBuffer()
 
 	D3DXMatrixLookAtLH(&v, &lightPos, &(lightPos + values->GlobalLight->Data.Direction), &D3DXVECTOR3(0, 1, 0));
 	values->GlobalLight->Data.LightPosition = lightPos;
-	D3DXMatrixTranspose(&values->GlobalLight->Data.LightView, &v);
+	
+	values->GlobalLight->SetLightView(v);
 
 	values->GlobalLight->SetVSBuffer(0);
 	values->GlobalLight->SetGSBuffer(0);

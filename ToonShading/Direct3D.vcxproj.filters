@@ -234,9 +234,6 @@
     <ClInclude Include="Objects\Water.h">
       <Filter>Objects\Terrain</Filter>
     </ClInclude>
-    <ClInclude Include="Objects\Tree.h">
-      <Filter>Objects\Terrain</Filter>
-    </ClInclude>
     <ClInclude Include="Lights\PointLight.h">
       <Filter>Lights</Filter>
     </ClInclude>
@@ -529,9 +526,6 @@
       <Filter>Objects\Terrain</Filter>
     </ClCompile>
     <ClCompile Include="Objects\Water.cpp">
-      <Filter>Objects\Terrain</Filter>
-    </ClCompile>
-    <ClCompile Include="Objects\Tree.cpp">
       <Filter>Objects\Terrain</Filter>
     </ClCompile>
     <ClCompile Include="Lights\PointLight.cpp">

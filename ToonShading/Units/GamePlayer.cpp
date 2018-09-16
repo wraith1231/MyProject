@@ -81,6 +81,7 @@ void GamePlayer::EditUpdate()
 	//GameUnit::Update();
 
 	D3DXMATRIX transformed = Transformed();
+	model->CopyAbsoluteBoneTo(transformed, boneTransforms);
 	box->Update(transformed);
 }
 

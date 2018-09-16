@@ -246,7 +246,3 @@ void Water::SetWaterParameter(WaterStruct param)
 	psBuffer->Data.HDRMultiplier = param.HDRMultiplier;
 	psBuffer->Data.WaterAmount = param.WaterAmount;
 }
-
-void Water::Init()
-{
-}

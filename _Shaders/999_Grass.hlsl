@@ -1,16 +1,5 @@
 #include "000_Header.hlsl"
 
-cbuffer VS_WIND : register(b2)
-{
-    matrix _rotate;
-
-    float3 _windDirection;
-    float _windPaddig1;
-
-    float _windPower;
-    float3 _windPadding2;
-}
-
 struct VertexGrass
 {
     float3 position : POSITION0;
@@ -40,7 +29,8 @@ VSOutput VS(VertexGrass input)
 cbuffer GS_WindPower : register(b2)
 {
     float _grassWind;
-    float3 _grassPadding;
+    float _grassSpeed;
+    float2 _grassPadding;
 }
 
 struct GSOutput
@@ -49,6 +39,7 @@ struct GSOutput
     float3 posW : POSITION0;
     float3 normal : NORMAL0;
     float2 uv : TEXCOORD0;
+    float depth : DEPTH0;
 };
 
 [maxvertexcount(4)]
@@ -81,13 +72,16 @@ void GS(point VSOutput gin[1], uint primID : SV_PRIMITIVEID, inout TriangleStrea
     v[1] = float4(pos + halfWidth * right + halfHeight * up, 1.0f);
     v[2] = float4(pos - halfWidth * right - halfHeight * up, 1.0f);
     v[3] = float4(pos - halfWidth * right + halfHeight * up, 1.0f);
-
+    
+    v[1].xyz += right * sin(_runningTime * _grassSpeed) * _grassWind;
+    v[3].xyz += right * sin(_runningTime * _grassSpeed) * _grassWind;
 
     GSOutput output = (GSOutput) 0;
     [unroll]
     for (int i = 0; i < 4; i++)
     {
         output.posH = mul(v[i], _view);
+        output.depth = output.posH.z;
         output.posH = mul(output.posH, _projection);
         output.posW = v[i].xyz;
         output.normal = look;
@@ -112,7 +106,7 @@ PS_GBUFFEROUTPUT PS(GSOutput input)
 
     PS_GBUFFEROUTPUT output = (PS_GBUFFEROUTPUT) 0;
     output.color = diffuseMap;
-    output.depth = float4(input.posH.z / _valueFar, input.posW.xyz);
+    output.depth = float4(input.depth / _valueFar, input.posW.xyz);
     //output.normal.xy = NormalEncode(input.normal.xyz);
     output.normal.xyz = NormalEncode3to3(input.normal);
 
@@ -148,7 +142,7 @@ ShadowPixel VS_Shadow(VertexGrass input)
 struct GSShadowOutput
 {
     float4 posH : SV_POSITION;
-    float4 vPosition : POSITION0;
+    float4 depth : DEPTH0;
     float2 uv : TEXCOORD0;
 };
 
@@ -156,7 +150,7 @@ struct GSShadowOutput
 void GS_Shadow(point ShadowPixel gin[1], uint primID : SV_PRIMITIVEID, inout TriangleStream<GSShadowOutput> triStream)
 {
     float3 up = float3(0.0f, 1.0f, 0.0f);
-    float3 look = GetViewPosition() - gin[0].position;
+    float3 look = _lightPosition - gin[0].position;
     look.y = 0.0f;
     look = normalize(look);
     float3 right = cross(up, look);
@@ -169,6 +163,9 @@ void GS_Shadow(point ShadowPixel gin[1], uint primID : SV_PRIMITIVEID, inout Tri
     v[1] = float4(gin[0].position + halfWidth * right + halfHeight * up, 1.0f);
     v[2] = float4(gin[0].position - halfWidth * right - halfHeight * up, 1.0f);
     v[3] = float4(gin[0].position - halfWidth * right + halfHeight * up, 1.0f);
+    
+    v[1].xyz += right * sin(_runningTime * _grassSpeed) * _grassWind;
+    v[3].xyz += right * sin(_runningTime * _grassSpeed) * _grassWind;
 
     float2 tex[4] =
     {
@@ -183,8 +180,8 @@ void GS_Shadow(point ShadowPixel gin[1], uint primID : SV_PRIMITIVEID, inout Tri
     for (int i = 0; i < 4; i++)
     {
         output.posH = mul(v[i], _lightView);
-        output.vPosition = output.posH;
-        output.posH = mul(v[i], _lightProjection);
+        output.depth = output.posH.z;
+        output.posH = mul(output.posH, _lightProjection);
         output.uv = tex[i];
 
         triStream.Append(output);
@@ -198,7 +195,7 @@ float PS_Shadow(GSShadowOutput input) : SV_TARGET
 
     clip(diffuseMap.a - 0.8f);
 
-    float depth = input.vPosition.z / _valueFar;
+    float depth = input.depth.z / _valueFar;
 
     return depth;
 }

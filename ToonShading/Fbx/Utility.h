@@ -6,6 +6,7 @@ namespace Fbx
 	{
 	public:
 		static D3DXMATRIX Negative(bool bXna);
+		static D3DXMATRIX XAxisPIRotate();
 
 		static D3DXVECTOR2 ToVector2(FbxVector2& vec);
 		static D3DXVECTOR3 ToVector3(FbxVector4& vec);

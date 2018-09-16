@@ -15,21 +15,17 @@ ToonShading::ToonShading(ExecuteValues* values)
 	aaShader = new Shader(Shaders + L"999_FXAA.hlsl");
 
 	shadowRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height, DXGI_FORMAT_R16_FLOAT);
-	normalRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);// , DXGI_FORMAT_R32G32_FLOAT);
+	normalRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	depthRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	diffuseRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	lightRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	AART = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 
 	{
-		//D3DXMATRIX p;
-		//D3DXMatrixPerspectiveFovLH(&p, (float)D3DX_PI * 0.5f, 1.0f, 0.1f, 100.0f);
-		//D3DXMatrixTranspose(&values->GlobalLight->Data.LightProjection, &p);
-
 		Orthographic* projection = new Orthographic(-desc.Width * 0.5f, desc.Width * 0.5f, -desc.Height * 0.5f, desc.Height * 0.5f, 0.1f, 1000.0f);
 		D3DXMATRIX p;
 		projection->GetMatrix(&p);
-		D3DXMatrixTranspose(&values->GlobalLight->Data.LightProjection, &p);
+		values->GlobalLight->SetLightProjection(p);
 		SAFE_DELETE(projection);
 	}
 	

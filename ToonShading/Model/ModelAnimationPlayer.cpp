@@ -64,7 +64,6 @@ void ModelAnimPlayer::Update()
 	UpdateBone();
 
 	model->Buffer()->SetBones(&skinTransform[0], skinTransform.size());
-
 }
 
 void ModelAnimPlayer::ShadowRender()
@@ -167,13 +166,6 @@ void ModelAnimPlayer::UpdateBone()
 
 		D3DXMATRIX matInvBindPos = bone->AbsoluteTransform();
 
-		D3DXVECTOR3 temp = D3DXVECTOR3(matInvBindPos._21, matInvBindPos._22, matInvBindPos._23);
-		matInvBindPos._21 = matInvBindPos._31;
-		matInvBindPos._22 = matInvBindPos._32;
-		matInvBindPos._23 = matInvBindPos._33;
-		matInvBindPos._31 = temp.x;
-		matInvBindPos._32 = temp.y;
-		matInvBindPos._33 = temp.z;
 		D3DXMatrixInverse(&matInvBindPos, NULL, &matInvBindPos);
 
 		ModelKeyframe* frame = currentClip->Keyframe(bone->Name());
@@ -220,7 +212,7 @@ void ModelAnimPlayer::UpdateBone()
 			matAnimation = frame->Datas[currentKeyFrame].Transform;
 		}
 
-		int parentIndex = bone->ParentIndex() - 1;
+		int parentIndex = bone->ParentIndex();// +1;
 		if (parentIndex < 0)
 			D3DXMatrixIdentity(&matParentAnimation);
 			//model->Root()->Transform();

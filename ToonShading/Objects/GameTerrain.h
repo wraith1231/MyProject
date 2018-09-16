@@ -81,13 +81,15 @@ public:
 	public:
 		GrassBuffer() : ShaderBuffer(&Data, sizeof(Data))
 		{
-			Data.Power = 0.0f;
+			Data.Power = 1.0f;
+			Data.Speed = 1.0f;
 		}
 
 		struct Struct
 		{
 			float Power;
-			float Padding2[3];
+			float Speed;
+			float Padding[2];
 		} Data;
 	};
 
@@ -207,7 +209,7 @@ private:
 
 	//for Grasss
 	GrassBuffer* grassBuffer;
-	float offset, windPower;
+	float windPower, windSpeed;
 
 	//Water
 	class Water* water;

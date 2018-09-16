@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "GameTerrain.h"
 
-#include "Tree.h"
 #include "Water.h"
 #include "Grass.h"
 
@@ -216,6 +215,7 @@ void GameTerrain::SaveTerrain(wstring saveFile)
 	//Grass
 	{
 		w->Float(windPower);
+		w->Float(windSpeed);
 		w->UInt(grasses.size());
 		for (Grass* grass : grasses)
 		{
@@ -411,6 +411,7 @@ void GameTerrain::LoadTerrain(wstring saveFile)
 	//Grass
 	{
 		windPower = r->Float();
+		windSpeed = r->Float();
 		UINT num = r->UInt();
 		for (UINT i = 0; i < num; i++)
 		{
@@ -818,14 +819,23 @@ void GameTerrain::ImGuiRender()
 				}
 			}
 
+			ImGui::Separator();
 			ImGui::SliderFloat("Wind Power", &windPower, 0.0f, 5.0f);
+			ImGui::SliderFloat("Wind Speed", &windSpeed, 0.0f, 5.0f);
+
+			grassBuffer->Data.Power = windPower;
+			grassBuffer->Data.Speed = windSpeed;
+
 			ImGui::SliderInt("Edit Type", (int*)&editType, 0, 4);
 			ImGui::Text("Edit Type : 0 = Height change");
 			ImGui::Text("1 = Height standardize");
 			ImGui::Text("2 = Height 0 3 = Splatting");
 			ImGui::Text("4 = Tree");
+
 			ImGui::SliderInt("Type", (int*)&terrainBuffer->Data.Type, 0, 1);
 			ImGui::Text("Type : 0 = Circle, 1 = Square");
+			ImGui::Separator();
+
 			ImGui::SliderFloat("Distance", &terrainBuffer->Data.Distance, 0.1f, 10.0f);
 			if (editType == 0)
 				ImGui::InputFloat("Power", &power);
@@ -1317,7 +1327,7 @@ void GameTerrain::FirstInit(UINT width, UINT height)
 	pointLightDispose = pointLightSelect = false;
 	spotLightDispose = spotLightSelect = false;
 	capsuleLightDispose = capsuleLightSelect = false;
-	heightSet = offset = windPower = 0.0f;
+	heightSet = windPower = windSpeed = 0.0f;
 	widthEdit = width;
 	heightEdit = height;
 

@@ -113,9 +113,6 @@ public:
 	void SetWaterParameter(WaterStruct param);
 
 private:
-	void Init();
-
-private:
 	typedef VertexTexture VertexType;
 
 	UINT width, height;

@@ -51,8 +51,8 @@ VS_OUTPUT VS(uint VertexID : SV_VERTEXID)
 
 float4 PS(VS_OUTPUT input) : SV_TARGET
 {
-    float4 depth = DepthRT.Sample(DepthRTSampler, input.uv);
-    float3 oPos = depth.gba;
+    float3 oPos = DepthRT.Sample(DepthRTSampler, input.uv).gba;
+    //화면과의 depth값은 필요없어서 oPos값만 가져옴
     float3 normal = NormalRT.Sample(NormalRTSampler, input.uv);
     normal = NormalDecode3to3(normal);
     float4 diffuse = DiffuseRT.Sample(DiffuseRTSampler, input.uv);

@@ -46,6 +46,9 @@ public:
 		D3DXMatrixIdentity(&Data.View);
 		D3DXMatrixIdentity(&Data.Projection);
 		D3DXMatrixIdentity(&Data.ViewInverse);
+
+		Data.ElapsedTime = 0.0f;
+		Data.RunningTime = 0.0f;
 	}
 
 	void SetView(D3DXMATRIX& mat)
@@ -73,11 +76,24 @@ public:
 		mat = Data.Projection;
 	}
 
+	void AddTime(float time)
+	{
+		Data.ElapsedTime = time;
+		Data.RunningTime += time;
+
+		if (Data.RunningTime >= 10000.0f)
+			Data.RunningTime = 0.0f;
+	}
+
 	struct Struct
 	{
 		D3DXMATRIX View;
 		D3DXMATRIX Projection;
 		D3DXMATRIX ViewInverse;
+
+		float ElapsedTime;
+		float RunningTime;
+		float Padding[2];
 	};
 
 private:
@@ -115,6 +131,16 @@ public:
 
 		D3DXMatrixIdentity(&Data.LightView);
 		D3DXMatrixIdentity(&Data.LightProjection);
+	}
+
+	void SetLightView(D3DXMATRIX mat)
+	{
+		D3DXMatrixTranspose(&Data.LightView, &mat);
+	}
+
+	void SetLightProjection(D3DXMATRIX mat)
+	{
+		D3DXMatrixTranspose(&Data.LightProjection, &mat);
 	}
 
 	struct Struct

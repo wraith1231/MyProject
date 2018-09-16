@@ -16,9 +16,13 @@ ExportMesh::ExportMesh(ExecuteValues* values)
 
 	//exporter = new Fbx::Exporter(Assets + L"GOBLIN@2HitComboDaggers.fbx");
 	//exporter->ExportAnimation(Models + L"Goblin/", L"2Hit");
+	//SAFE_DELETE(exporter);
+	//
+	//exporter = new Fbx::Exporter(Assets + L"GOBLIN.fbx");
 	//exporter->ExportMaterial(Models + L"Goblin/", L"Goblin");
 	//exporter->ExportMesh(Models + L"Goblin/", L"Goblin");
 	//SAFE_DELETE(exporter);
+
 	//exporter = new Fbx::Exporter(Assets + L"Sapphi/Sapphiart@idle.fbx");
 	//exporter->ExportAnimation(Models + L"Meshes/", L"Idle");
 	//SAFE_DELETE(exporter);

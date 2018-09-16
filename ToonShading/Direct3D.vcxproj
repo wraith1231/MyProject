@@ -71,7 +71,6 @@
     <ClInclude Include="Objects\MeshPlane.h" />
     <ClInclude Include="Objects\MeshQuad.h" />
     <ClInclude Include="Objects\MeshSphere.h" />
-    <ClInclude Include="Objects\Tree.h" />
     <ClInclude Include="Objects\Water.h" />
     <ClInclude Include="Program.h" />
     <ClInclude Include="Renders\GlobalBuffers.h" />
@@ -158,7 +157,6 @@
     <ClCompile Include="Objects\MeshPlane.cpp" />
     <ClCompile Include="Objects\MeshQuad.cpp" />
     <ClCompile Include="Objects\MeshSphere.cpp" />
-    <ClCompile Include="Objects\Tree.cpp" />
     <ClCompile Include="Objects\Water.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="Renders\Material.cpp" />

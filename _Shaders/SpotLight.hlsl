@@ -129,8 +129,8 @@ DS_OUTPUT DS(HS_CONSTANT_DATA_OUTPUT input, float2 UV : SV_DOMAINLOCATION, const
 
 float4 PS(DS_OUTPUT input) : SV_TARGET
 {
-    float4 depth = DepthRT.Sample(DepthRTSampler, input.uv);
-    float3 oPos = depth.gba;
+    float3 oPos = DepthRT.Sample(DepthRTSampler, input.uv).gba;
+    //화면과의 depth값은 필요없어서 안가져옴
     float3 normal = NormalRT.Sample(NormalRTSampler, input.uv);
     normal = NormalDecode3to3(normal);
     float4 diffuse = DiffuseRT.Sample(DiffuseRTSampler, input.uv);

@@ -11,12 +11,14 @@ Texture2D DepthRT : register(t1);
 Texture2D DiffuseRT : register(t2);
 Texture2D LightMeshRT : register(t3);
 Texture2D ShadowMap : register(t4);
+Texture2D SSAORT : register(t5);
 
 SamplerState NormalRTSampler : register(s0);
 SamplerState DepthRTSampler : register(s1);
 SamplerState DiffuseRTSampler : register(s2);
 SamplerState LightMeshRTSampler : register(s3);
 SamplerState ShadowMapSampler : register(s4);
+SamplerState SSAORTSampler : register(s5);
 
 struct PixelInput
 {
@@ -74,6 +76,10 @@ float4 PS(PixelInput input) : SV_TARGET
     else if (_bufferRender == 5)
     {
         return ShadowMap.Sample(ShadowMapSampler, input.uv).rrrr;
+    }
+    else if (_bufferRender == 6)
+    {
+        return SSAORT.Sample(SSAORTSampler, input.uv);
     }
 
     float4 realColor = LightMeshRT.Sample(LightMeshRTSampler, input.uv);

@@ -103,6 +103,10 @@ void ExportMesh::LightRender()
 {
 }
 
+void ExportMesh::SSAORender()
+{
+}
+
 void ExportMesh::EdgeRender()
 {
 }

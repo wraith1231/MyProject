@@ -52,6 +52,10 @@ void DrawModel::LightRender()
 	settings->LightRender();
 }
 
+void DrawModel::SSAORender()
+{
+}
+
 void DrawModel::EdgeRender()
 {
 }

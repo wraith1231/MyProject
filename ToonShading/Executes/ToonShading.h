@@ -24,10 +24,10 @@ public:
 			float Far;
 		}Data;
 	};
-	class LightBuffer : public ShaderBuffer
+	class TargetBuffer : public ShaderBuffer
 	{
 	public:
-		LightBuffer() : ShaderBuffer(&Data, sizeof(Struct))
+		TargetBuffer() : ShaderBuffer(&Data, sizeof(Struct))
 		{
 			Data.BufferRender = 0;
 		}
@@ -61,6 +61,37 @@ public:
 			float Padding4;
 		} Data;
 	};
+	class SSAOBuffer : public ShaderBuffer
+	{
+	public:
+		SSAOBuffer() : ShaderBuffer(&Data, sizeof(Struct))
+		{
+			Data.Sample = 16;
+			Data.Intensity = 1.0f;
+			Data.Scale = 2.5f;
+			Data.Bias = 0.05f;
+
+			Data.Radius = 0.02f;
+			Data.MaxDistance = 0.07f;
+
+			Data.Moo3 = D3DXVECTOR3(0.1031f, 0.11369f, 0.13787f);
+		}
+
+		struct Struct
+		{
+			UINT Sample;
+			float Intensity;
+			float Scale;
+			float Bias;
+
+			float Radius;
+			float MaxDistance;
+			float Padding1[2];
+
+			D3DXVECTOR3 Moo3;
+			float Padding2;
+		} Data;
+	};
 
 public:
 	ToonShading(ExecuteValues* values);
@@ -71,6 +102,7 @@ public:
 	void ShadowRender();
 	void PreRender();
 	void LightRender();
+	void SSAORender();
 	void EdgeRender();
 	void AARender();
 	void ImGuiRender();
@@ -78,23 +110,38 @@ public:
 	void ResizeScreen();
 
 private:
-	RenderTarget* shadowRT;
-	RenderTarget* normalRT;
-	RenderTarget* depthRT;
-	RenderTarget* diffuseRT;
-	RenderTarget* lightRT;
-	RenderTarget* AART;
 
+	//Shadow Mapping용
+	RenderTarget* shadowRT;
+
+	//Deferred Rendering용
+	RenderTarget* normalRT, *depthRT, *diffuseRT;
+
+	//Lighting용
+	RenderTarget* lightRT;
+
+	//SSAO용
+	RenderTarget* ssaoRT;
+
+	//Edge용
+	RenderTarget* edgeRT;
+
+	Shader* ssaoShader;
 	Shader* edgeShader;
 	Shader* aaShader;
 
+	//Projection값(near, far, width, height) 쉐이더 전달용
 	Buffer* buffer;
-	LightBuffer* lightBuffer;
 
-	float xplus, yplus, zplus;
+	//Render Target 보여주기용
+	TargetBuffer* lightBuffer;
+
+	//SSAO용 버퍼
+	SSAOBuffer* ssaoBuffer;
 
 	ID3D11DepthStencilState* writeLessStencilMask;
 
+	//Lighting - Directional Light
 	Shader* dirLight;
 	DirBuffer* dirBuffer;
 };

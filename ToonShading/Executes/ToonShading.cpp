@@ -11,15 +11,21 @@ ToonShading::ToonShading(ExecuteValues* values)
 
 	dirLight = new Shader(Shaders + L"DirLight.hlsl");
 
+	ssaoShader = new Shader(Shaders + L"999_SSAO.hlsl");
 	edgeShader = new Shader(Shaders + L"999_Edge.hlsl");
 	aaShader = new Shader(Shaders + L"999_FXAA.hlsl");
 
 	shadowRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height, DXGI_FORMAT_R16_FLOAT);
+
 	normalRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	depthRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	diffuseRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
+
 	lightRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
-	AART = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
+
+	ssaoRT = new RenderTarget((UINT)(desc.Width * 0.75f), (UINT)(desc.Height * 0.75f));
+
+	edgeRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 
 	{
 		Orthographic* projection = new Orthographic(-desc.Width * 0.5f, desc.Width * 0.5f, -desc.Height * 0.5f, desc.Height * 0.5f, 0.1f, 1000.0f);
@@ -32,9 +38,7 @@ ToonShading::ToonShading(ExecuteValues* values)
 	buffer = new Buffer;
 	buffer->Data.Near = values->Perspective->GetNearZ();
 	buffer->Data.Far = values->Perspective->GetFarZ();
-	lightBuffer = new LightBuffer;
-
-	xplus = yplus = zplus = 0.0f;
+	lightBuffer = new TargetBuffer;
 
 	{
 		D3D11_DEPTH_STENCIL_DESC desc;
@@ -50,18 +54,25 @@ ToonShading::ToonShading(ExecuteValues* values)
 		HRESULT hr = D3D::GetDevice()->CreateDepthStencilState(&desc, &writeLessStencilMask);
 		assert(SUCCEEDED(hr));
 	}
+
 	dirBuffer = new DirBuffer;
+
+	ssaoBuffer = new SSAOBuffer();
 }
 
 ToonShading::~ToonShading()
 {
+	SAFE_DELETE(ssaoBuffer);
+	SAFE_DELETE(dirBuffer);
 	SAFE_DELETE(lightBuffer);
 	SAFE_DELETE(buffer);
 
 	SAFE_DELETE(aaShader);
 	SAFE_DELETE(edgeShader);
+	SAFE_DELETE(ssaoShader);
 
-	SAFE_DELETE(AART);
+	SAFE_DELETE(edgeRT);
+	SAFE_DELETE(ssaoRT);
 	SAFE_DELETE(lightRT);
 	SAFE_DELETE(normalRT);
 	SAFE_DELETE(depthRT);
@@ -121,12 +132,35 @@ void ToonShading::LightRender()
 
 }
 
+void ToonShading::SSAORender()
+{
+	Shader::ClearShader();
+
+	ssaoRT->Clear();
+	ID3D11RenderTargetView* rtv = ssaoRT->GetRTV();
+	D3D::GetDC()->OMSetRenderTargets(1, &rtv, D3D::Get()->GetReadOnlyDSV());
+
+	ID3D11ShaderResourceView* normalView = normalRT->GetSRV();
+	D3D::GetDC()->PSSetShaderResources(0, 1, &normalView);
+	ID3D11ShaderResourceView* depthView = depthRT->GetSRV();
+	D3D::GetDC()->PSSetShaderResources(1, 1, &depthView);
+	ID3D11ShaderResourceView* diffuseView = diffuseRT->GetSRV();
+	D3D::GetDC()->PSSetShaderResources(2, 1, &diffuseView);
+
+	ssaoShader->Render();
+	ssaoBuffer->SetPSBuffer(2);
+	D3D::GetDC()->IASetInputLayout(NULL);
+	D3D::GetDC()->IASetVertexBuffers(0, 0, NULL, NULL, NULL);
+	D3D::GetDC()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	D3D::GetDC()->Draw(4, 0);
+}
+
 void ToonShading::EdgeRender()
 {
 	Shader::ClearShader();
 
-	AART->Clear();
-	ID3D11RenderTargetView* rtv = AART->GetRTV();
+	edgeRT->Clear();
+	ID3D11RenderTargetView* rtv = edgeRT->GetRTV();
 	D3D::GetDC()->OMSetRenderTargets(1, &rtv, D3D::Get()->GetReadOnlyDSV());
 
 	ID3D11ShaderResourceView* normalView = normalRT->GetSRV();
@@ -139,6 +173,8 @@ void ToonShading::EdgeRender()
 	D3D::GetDC()->PSSetShaderResources(3, 1, &lightView);
 	ID3D11ShaderResourceView* shadowView = shadowRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(4, 1, &shadowView);
+	ID3D11ShaderResourceView* ssaoView = ssaoRT->GetSRV();
+	D3D::GetDC()->PSSetShaderResources(5, 1, &ssaoView);
 
 	lightBuffer->SetPSBuffer(3);
 
@@ -147,14 +183,11 @@ void ToonShading::EdgeRender()
 	D3D::GetDC()->IASetVertexBuffers(0, 0, NULL, NULL, NULL);
 	D3D::GetDC()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	D3D::GetDC()->Draw(4, 0);
-
-	//edgeModel->TransformsCopy();
-	//edgeModel->Render();
 }
 
 void ToonShading::AARender()
 {
-	ID3D11ShaderResourceView* view = AART->GetSRV();
+	ID3D11ShaderResourceView* view = edgeRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(0, 1, &view);
 
 	aaShader->Render();
@@ -169,7 +202,19 @@ void ToonShading::ImGuiRender()
 	ImGui::Begin("Buffer");
 
 	{
-		ImGui::SliderInt("Buffer Render", (int*)&lightBuffer->Data.BufferRender, 0, 6);
+		ImGui::SliderInt("Buffer Render", (int*)&lightBuffer->Data.BufferRender, 0, 7);
+
+		if (lightBuffer->Data.BufferRender == 6)
+		{
+			ImGui::Separator();
+			ImGui::SliderInt("SSAO Sample", (int*)&ssaoBuffer->Data.Sample, 1, 30);
+			ImGui::InputFloat("SSAO Intensity", &ssaoBuffer->Data.Intensity);
+			ImGui::InputFloat("SSAO Scale", &ssaoBuffer->Data.Scale);
+			ImGui::InputFloat("SSAO Bias", &ssaoBuffer->Data.Bias);
+			ImGui::InputFloat("SSAO Radius", &ssaoBuffer->Data.Radius);
+			ImGui::InputFloat("SSAO Max Distance", &ssaoBuffer->Data.MaxDistance);
+			ImGui::InputFloat3("SSAO Moo3", ssaoBuffer->Data.Moo3);
+		}
 	}
 
 	ImGui::End();
@@ -193,6 +238,6 @@ void ToonShading::ResizeScreen()
 
 	lightRT->Create((UINT)desc.Width, (UINT)desc.Height);
 
-	AART->Create((UINT)desc.Width, (UINT)desc.Height);
+	edgeRT->Create((UINT)desc.Width, (UINT)desc.Height);
 
 }

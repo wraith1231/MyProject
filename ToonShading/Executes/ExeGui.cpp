@@ -45,6 +45,10 @@ void ExeGui::LightRender()
 {
 }
 
+void ExeGui::SSAORender()
+{
+}
+
 void ExeGui::EdgeRender()
 {
 }

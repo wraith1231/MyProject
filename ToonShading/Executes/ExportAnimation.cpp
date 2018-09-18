@@ -47,6 +47,10 @@ void ExportAnimation::LightRender()
 {
 }
 
+void ExportAnimation::SSAORender()
+{
+}
+
 void ExportAnimation::EdgeRender()
 {
 }

@@ -35,6 +35,7 @@ public:
 	virtual void ShadowRender() = 0;
 	virtual void PreRender() = 0;
 	virtual void LightRender() = 0;
+	virtual void SSAORender() = 0;
 	virtual void EdgeRender() = 0;
 	virtual void AARender() = 0;
 

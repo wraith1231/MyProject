@@ -13,6 +13,7 @@ public:
 	void ShadowRender();
 	void PreRender();
 	void LightRender();
+	void SSAORender();
 	void EdgeRender();
 	void AARender();
 	void ImGuiRender();

@@ -100,6 +100,9 @@ void Program::Render()
 		exe->LightRender();
 
 	for (Execute* exe : executes)
+		exe->SSAORender();
+
+	for (Execute* exe : executes)
 		exe->EdgeRender();
 }
 

@@ -76,6 +76,7 @@ float4 PS(VS_OUTPUT input) : SV_TARGET
     
     if ((saturate(tex.x) == tex.x) && (saturate(tex.y) == tex.y))
     {
+        //tex *= 2.0f;
         float lDepth1 = ShadowMap.Sample(ShadowMapSampler, tex).r;
         lDepth1 += 0.00101f;
         

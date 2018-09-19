@@ -1,9 +1,10 @@
 #include "000_Header.hlsl"
 
-cbuffer PS_Buffer : register(b3)
+cbuffer PS_TargetBuffer : register(b3)
 {
     uint _bufferRender;
-    float3 _bufferPadding;
+    uint _bufferSSAOSwitch;
+    float2 _bufferPadding;
 }
 
 Texture2D NormalRT : register(t0);
@@ -75,7 +76,11 @@ float4 PS(PixelInput input) : SV_TARGET
     }
     else if (_bufferRender == 5)
     {
-        return ShadowMap.Sample(ShadowMapSampler, input.uv).rrrr;
+        //float2 shadowUv = input.uv * 4.0f;
+        //float shadowMapDepth = ShadowMap.Sample(ShadowMapSampler, shadowUv).r;
+        float shadowMapDepth = ShadowMap.Sample(ShadowMapSampler, input.uv).r;
+
+        return shadowMapDepth.rrrr;
     }
     else if (_bufferRender == 6)
     {
@@ -94,6 +99,13 @@ float4 PS(PixelInput input) : SV_TARGET
     float3 normal = NormalRT.Sample(NormalRTSampler, input.uv).rgb;
     normal = NormalDecode3to3(normal);
     float4 depthColor = DepthRT.Sample(DepthRTSampler, input.uv);
+
+    if (_bufferSSAOSwitch == 1)
+    {
+        float ssao = SSAORT.Sample(SSAORTSampler, input.uv).r;
+        realColor *= ssao;
+    }
+
     float depth = depthColor.r;
     float3 oPos = depthColor.gba;
     

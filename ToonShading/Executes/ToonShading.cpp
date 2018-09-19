@@ -15,7 +15,7 @@ ToonShading::ToonShading(ExecuteValues* values)
 	edgeShader = new Shader(Shaders + L"999_Edge.hlsl");
 	aaShader = new Shader(Shaders + L"999_FXAA.hlsl");
 
-	shadowRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height, DXGI_FORMAT_R16_FLOAT);
+	shadowRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);// , DXGI_FORMAT_R16_FLOAT);
 
 	normalRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 	depthRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
@@ -28,17 +28,18 @@ ToonShading::ToonShading(ExecuteValues* values)
 	edgeRT = new RenderTarget((UINT)desc.Width, (UINT)desc.Height);
 
 	{
-		Orthographic* projection = new Orthographic(-desc.Width * 0.5f, desc.Width * 0.5f, -desc.Height * 0.5f, desc.Height * 0.5f, 0.1f, 1000.0f);
+		//Orthographic* projection = new Orthographic(-desc.Width, desc.Width, -desc.Height, desc.Height, 0.1f, 1000.0f);
 		D3DXMATRIX p;
-		projection->GetMatrix(&p);
+		D3DXMatrixPerspectiveFovLH(&p, (float)D3DX_PI * 0.5f, 1.0f, 0.1f, 1000.0f);
+		//projection->GetMatrix(&p);
 		values->GlobalLight->SetLightProjection(p);
-		SAFE_DELETE(projection);
+		//SAFE_DELETE(projection);
 	}
 	
 	buffer = new Buffer;
 	buffer->Data.Near = values->Perspective->GetNearZ();
 	buffer->Data.Far = values->Perspective->GetFarZ();
-	lightBuffer = new TargetBuffer;
+	targetBuffer = new TargetBuffer;
 
 	{
 		D3D11_DEPTH_STENCIL_DESC desc;
@@ -58,13 +59,15 @@ ToonShading::ToonShading(ExecuteValues* values)
 	dirBuffer = new DirBuffer;
 
 	ssaoBuffer = new SSAOBuffer();
+	ssaoBuffer->Data.Width = (float)ssaoRT->GetWidth();
+	ssaoBuffer->Data.Height = (float)ssaoRT->GetHeight();
 }
 
 ToonShading::~ToonShading()
 {
 	SAFE_DELETE(ssaoBuffer);
 	SAFE_DELETE(dirBuffer);
-	SAFE_DELETE(lightBuffer);
+	SAFE_DELETE(targetBuffer);
 	SAFE_DELETE(buffer);
 
 	SAFE_DELETE(aaShader);
@@ -96,6 +99,11 @@ void ToonShading::ShadowRender()
 
 void ToonShading::PreRender()
 {
+	//if (Keyboard::Get()->Down(VK_SPACE))
+	//{
+	//	Texture::SaveFile(L"Test.png", shadowRT->GetTexture());
+	//}
+
 	normalRT->Clear();
 	depthRT->Clear();
 	diffuseRT->Clear();
@@ -148,6 +156,7 @@ void ToonShading::SSAORender()
 	D3D::GetDC()->PSSetShaderResources(2, 1, &diffuseView);
 
 	ssaoShader->Render();
+	ssaoBuffer->SetVSBuffer(2);
 	ssaoBuffer->SetPSBuffer(2);
 	D3D::GetDC()->IASetInputLayout(NULL);
 	D3D::GetDC()->IASetVertexBuffers(0, 0, NULL, NULL, NULL);
@@ -176,7 +185,7 @@ void ToonShading::EdgeRender()
 	ID3D11ShaderResourceView* ssaoView = ssaoRT->GetSRV();
 	D3D::GetDC()->PSSetShaderResources(5, 1, &ssaoView);
 
-	lightBuffer->SetPSBuffer(3);
+	targetBuffer->SetPSBuffer(3);
 
 	edgeShader->Render();
 	D3D::GetDC()->IASetInputLayout(NULL);
@@ -202,9 +211,15 @@ void ToonShading::ImGuiRender()
 	ImGui::Begin("Buffer");
 
 	{
-		ImGui::SliderInt("Buffer Render", (int*)&lightBuffer->Data.BufferRender, 0, 7);
+		ImGui::SliderInt("Buffer Render", (int*)&targetBuffer->Data.BufferRender, 0, 7);
 
-		if (lightBuffer->Data.BufferRender == 6)
+		bool b = targetBuffer->Data.SSAOSwitch == 1 ? true : false;
+
+		ImGui::Checkbox("SSAO Use", &b);
+
+		targetBuffer->Data.SSAOSwitch = b == true ? 1 : 0;
+
+		if(b == true)
 		{
 			ImGui::Separator();
 			ImGui::SliderInt("SSAO Sample", (int*)&ssaoBuffer->Data.Sample, 1, 30);
@@ -214,6 +229,7 @@ void ToonShading::ImGuiRender()
 			ImGui::InputFloat("SSAO Radius", &ssaoBuffer->Data.Radius);
 			ImGui::InputFloat("SSAO Max Distance", &ssaoBuffer->Data.MaxDistance);
 			ImGui::InputFloat3("SSAO Moo3", ssaoBuffer->Data.Moo3);
+			ImGui::Text("SSAO Width : %.1f, Height : %.1f", ssaoBuffer->Data.Width, ssaoBuffer->Data.Height);
 		}
 	}
 
@@ -240,4 +256,8 @@ void ToonShading::ResizeScreen()
 
 	edgeRT->Create((UINT)desc.Width, (UINT)desc.Height);
 
+	ssaoRT->Create((UINT)(desc.Width * 0.75f), (UINT)(desc.Height * 0.75f));
+
+	ssaoBuffer->Data.Width = (float)ssaoRT->GetWidth();
+	ssaoBuffer->Data.Height = (float)ssaoRT->GetHeight();
 }

@@ -8,7 +8,7 @@ SamplerState NormalRTSampler : register(s0);
 SamplerState DepthRTSampler : register(s1);
 SamplerState DiffuseRTSampler : register(s2);
 
-cbuffer PS_SSAOBuffer : register(b2)
+cbuffer VPS_SSAOBuffer : register(b2)
 {
     uint _ssaoSample;
     float _ssaoIntensity;
@@ -17,20 +17,12 @@ cbuffer PS_SSAOBuffer : register(b2)
 
     float _ssaoRadius;
     float _ssaoMaxDistance;
-    float2 _ssaoPadding1;
+    float _ssaoWidth;
+    float _ssaoHeight;
 
     float3 _ssaoMoo3;
     float _ssaoPadding2;
 }
-
-//#define SAMPLES 16
-//#define INTENSITY 1.0f
-//#define SCALE 2.5f
-//#define BIAS 0.05f
-//#define SAMPLE_RAD 0.02f
-//#define MAX_DISTANCE 0.07f
-//
-//#define MOO3 float3(0.1031f, 0.11369f, 0.13787f)
 
 struct PixelInput
 {
@@ -53,7 +45,10 @@ PixelInput VS(uint vertexID : SV_VERTEXID)
     output.position = float4(arrBasePos[vertexID].xy, 0.0f, 1.0f);
     output.uv = saturate(output.position.xy);
     output.uv.y = 1.0f - output.uv.y;
-    
+
+    output.uv.x *= _valueWidth / _ssaoWidth;
+    output.uv.y *= _valueHeight / _ssaoHeight;
+
     return output;
 }
 
@@ -108,7 +103,7 @@ float SpiralAO(float2 uv, float3 pos, float3 normal, float rad)
         rotatePhase += goldenAngle;
     }
 
-    //ao *= inv;
+    ao *= inv;
 
     return ao;
 }
@@ -119,7 +114,7 @@ float4 PS(PixelInput input) : SV_TARGET
     float3 oPos = depth.gba;
     float3 normal = NormalRT.Sample(NormalRTSampler, input.uv);
     normal = NormalDecode3to3(normal);
-
+    
     float ao = 0.0f;
     float rad = _ssaoRadius / (depth.r * _valueFar);
 

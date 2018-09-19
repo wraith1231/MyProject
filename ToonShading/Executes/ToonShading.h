@@ -30,12 +30,14 @@ public:
 		TargetBuffer() : ShaderBuffer(&Data, sizeof(Struct))
 		{
 			Data.BufferRender = 0;
+			Data.SSAOSwitch = 1;
 		}
 
 		struct Struct
 		{
 			UINT BufferRender;
-			float Padding[3];
+			UINT SSAOSwitch;
+			float Padding[2];
 		} Data;
 	};
 	class DirBuffer : public ShaderBuffer
@@ -71,8 +73,10 @@ public:
 			Data.Scale = 2.5f;
 			Data.Bias = 0.05f;
 
-			Data.Radius = 0.02f;
-			Data.MaxDistance = 0.07f;
+			Data.Radius = 0.0007f;
+			Data.MaxDistance = 0.1f;
+			Data.Width = 0.0f;
+			Data.Height = 0.0f;
 
 			Data.Moo3 = D3DXVECTOR3(0.1031f, 0.11369f, 0.13787f);
 		}
@@ -86,7 +90,8 @@ public:
 
 			float Radius;
 			float MaxDistance;
-			float Padding1[2];
+			float Width;
+			float Height;
 
 			D3DXVECTOR3 Moo3;
 			float Padding2;
@@ -134,7 +139,7 @@ private:
 	Buffer* buffer;
 
 	//Render Target 보여주기용
-	TargetBuffer* lightBuffer;
+	TargetBuffer* targetBuffer;
 
 	//SSAO용 버퍼
 	SSAOBuffer* ssaoBuffer;

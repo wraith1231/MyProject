@@ -21,6 +21,7 @@ public:
 	static class GamePlayer* Player() { return player; }
 	static class GameTerrain* Terrain() { return terrain; }
 	static vector<class GameUntouchable*> Untouchables() { return untouchables; }
+	static bool Movable(D3DXVECTOR3 pos, float& y);
 
 	void SetValues(ExecuteValues* value) { values = value; }
 

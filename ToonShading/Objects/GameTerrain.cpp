@@ -1295,7 +1295,7 @@ bool GameTerrain::GetHeight(float x, float z, float & y)
 		deltaX = 1 - deltaX;
 		deltaZ = 1 - deltaZ;
 
-		temp = v3 + (v2 - v3) * deltaX + (v1 - v3) * deltaZ;
+		temp = v3 + (v2 - v3) * deltaZ + (v1 - v3) * deltaX;
 	}
 
 	y = temp.y;

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "GameModel.h"
 
+#include "../Units/GameSettings.h"
+
 GameModel::GameModel(wstring materialFile, wstring meshFile, ExecuteValues* value)
 	: velocity(0.0f, 0.0f, 0.0f)
 {
@@ -58,7 +60,14 @@ D3DXVECTOR3 GameModel::CalcVelocity(D3DXVECTOR3& velocity)
 void GameModel::AddPosition(D3DXVECTOR3 & vec)
 {
 	D3DXVECTOR3 pos = Position() + vec;
-	Position(pos);
+
+	float y = 0.0f;
+	if (GameSettings::Movable(pos, y) == true)
+	{
+		pos.y = y;
+		Position(pos);
+	}
+
 }
 
 void GameModel::SetPosition(D3DXVECTOR3 & vec)

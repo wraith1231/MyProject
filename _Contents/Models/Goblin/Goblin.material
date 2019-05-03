@@ -1,0 +1,33 @@
+{
+   "GOBLIN_BODY" : {
+      "Ambient" : [ 0.58799999952316284, 0.58799999952316284, 0.58799999952316284, 1.0 ],
+      "Diffuse" : [ 0.58799999952316284, 0.58799999952316284, 0.58799999952316284, 1.0 ],
+      "DiffuseFile" : [ "GOBLIN_BODY_LEGACY.tga" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 0.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "GOBLIN_BODY" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 2.0,
+      "Specular" : [ 0.89999997615814209, 0.89999997615814209, 0.89999997615814209, 0.0 ],
+      "SpecularFile" : [ "" ]
+   },
+   "GOBLIN_PROPS" : {
+      "Ambient" : [ 0.58823531866073608, 0.58823531866073608, 0.58823531866073608, 1.0 ],
+      "Diffuse" : [ 0.58823531866073608, 0.58823531866073608, 0.58823531866073608, 1.0 ],
+      "DiffuseFile" : [ "GOBLIN_PROPS_LEGACY.tga" ],
+      "Emissive" : [ 0.0, 0.0, 0.0, 0.0 ],
+      "EmissiveFile" : [ "" ],
+      "Name" : [ "GOBLIN_PROPS" ],
+      "NormalFile" : [ "" ],
+      "ShaderName" : [ "999_Mesh.hlsl" ],
+      "Shininess" : 4.5947937965393066,
+      "Specular" : [
+         0.89999997615814209,
+         0.89999997615814209,
+         0.89999997615814209,
+         0.29999998211860657
+      ],
+      "SpecularFile" : [ "" ]
+   }
+}

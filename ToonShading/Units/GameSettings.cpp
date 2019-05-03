@@ -655,6 +655,17 @@ void GameSettings::DisposeUnTouchable(wstring file)
 	return;
 }
 
+bool GameSettings::Movable(D3DXVECTOR3 pos, float & y)
+{
+	if(terrain->GetHeight(pos) == false)
+		return false;
+
+
+
+	y = pos.y;
+	return true;
+}
+
 void GameSettings::SaveScene()
 {
 	D3DDesc desc;

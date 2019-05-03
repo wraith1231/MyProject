@@ -118,8 +118,7 @@ void GamePlayer::LoadAnimation(wstring path)
 
 	indexLowerAnimations.assign((UINT)LowerAction::Count, UINT());
 	indexUpperAnimations.assign((UINT)UpperAction::Count, UINT());
-	//indexLowerAnimation = new UINT[lowerAnimCount];
-	//indexUpperAnimation = new UINT[upperAnimCount];
+
 	//Lower Animation
 	{
 		indexLowerAnimations[(UINT)LowerAction::Idle] = AddClip(path + L"Low_Idle.anim");
@@ -412,7 +411,7 @@ void GamePlayer::ActionRotation()
 	model->CopyAbsoluteBoneTo(transformed, boneTransforms);
 }
 #endif
-#pragma region 내 전용 ActionRotation
+#pragma region 구조 바뀌면서 안되는 놈...
 #if 0
 void GamePlayer::ActionRotation()
 {

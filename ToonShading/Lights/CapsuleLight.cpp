@@ -152,12 +152,12 @@ void CapsuleLight::LightRender()
 
 		D3D::GetDC()->IASetInputLayout(NULL);
 		D3D::GetDC()->IASetVertexBuffers(0, 0, NULL, NULL, NULL);
-		D3D::GetDC()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_2_CONTROL_POINT_PATCHLIST);
+		D3D::GetDC()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST);
 
 		buffer->SetPSBuffer(2);
 		dsBuffer->SetDSBuffer(2);
 		psShader->Render();
-		D3D::GetDC()->Draw(1, 0);
+		D3D::GetDC()->Draw(2, 0);
 	}
 
 	D3D::GetDC()->RSSetState(prevRaster);
